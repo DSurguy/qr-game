@@ -8,7 +8,7 @@
     "start": "webpack serve --mode=development"
   },
   "keywords": [],
-  "author": "",
+  "author": "Derek Surguy<Surguy.Derek@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "react": "^18.2.0",
