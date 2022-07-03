@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/index",
-    "generate-lists": "ts-node lists/generateLists"
+    "generate-lists": "ts-node src/lists/generation/generateLists"
   },
   "keywords": [],
   "author": "",

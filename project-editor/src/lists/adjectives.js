@@ -963,6 +963,7 @@ const wordList = [
   "Rusty",
   "Sad",
   "Safe",
+  "Salacious",
   "Salty",
   "Same",
   "Sandy",

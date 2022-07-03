@@ -66,10 +66,10 @@ async function generateList (inputPath: string, outputPath: string) {
 (async () => {
   await generateList(
     resolve(__dirname, 'animals.txt'),
-    resolve(__dirname, 'animals.js')
+    resolve(__dirname, '../animals.js')
   )
   await generateList(
     resolve(__dirname, 'adjectives.txt'),
-    resolve(__dirname, 'adjectives.js')
+    resolve(__dirname, '../adjectives.js')
   )
 })()
