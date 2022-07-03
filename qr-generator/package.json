@@ -4,15 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node dist/index.js"
+    "start": "tsc && node dist/index",
+    "generate-lists": "ts-node lists/generateLists"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^18.0.1",
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "pdfjs": "^2.4.7"
+    "pdfjs": "^2.4.7",
+    "qrcode": "^1.5.0",
+    "ts-node": "^10.8.2"
   }
 }
