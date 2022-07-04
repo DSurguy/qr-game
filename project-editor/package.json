@@ -12,9 +12,11 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.0.1",
+    "@types/qrcode": "^1.4.2",
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "canvas": "^2.9.3",
     "pdfjs": "^2.4.7",
     "qrcode": "^1.5.0",
     "ts-node": "^10.8.2"
