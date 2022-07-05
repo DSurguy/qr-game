@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc && node dist/index",
-    "generate-lists": "ts-node src/lists/generation/generateLists"
+    "generate-lists": "ts-node src/lists/generation/generateLists",
+    "postinstall": "mkdir dist && cp -r node_modules/project-editor-client/dist dist/static"
   },
   "keywords": [],
   "author": "",
@@ -16,8 +17,10 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
+    "fastify": "^4.2.0",
     "jspdf": "^2.5.1",
     "qrcode": "^1.5.0",
-    "ts-node": "^10.8.2"
+    "ts-node": "^10.8.2",
+    "project-editor-client": "workspace:1.0.0"
   }
 }
