@@ -1,22 +1,19 @@
-import { generateProjectFile } from "./generateProject";
-import { generateQrCodes } from "./generateQrCodes";
+import { resolve } from 'node:path';
+import fastify from "fastify";
+import fastifyStatic from '@fastify/static';
 
-const dieWithError = (message: string, error: Error) => {
-  console.error(message, error);
-  process.exit(1);
-}
+const app = fastify({
+  logger: true
+})
 
-(async () => {
-  let project;
-  try {
-    project = await generateProjectFile();
-  } catch (e) {
-    dieWithError("Error creating project file", e);
+app.register(fastifyStatic, {
+  root: resolve(__dirname, 'static')
+})
+
+app.listen({ port: 8011 }, (err, address) => {
+  if (err) {
+    app.log.error(err)
+    process.exit(1)
   }
-
-  try {
-    await generateQrCodes(project);
-  } catch (e) {
-    dieWithError("Error creating qr code file", e);
-  }
-})();
+  console.log(`Server is now listening on ${address}`);
+})
