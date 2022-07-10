@@ -53,6 +53,7 @@ importers:
 
   project-editor:
     specifiers:
+      '@fastify/cors': ^8.0.0
       '@fastify/static': ^6.4.0
       '@types/node': ^18.0.1
       '@types/qrcode': ^1.4.2
@@ -63,6 +64,7 @@ importers:
       ts-node: ^10.8.2
       typescript: ^4.7.4
     dependencies:
+      '@fastify/cors': 8.0.0
       '@fastify/static': 6.4.0
       fastify: 4.2.0
       jspdf: 2.5.1
@@ -1423,6 +1425,13 @@ packages:
       ajv: 8.11.0
       ajv-formats: 2.1.1
       fast-uri: 1.0.1
+    dev: false
+
+  /@fastify/cors/8.0.0:
+    resolution: {integrity: sha512-mB2GsA7aVwq7XG6B2OM1FMpcaiXY69ZbM1h/xDJxLEVu5ITGcs5XYrBIYTMNU2dQtzO6mzXhGd2dEKaCnB7UgQ==}
+    dependencies:
+      fastify-plugin: 3.0.1
+      vary: 1.1.2
     dev: false
 
   /@fastify/error/3.0.0:
@@ -5608,7 +5617,6 @@ packages:
   /vary/1.1.2:
     resolution: {integrity: sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==}
     engines: {node: '>= 0.8'}
-    dev: true
 
   /warning/4.0.3:
     resolution: {integrity: sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==}

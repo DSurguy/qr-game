@@ -1,13 +1,19 @@
 import { resolve } from 'node:path';
 import fastify from "fastify";
-import fastifyStatic from '@fastify/static';
+import { apiRouter } from './apiRouter';
 
 const app = fastify({
   logger: true
 })
 
-app.register(fastifyStatic, {
+app.register(require('@fastify/cors'))
+
+app.register(require('@fastify/static'), {
   root: resolve(__dirname, 'static')
+})
+
+app.register(apiRouter, {
+  prefix: 'api'
 })
 
 app.listen({ port: 8011 }, (err, address) => {
