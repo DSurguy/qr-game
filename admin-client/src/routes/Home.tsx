@@ -14,7 +14,7 @@ const useApiHealthy = () => {
   const checkHealth = async () => {
     setIsLoading(true);
     try {
-      const { status } = await fetch('http://localhost:8011/api/health')
+      const { status } = await fetch('http://localhost:8011/api/admin/health')
       setError("");
       setIsHealthy(status === 200);
     } catch (e) {

@@ -1,17 +1,26 @@
-type Player = {
+import { Database } from 'better-sqlite3';
+import fastify from 'fastify';
+
+declare module 'fastify' {
+  export interface FastifyInstance{
+    db: Database;
+  }
+}
+
+export type Player = {
   uuid: string;
   wordId: string;
   name?: string;
 }
 
-type Team = {
+export type Team = {
   uuid: string;
   wordId: string;
   name?: string;
   color: string;
 }
 
-type Activity = {
+export type Activity = {
   uuid: string;
   wordId: string;
   name: string;
@@ -19,7 +28,7 @@ type Activity = {
   value: number;
 }
 
-type ProjectDefinition = {
+export type ProjectDefinition = {
   uuid: string;
   name: string;
   settings: {

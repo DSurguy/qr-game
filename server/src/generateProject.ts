@@ -4,6 +4,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import animals from './lists/animals.js';
 import adjectives from './lists/adjectives.js';
+import { ProjectDefinition } from './types.js';
 
 const allowDuels = true;
 const numPlayers = 50;

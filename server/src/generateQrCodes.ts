@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
 import { toDataURL } from 'qrcode';
 import JSPDF from 'jspdf';
+import { ProjectDefinition } from './types';
 
 const letterSizeRatio = 279/216; //in mm
 const ptScale = 1000 / 279
