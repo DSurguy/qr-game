@@ -110,6 +110,8 @@ importers:
     specifiers:
       '@fastify/cors': ^8.0.0
       '@fastify/static': ^6.4.0
+      '@fastify/type-provider-typebox': ^2.1.0
+      '@sinclair/typebox': ^0.24.17
       '@types/better-sqlite3': ^7.5.0
       '@types/node': ^18.0.1
       '@types/qrcode': ^1.4.2
@@ -123,10 +125,12 @@ importers:
     dependencies:
       '@fastify/cors': 8.0.0
       '@fastify/static': 6.4.0
+      '@fastify/type-provider-typebox': 2.1.0_soh2lbpdid3v6vhlcewby5bpeu
+      '@sinclair/typebox': 0.24.17
       better-sqlite3: 7.6.0
       fastify: 4.2.0
       jspdf: 2.5.1
-      project-editor-client: link:../project-editor-client
+      project-editor-client: link:../admin-client
       qrcode: 1.5.0
       ts-node: 10.8.2_qqrtuuv3y2pz7xoxv47yka6pmi
     devDependencies:
@@ -1447,6 +1451,16 @@ packages:
       - supports-color
     dev: false
 
+  /@fastify/type-provider-typebox/2.1.0_soh2lbpdid3v6vhlcewby5bpeu:
+    resolution: {integrity: sha512-FwuzHZAco34m6bEtY/bw4dcEkFCDV2aigWSFkVw7yYomCJ4umA/cn7jstkF3mJKcZXc+1qthx4g3l5BsXXlLPQ==}
+    peerDependencies:
+      '@sinclair/typebox': ^0.24.1
+      fastify: ^4.0.0
+    dependencies:
+      '@sinclair/typebox': 0.24.17
+      fastify: 4.2.0
+    dev: false
+
   /@jridgewell/gen-mapping/0.1.1:
     resolution: {integrity: sha512-sQXCasFk+U8lWYEe66WxRDOE9PjVz4vSM51fTu3Hw+ClTpUSQb718772vH3pyS5pShp6lvQM7SxgIDXXXmOX7w==}
     engines: {node: '>=6.0.0'}
@@ -1681,6 +1695,10 @@ packages:
     dependencies:
       '@babel/runtime': 7.18.6
       react: 18.2.0
+    dev: false
+
+  /@sinclair/typebox/0.24.17:
+    resolution: {integrity: sha512-KyXzbBBYly+wSwbhPTKecqIWFST/anAXTlA2o23rDUMzVnFUrDyC0Gk96yL8zQw5O5OqdqALomdih6wwSdRc2Q==}
     dev: false
 
   /@tsconfig/node10/1.0.9:
