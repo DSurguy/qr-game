@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index\"",
     "start": "tsc && node dist/index",
     "generate-lists": "ts-node src/lists/generation/generateLists"
   },
@@ -14,6 +15,8 @@
     "@types/better-sqlite3": "^7.5.0",
     "@types/node": "^18.0.1",
     "@types/qrcode": "^1.4.2",
+    "concurrently": "^7.2.2",
+    "nodemon": "^2.0.19",
     "typescript": "^4.7.4"
   },
   "dependencies": {
