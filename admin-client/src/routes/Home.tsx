@@ -1,63 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Loader, Paper, Text } from '@mantine/core';
+import { Text } from '@mantine/core';
+import React from 'react';
+import { PageLayout } from '../components/PageLayout';
 
-const useApiHealthy = () => {
-  const [checkComplete, setCheckComplete] = useState(false);
-  const [isHealthy, setIsHealthy] = useState(true);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if( !checkComplete) checkHealth();
-  }, [checkComplete])
-
-  const checkHealth = async () => {
-    setIsLoading(true);
-    try {
-      const { status } = await fetch('http://localhost:8011/api/admin/health')
-      setError("");
-      setIsHealthy(status === 200);
-    } catch (e) {
-      console.log(e);
-      setError(e.message);
-      setIsHealthy(false);
-      setIsLoading(false);
-    }
-    setIsLoading(false);
-    setCheckComplete(true);
-  }
-
-  return [
-    {isHealthy, error, isLoading}, 
-    () => setCheckComplete(false)
-  ] as const;
-}
-
-export function HomeRoute () {
-  const [{isHealthy, isLoading, error}, checkHealth] = useApiHealthy();
-  const apiStatus = () => {
-    let color, text;
-    if( isLoading ) {
-      color = "gray"
-      text = "LOADING"
-    }
-    else if( isHealthy ) {
-      color = "green"
-      text = "HEALTHY"
-    }
-    else {
-      color = "red"
-      text = "UNHEALTHY"
-    }
-    return <Text component="span" color={color} weight={700} className='ml-1'>{text}</Text>
-  }
+export function HomeRoute() {
   return (
-    <Paper>
-      <Text component="span">API is</Text>{apiStatus()}
-      {error && <Text color="red">{error}</Text>}
-      <Button onClick={checkHealth} disabled={isLoading} className="ml-1">
-        Check API Health { isLoading && <Loader size="sm" className="ml-1" />}
-      </Button>
-    </Paper>
-  );
+    <PageLayout><Text>Home Route</Text></PageLayout>
+  )
 }
