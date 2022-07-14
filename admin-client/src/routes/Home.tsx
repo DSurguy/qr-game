@@ -1,9 +1,8 @@
-import { Text } from '@mantine/core';
+import { Box, Text } from '@mantine/core';
 import React from 'react';
-import { PageLayout } from '../components/PageLayout';
 
 export function HomeRoute() {
   return (
-    <PageLayout><Text>Home Route</Text></PageLayout>
+    <Box><Text>Home Route</Text></Box>
   )
 }

@@ -1,7 +1,6 @@
-import React from 'react';
-import { PageLayout } from '../../components/PageLayout';
+import React, { useState } from 'react';
 import { Field, Form, Formik } from 'formik';
-import { Textarea, TextInput, useMantineTheme } from '@mantine/core';
+import { Box, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 
 type FormValues = {
   projectName: string;
@@ -16,14 +15,15 @@ const initialValues: FormValues = {
 export function CreateProjectRoute() {
   const theme = useMantineTheme()
   const handleSubmit = (values: FormValues) => {
+    
     console.log(values);
   }
-  return <PageLayout>
+  return <Box>
     <Formik initialValues={initialValues} onSubmit={handleSubmit}>
       <Form>
         <Field name="projectName" as={TextInput} label="Project Name" />
         <Field name="projectDescription" as={Textarea} label="Project Description" sx={{ marginTop: theme.spacing['xs'] }} />
       </Form>
     </Formik>
-  </PageLayout>
+  </Box>
 }

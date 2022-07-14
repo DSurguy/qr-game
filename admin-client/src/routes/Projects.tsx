@@ -1,13 +1,11 @@
 import React from 'react';
-import { Button, Text, useMantineTheme} from '@mantine/core';
+import { Box, Button, Text, useMantineTheme} from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { SquarePlus } from 'tabler-icons-react';
 
-import { PageLayout } from '../components/PageLayout';
-
 export function ProjectsRoute() {
   const theme = useMantineTheme();
-  return <PageLayout>
+  return <Box>
     <Text>Project List</Text>
     <Button
       compact
@@ -15,5 +13,5 @@ export function ProjectsRoute() {
       component={Link}
       to='/projects/create'
     >New Project</Button>
-  </PageLayout>
+  </Box>
 }

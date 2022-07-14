@@ -1,13 +1,10 @@
 import React from 'react';
 import { AppShell, Header, useMantineTheme } from '@mantine/core';
-import { ApiHealth } from '../components/ApiHealth';
-import { SidebarNav } from '../components/SidebarNav';
+import { ApiHealth } from './ApiHealth';
+import { SidebarNav } from './SidebarNav';
+import { Outlet } from 'react-router-dom';
 
-type Props = {
-  children: JSX.Element[] | JSX.Element | string | string[];
-}
-
-export function PageLayout({ children }: Props) {
+export function RoutedPageLayout() {
   const theme = useMantineTheme()
   return (
     <AppShell
@@ -22,7 +19,7 @@ export function PageLayout({ children }: Props) {
       }
       navbar={<SidebarNav />}
     >
-      {children}
+      <Outlet />
     </AppShell>
   )
 }
