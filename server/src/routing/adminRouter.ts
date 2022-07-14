@@ -26,7 +26,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     const uuid = randomUUID();
     const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
     const wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
-    const insert = app.db.prepare(`INSERT INTO projects (uuid, wordId, name, description, deleted) VALUES (?,?,?,?, 0)`)
+    const insert = app.db.prepare(`INSERT INTO projects (uuid, wordId, name, description, deleted, createdAt, updatedAt) VALUES (?,?,?,?, 0, unixepoch(), unixepoch())`)
     try {
       insert.run(uuid, wordId, name, description)
       reply.status(201).send({

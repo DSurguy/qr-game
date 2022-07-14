@@ -7,7 +7,7 @@ export function bootstrap(path: string = "") {
     const db = new Database(resolve(path, "qrgame.db"))
 
     //create tables if not exist
-    let stmt = db.prepare("CREATE TABLE IF NOT EXISTS projects (uuid TEXT PRIMARY KEY, wordId TEXT, deleted INTEGER, name TEXT, description TEXT)")
+    let stmt = db.prepare("CREATE TABLE IF NOT EXISTS projects (uuid TEXT PRIMARY KEY, wordId TEXT, deleted INTEGER, name TEXT, description TEXT, createdAt INTEGER, updatedAt INTEGER)")
     stmt.run();
 
     console.log("Database bootstrapped");
