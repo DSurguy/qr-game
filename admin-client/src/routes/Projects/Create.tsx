@@ -71,7 +71,9 @@ export function CreateProjectRoute() {
         {error && <Text color="red">{error.message}</Text>}
         <Field name="projectName" as={TextInput} label="Project Name" />
         <Field name="projectDescription" as={Textarea} label="Project Description" sx={{ marginTop: theme.spacing['xs'] }} />
-        <Button type="submit" disabled={isSaving}>Save Project</Button>
+        <Button type="submit" disabled={isSaving} sx={{
+          marginTop: theme.spacing['xs']
+        }}>Save Project</Button>
       </Form>
     </Formik>
   </Box>

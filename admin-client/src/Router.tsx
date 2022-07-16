@@ -3,12 +3,14 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { RoutedPageLayout } from './components/RoutedPageLayout';
 import { ProjectsRoute } from './routes/Projects';
 import { CreateProjectRoute } from './routes/Projects/Create';
+import { EditProjectRoute } from './routes/Projects/Edit';
 
 export function Router(){
   return <BrowserRouter>
     <Routes>
       <Route path="/" element={<RoutedPageLayout />}>
         <Route path="/projects/create" element={<CreateProjectRoute />} />
+        <Route path="/projects/:projectId" element={<EditProjectRoute />} />
         <Route path="/projects" element={<ProjectsRoute />} />
       </Route>
     </Routes>
