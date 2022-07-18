@@ -1,7 +1,7 @@
 import { randomUUID } from 'crypto';
+import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType } from '@qr-game/types';
 import { FastifyPluginCallback } from 'fastify/types/plugin'
 import { getRandomInt } from '../utils/random';
-import { UnsavedProjectType, SavedProjectType } from './adminRouter.types';
 import animals from '../lists/animals.js';
 import adjectives from '../lists/adjectives.js';
 
@@ -26,14 +26,18 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     const uuid = randomUUID();
     const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
     const wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
-    const insert = app.db.prepare(`INSERT INTO projects (uuid, wordId, name, description, deleted, createdAt, updatedAt) VALUES (?,?,?,?, 0, unixepoch(), unixepoch())`)
+    const timestamp = Date.now();
+    const insert = app.db.prepare(`INSERT INTO projects (uuid, wordId, name, description, deleted, createdAt, updatedAt) VALUES (?,?,?,?, 0, ?,?)`)
     try {
-      insert.run(uuid, wordId, name, description)
+      insert.run(uuid, wordId, name, description, timestamp, timestamp)
       reply.status(201).send({
         uuid,
         wordId,
         name,
-        description
+        description,
+        deleted: false,
+        updatedAt: timestamp,
+        createdAt: timestamp
       });
     } catch (e) {
       console.error(e);
@@ -44,9 +48,19 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   //TODO: Paginate
   app.get<{ Reply: SavedProjectType[], Querystring: { deleted?: boolean } }>('/projects', (req, reply) => {
     try {
-      const retrieve = app.db.prepare(`SELECT uuid, wordId, name, description FROM projects WHERE deleted = ?`);
+      const retrieve = app.db.prepare(`SELECT * FROM projects WHERE deleted = ?`);
       const results = retrieve.all(req.query.deleted !== undefined ? 1 : 0);
       reply.status(200).send(results);
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send();
+    }
+  })
+
+  app.get<{ Reply: SavedProjectType, Params: { projectUuid: string } }>('/projects/:projectUuid', (req, reply) => {
+    try {
+      const retrieve = app.db.prepare(`SELECT * FROM projects WHERE uuid = ?`);
+      reply.status(200).send(retrieve.get(req.params.projectUuid));
     } catch (e) {
       console.error(e);
       reply.status(500).send();
@@ -62,23 +76,20 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     try {
       const {
         uuid,
-        wordId,
         name,
         description
       } = req.body;
-      const update = app.db.prepare(`UPDATE projects SET name=?, description=? WHERE uuid = ? AND deleted = 0`)
-      const result = update.run(name, description, uuid)
+      const timestamp = Date.now();
+      const update = app.db.prepare(`UPDATE projects SET name=?, description=?, updatedAt=? WHERE uuid = ? AND deleted = 0`)
+      const result = update.run(name, description, timestamp, uuid)
       if( result.changes === 0 ){
         //no change made, report this
         reply.status(404).send()
       }
       else {
-        reply.status(200).send({
-          uuid,
-          wordId,
-          name,
-          description
-        })
+        const getItem = app.db.prepare(`SELECT * FROM projects WHERE uuid=?`)
+        const item = getItem.get(uuid);
+        reply.status(200).send(item)
       }
     } catch (e) {
       console.error(e);
@@ -104,6 +115,35 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       const result = undelete.run(req.body.uuid)
       if( result.changes === 0 ) reply.status(404).send()
       else reply.status(200).send()
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
+  app.post<{ Body: UnsavedActivityType, Reply: SavedActivityType}>('/projects/:projectUuid/activity', (req, reply) => {
+    const {
+      name,
+      description,
+      value
+    } = req.body;
+    const uuid = randomUUID();
+    const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
+    const wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
+    const timestamp = Date.now();
+    const insert = app.db.prepare(`INSERT INTO activities (uuid, wordId, name, description, value, deleted, createdAt, updatedAt) VALUES (?,?,?,?,?, 0, ?,?)`)
+    try {
+      insert.run(uuid, wordId, name, description, value, timestamp, timestamp)
+      reply.status(201).send({
+        uuid,
+        wordId,
+        name,
+        description,
+        value,
+        deleted: false,
+        updatedAt: timestamp,
+        createdAt: timestamp
+      });
     } catch (e) {
       console.error(e);
       reply.status(500).send()

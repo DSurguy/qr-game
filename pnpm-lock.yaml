@@ -11,6 +11,7 @@ importers:
       '@mantine/form': ^4.2.12
       '@mantine/hooks': ^4.2.12
       '@mantine/notifications': ^4.2.12
+      '@qr-game/types': workspace:^1.0.0
       '@types/react': ^18.0.14
       '@types/react-dom': ^18.0.5
       autoprefixer: ^10.4.7
@@ -36,6 +37,7 @@ importers:
       '@mantine/form': 4.2.12_react@18.2.0
       '@mantine/hooks': 4.2.12_react@18.2.0
       '@mantine/notifications': 4.2.12_n5fi23fjjzlwcbqhnnpdtjftw4
+      '@qr-game/types': link:../types
       formik: 2.2.9_react@18.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -110,66 +112,12 @@ importers:
       webpack-cli: 4.10.0_6rc575xxn4hngez2jk2zkyfdoi
       webpack-dev-server: 4.9.3_77l47gmqkrqiei5z7sbwz5iaj4
 
-  project-editor-client:
-    specifiers:
-      '@babel/core': ^7.18.6
-      '@babel/preset-env': ^7.18.6
-      '@babel/preset-react': ^7.18.6
-      '@mantine/core': ^4.2.12
-      '@mantine/form': ^4.2.12
-      '@mantine/hooks': ^4.2.12
-      '@types/react': ^18.0.14
-      '@types/react-dom': ^18.0.5
-      autoprefixer: ^10.4.7
-      babel-loader: ^8.2.5
-      core-js: ^3.23.3
-      css-loader: ^6.7.1
-      html-webpack-plugin: ^5.5.0
-      postcss: ^8.4.14
-      postcss-loader: ^7.0.0
-      react: ^18.2.0
-      react-dom: ^18.2.0
-      react-router-dom: ^6.3.0
-      style-loader: ^3.3.1
-      tailwindcss: ^3.1.4
-      ts-loader: ^9.3.1
-      typescript: ^4.7.4
-      webpack: ^5.73.0
-      webpack-cli: ^4.10.0
-      webpack-dev-server: ^4.9.3
-    dependencies:
-      '@mantine/core': 4.2.12_adnwhtvvyvzgu5gbxn2nw5fiqe
-      '@mantine/form': 4.2.12_react@18.2.0
-      '@mantine/hooks': 4.2.12_react@18.2.0
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-      react-router-dom: 6.3.0_biqbaboplfbrettd7655fr4n2y
-      tailwindcss: 3.1.4
-      typescript: 4.7.4
-    devDependencies:
-      '@babel/core': 7.18.6
-      '@babel/preset-env': 7.18.6_@babel+core@7.18.6
-      '@babel/preset-react': 7.18.6_@babel+core@7.18.6
-      '@types/react': 18.0.14
-      '@types/react-dom': 18.0.5
-      autoprefixer: 10.4.7_postcss@8.4.14
-      babel-loader: 8.2.5_fswvdo7jykdwhfxrdcvghfn6pa
-      core-js: 3.23.3
-      css-loader: 6.7.1_webpack@5.73.0
-      html-webpack-plugin: 5.5.0_webpack@5.73.0
-      postcss: 8.4.14
-      postcss-loader: 7.0.0_mepnsno3xmng6eyses4tepu7bu
-      style-loader: 3.3.1_webpack@5.73.0
-      ts-loader: 9.3.1_3o2jfq6vfqxns3sz6wn2nnc3ei
-      webpack: 5.73.0_webpack-cli@4.10.0
-      webpack-cli: 4.10.0_6rc575xxn4hngez2jk2zkyfdoi
-      webpack-dev-server: 4.9.3_77l47gmqkrqiei5z7sbwz5iaj4
-
   server:
     specifiers:
       '@fastify/cors': ^8.0.0
       '@fastify/static': ^6.4.0
       '@fastify/type-provider-typebox': ^2.1.0
+      '@qr-game/types': workspace:^1.0.0
       '@sinclair/typebox': ^0.24.17
       '@types/better-sqlite3': ^7.5.0
       '@types/node': ^18.0.1
@@ -187,6 +135,7 @@ importers:
       '@fastify/cors': 8.0.0
       '@fastify/static': 6.4.0
       '@fastify/type-provider-typebox': 2.1.0_soh2lbpdid3v6vhlcewby5bpeu
+      '@qr-game/types': link:../types
       '@sinclair/typebox': 0.24.17
       better-sqlite3: 7.6.0
       fastify: 4.2.0
@@ -201,6 +150,12 @@ importers:
       concurrently: 7.2.2
       nodemon: 2.0.19
       typescript: 4.7.4
+
+  types:
+    specifiers:
+      '@sinclair/typebox': ^0.24.17
+    dependencies:
+      '@sinclair/typebox': 0.24.17
 
 packages:
 

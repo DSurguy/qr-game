@@ -10,7 +10,7 @@ export function Router(){
     <Routes>
       <Route path="/" element={<RoutedPageLayout />}>
         <Route path="/projects/create" element={<CreateProjectRoute />} />
-        <Route path="/projects/:projectId" element={<EditProjectRoute />} />
+        <Route path="/projects/:projectUuid" element={<EditProjectRoute />} />
         <Route path="/projects" element={<ProjectsRoute />} />
       </Route>
     </Routes>
