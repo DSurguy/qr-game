@@ -11,6 +11,7 @@
   "author": "Derek Surguy<Surguy.Derek@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^7.3.0",
     "@mantine/core": "^4.2.12",
     "@mantine/form": "^4.2.12",
     "@mantine/hooks": "^4.2.12",

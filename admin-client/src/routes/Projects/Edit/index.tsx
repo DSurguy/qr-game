@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Box } from '@mantine/core';
+import { Box, Divider, Grid, Loader, Tabs, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { SavedProjectType } from '@qr-game/types';
-import { ADMIN_API_BASE } from '../../constants';
+import { ADMIN_API_BASE } from '../../../constants';
 import { useParams } from 'react-router-dom';
+import { faker } from '@faker-js/faker';
+import { Activities } from './Activities';
+import { DuelActivities } from './DuelActivities';
+import { Settings } from './Settings';
 
 function useProject(projectUuid: string, loadImmediately: boolean = false) {
   const [isLoading, setIsLoading] = useState(false);
@@ -11,7 +15,7 @@ function useProject(projectUuid: string, loadImmediately: boolean = false) {
 
   useEffect(() => {
     if( loadImmediately ) load()
-  }, [])
+  }, [projectUuid])
 
   const load = () => {
     if( isLoading ) return;
@@ -39,8 +43,18 @@ function useProject(projectUuid: string, loadImmediately: boolean = false) {
 
 export function EditProjectRoute() {
   const { projectUuid } = useParams();
+  const theme = useMantineTheme();
   const [ isLoading, error, project, load ] = useProject(projectUuid, true);
-  return <Box>
-    {project && project.name}
+
+  if( isLoading ) return <Loader />
+  if( error || !project ) return <Text color="red">{error ? error.message : "Error loading project"}</Text>
+  return <Box style={{maxWidth: `700px`}}>
+    <Text component="h1" size="xl">{project.name}</Text>
+    <Text component="p">{project.description}</Text>
+    <Tabs>
+      <Tabs.Tab label="Activities"><Activities /></Tabs.Tab>
+      <Tabs.Tab label="Duel Activities"><DuelActivities /></Tabs.Tab>
+      <Tabs.Tab label="Settings"><Settings /></Tabs.Tab>
+    </Tabs>
   </Box>
 }
