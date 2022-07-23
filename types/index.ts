@@ -24,7 +24,6 @@ export const SavedProject = Type.Object({
 export type UnsavedProjectType = Static<typeof UnsavedProject>
 export type SavedProjectType = Static<typeof SavedProject>
 
-
 const activityBase = {
   name: Type.String(),
   description: Type.String(),
@@ -35,6 +34,7 @@ export const UnsavedActivity = Type.Object({
   ...activityBase
 })
 export const SavedActivity = Type.Object({
+  projectUuid: Type.String(),
   uuid: Type.String(),
   wordId: Type.String(),
   ...savedItemBase,

@@ -182,6 +182,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     try {
       insert.run({projectUuid, uuid, wordId, name, description, value, timestamp})
       reply.status(201).send({
+        projectUuid,
         uuid,
         wordId,
         name,
@@ -210,10 +211,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       const activities = select.all({
         projectUuid
       })
-      reply.status(200).send(activities.map(activity => ({
-        ...activity,
-        projectUuid: undefined
-      })));
+      reply.status(200).send(activities);
     } catch (e) {
       console.error(e.message);
       reply.status(500).send();
@@ -237,8 +235,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       })
       if( activity ) {
         reply.status(200).send({
-          ...activity,
-          projectUuid: undefined
+          ...activity
         });
       } else {
         reply.status(404).send()
