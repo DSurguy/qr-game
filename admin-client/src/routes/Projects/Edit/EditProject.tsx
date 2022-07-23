@@ -46,9 +46,9 @@ export function EditProjectRoute() {
   const [ isLoading, error, project, load ] = useProject(projectUuid);
 
   const locationToTab = () => {
-    if( matchPath({ path: "projects/:id/activities" }, location.pathname) ) return ProjectTab.activities
-    else if( matchPath({ path: "projects/:id/duelActivities" }, location.pathname) ) return ProjectTab.duelActivities
-    else if( matchPath({ path: "projects/:id/settings" }, location.pathname) ) return ProjectTab.settings
+    if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities
+    else if( matchPath({ path: "projects/:id/duelActivities", end: false }, location.pathname) ) return ProjectTab.duelActivities
+    else if( matchPath({ path: "projects/:id/settings", end: false }, location.pathname) ) return ProjectTab.settings
   }
 
   const activeTab = locationToTab();
@@ -58,7 +58,7 @@ export function EditProjectRoute() {
   }, [])
 
   useEffect(() => {
-    if( project ) navigate("activities");
+    if( project && activeTab === undefined ) navigate("activities");
   }, [project])
 
   const onTabChange = (tab: number) => {

@@ -4,6 +4,7 @@ import { RoutedPageLayout } from './components/RoutedPageLayout';
 import { ProjectsRoute } from './routes/Projects';
 import { CreateProjectRoute } from './routes/Projects/Create';
 import { Activities } from './routes/Projects/Edit/Activities/Activities';
+import Activity from './routes/Projects/Edit/Activities/Activity';
 import ActivityList from './routes/Projects/Edit/Activities/ActivityList';
 import CreateActivity from './routes/Projects/Edit/Activities/CreateActivity';
 import { DuelActivities } from './routes/Projects/Edit/DuelActivities';
@@ -19,6 +20,7 @@ export function Router(){
           <Route path="activities" element={<Activities />}>
             <Route path="" element={<ActivityList />} />
             <Route path="create" element={<CreateActivity />} />
+            <Route path=":activityUuid" element={<Activity />} />
           </Route>
           <Route path="duelActivities" element={<DuelActivities />} />
           <Route path="settings" element={<Settings />} />

@@ -220,6 +220,35 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
+  app.get<{
+    Reply: SavedActivityType,
+    Params: { projectUuid: string, activityUuid: string }
+  }>('/projects/:projectUuid/activities/:activityUuid', (req, reply) => {
+    try {
+      const { projectUuid, activityUuid } = req.params;
+      const select = app.db.prepare(`
+        SELECT * FROM project_activities
+        WHERE projectUuid=@projectUuid
+        AND uuid=@activityUuid
+      `)
+      const activity = select.get({
+        projectUuid,
+        activityUuid
+      })
+      if( activity ) {
+        reply.status(200).send({
+          ...activity,
+          projectUuid: undefined
+        });
+      } else {
+        reply.status(404).send()
+      }
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send();
+    }
+  })
+
   app.post<{ 
     Body: ProjectSettings,
     Params: { projectUuid: string }

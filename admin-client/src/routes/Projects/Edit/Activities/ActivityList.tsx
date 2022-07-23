@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Grid, Loader, Text, useMantineTheme } from '@mantine/core';
+import { Box, Button, Grid, Loader, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SquarePlus } from 'tabler-icons-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { SavedActivityType } from '@qr-game/types';
 import { ApiActionCallback } from '../../../../types';
 import { ADMIN_API_BASE } from '../../../../constants';
@@ -55,6 +55,7 @@ const useActivities = (projectUuid: string) => {
 export default function ActivityList () {
   const theme = useMantineTheme();
   const { projectUuid } = useParams();
+  const navigate = useNavigate();
   const {activities, isLoading, error, load} = useActivities(projectUuid);
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
 
@@ -63,18 +64,25 @@ export default function ActivityList () {
   }, [])
 
   const renderActivity = (activity: SavedActivityType) => (
-    <Box sx={{ 
+    <UnstyledButton sx={{ 
       display: 'block',
       padding: theme.spacing['xs'],
       boxSizing: 'border-box',
       textAlign: 'left',
       width: '100%',
       borderRadius: theme.radius['sm'],
+      '&:hover': {
+        backgroundColor: theme.colors[theme.primaryColor]['1'],
+        color: theme.colors[theme.primaryColor]['9'],
+        '&:nth-of-type(odd)': {
+          backgroundColor: theme.colors[theme.primaryColor]['1'],
+        }
+      },
       marginTop: theme.spacing['xs'],
       '&:nth-of-type(odd)': {
         backgroundColor: theme.colors.gray[1]
       }
-    }} key={activity.uuid}>
+    }} key={activity.uuid} onClick={() => navigate(`./${activity.uuid}`)}>
       <Grid>
         <Grid.Col xs={12} sm={9}>
           <Text component="h3" sx={{ margin: 0, fontSize: '1.4rem' }}>{activity.name}</Text>
@@ -98,7 +106,7 @@ export default function ActivityList () {
           <Text>{activity.description}</Text>
         </Grid.Col>
       </Grid>
-    </Box>
+    </UnstyledButton>
   )
 
   const activityContent = () => activities.map((activity: SavedActivityType) => renderActivity(activity)) 
