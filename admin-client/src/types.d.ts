@@ -6,3 +6,5 @@ export type ProjectMeta = {
   updatedAt: unknown;
   createdAt: unknown;
 }
+
+export type ApiActionCallback = (actionWasSuccessful: boolean) => void;

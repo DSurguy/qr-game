@@ -146,8 +146,9 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   
   app.post<{ 
     Body: UnsavedActivityType,
-    Reply: SavedActivityType
-  }>('/projects/:projectUuid/activity', (req, reply) => {
+    Reply: SavedActivityType,
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid/activities', (req, reply) => {
     const {
       name,
       description,
@@ -157,9 +158,12 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
     const wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
     const timestamp = Date.now();
-    const insert = app.db.prepare(`INSERT INTO activities (uuid, wordId, name, description, value, deleted, createdAt, updatedAt) VALUES (?,?,?,?,?, 0, ?,?)`)
+    const { projectUuid } = req.params;
+    const insert = app.db.prepare(`
+      INSERT INTO project_activities (projectUuid, uuid, wordId, name, description, value, deleted, createdAt, updatedAt)
+      VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, 0, @timestamp, @timestamp)`)
     try {
-      insert.run(uuid, wordId, name, description, value, timestamp, timestamp)
+      insert.run({projectUuid, uuid, wordId, name, description, value, timestamp})
       reply.status(201).send({
         uuid,
         wordId,
