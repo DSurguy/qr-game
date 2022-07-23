@@ -1,29 +1,68 @@
-import React, { useState } from 'react';
-import { Box, Button, Grid, Text, useMantineTheme } from '@mantine/core';
-import { faker } from '@faker-js/faker';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Grid, Loader, Text, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SquarePlus } from 'tabler-icons-react';
 import { Link, useParams } from 'react-router-dom';
+import { SavedActivityType } from '@qr-game/types';
+import { ApiActionCallback } from '../../../../types';
+import { ADMIN_API_BASE } from '../../../../constants';
 
-const toTitleCase = (str: string) => str ? str[0].toUpperCase() + str.substring(1): str
+const useActivities = (projectUuid: string) => {
+  const [activities, setActivities] = useState<null | SavedActivityType[]>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<null | Error>(null);
+
+  /**
+   * Load project settings from
+   * @param callback A function that can perform cleanup actions, such as telling Formik loading is complete. It will receive one argument, indicating if the API action was successful or not
+   */
+  const load = (callback?: ApiActionCallback) => {
+    setIsLoading(true);
+    (async () => {
+      try {
+        const result = await fetch(`${ADMIN_API_BASE}/projects/${projectUuid}/activities`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        if( result.status <= 299 && result.status >= 200 ) {
+          setActivities(await result.json());
+          setError(null);
+          if( callback ) callback(true);
+        }
+        else {
+          const message = (result.json() as any)['message'] || 'Internal Server Error'
+          throw new Error(message)
+        }
+      } catch (e) {
+        setError(e);
+        if( callback ) callback(false)
+      } finally {
+        setIsLoading(false);
+      }
+    })()
+  }
+
+  return {
+    activities,
+    isLoading,
+    error,
+    load
+  } as const
+}
 
 export default function ActivityList () {
   const theme = useMantineTheme();
   const { projectUuid } = useParams();
+  const {activities, isLoading, error, load} = useActivities(projectUuid);
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
 
-  const getRandomActivity = () => ({
-    uuid: faker.datatype.uuid(),
-    wordId: toTitleCase(faker.word.adjective()) + toTitleCase(faker.word.adjective()) + toTitleCase(faker.word.noun()),
-    name: faker.lorem.words(2),
-    description: faker.lorem.words(10),
-    value: faker.datatype.number({
-      min: 1,
-      max: 15
-    })
-  } as const)
+  useEffect(() => {
+    load();
+  }, [])
 
-  const renderActivity = (activity: ReturnType<typeof getRandomActivity>) => (
+  const renderActivity = (activity: SavedActivityType) => (
     <Box sx={{ 
       display: 'block',
       padding: theme.spacing['xs'],
@@ -32,7 +71,7 @@ export default function ActivityList () {
       width: '100%',
       borderRadius: theme.radius['sm'],
       marginTop: theme.spacing['xs'],
-      '&:nth-child(odd)': {
+      '&:nth-of-type(odd)': {
         backgroundColor: theme.colors.gray[1]
       }
     }} key={activity.uuid}>
@@ -62,7 +101,10 @@ export default function ActivityList () {
     </Box>
   )
 
-  const activities = Array(5).fill(1).map((v: number) => getRandomActivity()).map((activity: ReturnType<typeof getRandomActivity>) => renderActivity(activity)) 
+  const activityContent = () => activities.map((activity: SavedActivityType) => renderActivity(activity)) 
+  if( isLoading ) return <Loader />
+  if( error ) return <Text color="red">{error ? error.message : "Error loading activities"}</Text>
+  if( !activities ) return null;
   return (<Box>
     <Button
       compact
@@ -70,6 +112,6 @@ export default function ActivityList () {
       component={Link}
       to="create"
     >New Activity</Button>
-    <Box>{activities}</Box>
+    <Box>{activityContent()}</Box>
   </Box>)
 }

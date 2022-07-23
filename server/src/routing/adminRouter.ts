@@ -26,7 +26,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
-  app.post<{ Body: UnsavedProjectType, Reply: SavedProjectType }>('/projects', (req, reply) => {
+  app.post<{
+    Body: UnsavedProjectType,
+    Reply: SavedProjectType
+  }>('/projects', (req, reply) => {
     const {
       name,
       description
@@ -69,7 +72,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   //TODO: Paginate
-  app.get<{ Reply: SavedProjectType[], Querystring: { deleted?: boolean } }>('/projects', (req, reply) => {
+  app.get<{
+    Reply: SavedProjectType[],
+    Querystring: { deleted?: boolean }
+  }>('/projects', (req, reply) => {
     try {
       const retrieve = app.db.prepare(`SELECT * FROM projects WHERE deleted = ?`);
       const results = retrieve.all(req.query.deleted !== undefined ? 1 : 0);
@@ -80,7 +86,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
-  app.get<{ Reply: SavedProjectType, Params: { projectUuid: string } }>('/projects/:projectUuid', (req, reply) => {
+  app.get<{
+    Reply: SavedProjectType,
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid', (req, reply) => {
     try {
       const retrieve = app.db.prepare(`SELECT * FROM projects WHERE uuid = ?`);
       reply.status(200).send(retrieve.get(req.params.projectUuid));
@@ -90,7 +99,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
-  app.put<{ Body: SavedProjectType, Reply: SavedProjectType, Params: { projectUuid: string } }>('/projects/:projectUuid', {
+  app.put<{
+    Body: SavedProjectType,
+    Reply: SavedProjectType,
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid', {
     preHandler: (req, reply, done) => {
       if( req.body.uuid !== req.params.projectUuid ) done(new Error("uuid in payload does not match URL"))
       else done();
@@ -120,7 +133,9 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
-  app.delete<{ Params: { projectUuid: string } }>('/projects/:projectUuid', (req, reply) => {
+  app.delete<{
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid', (req, reply) => {
     try {
       const del = app.db.prepare(`UPDATE projects SET deleted = 1 WHERE uuid = ? AND deleted = 0`)
       const result = del.run(req.params.projectUuid);
@@ -132,7 +147,9 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
-  app.post<{ Body: { uuid: string }}>('/projects/restore', (req, reply) => {
+  app.post<{
+    Body: { uuid: string }
+  }>('/projects/restore', (req, reply) => {
     try {
       const undelete = app.db.prepare(`UPDATE projects SET deleted = 0 WHERE uuid = ? AND deleted = 1`)
       const result = undelete.run(req.body.uuid)
@@ -177,6 +194,29 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     } catch (e) {
       console.error(e);
       reply.status(500).send()
+    }
+  })
+
+  app.get<{
+    Reply: SavedActivityType[],
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid/activities', (req, reply) => {
+    try {
+      const { projectUuid } = req.params;
+      const select = app.db.prepare(`
+        SELECT * FROM project_activities
+        WHERE projectUuid=@projectUuid
+      `)
+      const activities = select.all({
+        projectUuid
+      })
+      reply.status(200).send(activities.map(activity => ({
+        ...activity,
+        projectUuid: undefined
+      })));
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send();
     }
   })
 

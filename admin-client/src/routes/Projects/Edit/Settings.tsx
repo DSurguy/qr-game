@@ -6,8 +6,7 @@ import { ProjectSettings } from '@qr-game/types';
 import { ADMIN_API_BASE } from '../../../constants';
 import FormikNumberInput from '../../../components/inputs/FormikNumberInput';
 import { AutoSave } from '../../../components/forms/AutoSave';
-
-type ApiActionCallback = (actionWasSuccessful: boolean) => void;
+import { ApiActionCallback } from '../../../types';
 
 const useProjectSettings = (projectUuid: string) => {
   const [settings, setSettings] = useState<null | ProjectSettings>(null);
