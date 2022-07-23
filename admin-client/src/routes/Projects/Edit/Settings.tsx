@@ -1,10 +1,28 @@
 import React, { useEffect, useState } from 'react';
-import { Field, Form, Formik, FormikHelpers, useFormikContext } from 'formik';
-import { Box, Button, Checkbox, NumberInput, Text, Textarea, useMantineTheme } from '@mantine/core';
+import { Field, FieldAttributes, Form, Formik, FormikHelpers, useFormikContext } from 'formik';
+import { createStyles, keyframes, Box, Button, Checkbox, NumberInput, Text, Textarea, useMantineTheme } from '@mantine/core';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ADMIN_API_BASE } from '../../../constants';
 import { ProjectSettings } from '@qr-game/types';
+import { CircleDotted, CircleDashed, AlertCircle, CircleCheck } from 'tabler-icons-react'
+import { ADMIN_API_BASE } from '../../../constants';
 import FormikNumberInput from '../../../components/inputs/FormikNumberInput';
+
+const spin = keyframes({
+  from: {
+    transform: 'rotate(0deg)'
+  },
+  to: {
+    transform: 'rotate(360deg)'
+  }
+})
+
+const useSpinStyles = createStyles((theme) => ({
+  spinningIcon: {
+    animation: `${spin} 2s linear infinite`,
+    width: '24px',
+    height: '24px'
+  }
+}))
 
 function useSaveForm (projectUuid: string) {
   const [isSaving, setIsSaving] = useState(false)
@@ -41,6 +59,7 @@ function useSaveForm (projectUuid: string) {
 }
 
 const AutoSave = ({ duration = 1000 }: { duration?: number }) => {
+  const { classes: { spinningIcon } } = useSpinStyles()
   const formik = useFormikContext();
   const [timeoutId, setTimeoutId] = useState(0);
   const [initial, setInitial] = useState(true);
@@ -64,11 +83,11 @@ const AutoSave = ({ duration = 1000 }: { duration?: number }) => {
   }, [formik.values])
 
   let content = null;
-  if( timeoutId ) content = "debouncing"
-  else if( formik.isSubmitting ) content = "submitting"
-  else if( Object.keys(formik.errors || {}).length ) content = "failed"
-  else if( saved ) content = "saved"
-  return <span>{content}</span>
+  if( timeoutId ) content = <Box className={spinningIcon}><CircleDotted /></Box>
+  else if( formik.isSubmitting ) content = <Box className={spinningIcon}><CircleDashed /></Box>;
+  else if( Object.keys(formik.errors || {}).length ) content = <AlertCircle />;
+  else if( saved ) content = <CircleCheck />;
+  return content;
 }
 
 export function Settings() {
@@ -79,7 +98,6 @@ export function Settings() {
       allowRematch: false
     }
   }
-  const theme = useMantineTheme()
   const { projectUuid } = useParams();
   const [save, isSaving, error] = useSaveForm(projectUuid);
 
@@ -96,21 +114,41 @@ export function Settings() {
       <Form>
         <AutoSave />
         {error && <Text color="red">{error.message}</Text>}
+        <Text component="h3" sx={{ fontSize: '1.5rem', margin: 0 }}>Players</Text>
         <Field
           name="numPlayers"
           component={FormikNumberInput}
-          label="Number of Players"
+          mantineProps={{
+            sx: { width: '8rem' },
+            label: "Number of Players"
+          }}
         />
+        <Text component="h3" sx={{ fontSize: '1.5rem', margin: 0, marginTop: '1rem' }}>Duels</Text>
         <Field
           name="duels.allow"
-          as={Checkbox}
-          label="Allow Duels"
-        />
+        >
+          {({ field, form }: FieldAttributes<any>) => (
+            <Checkbox
+              {...field}
+              checked={field.value}
+              label="Allow Duels"
+              sx={{ marginTop: '0.5rem' }}
+            />
+          )}
+        </Field>
         <Field
           name="duels.allowRematch"
-          as={Checkbox}
-          label="Allow Duel Rematch"
-        />
+        >
+          {({ field, form }: FieldAttributes<any>) => (
+            <Checkbox
+              {...field}
+              checked={field.value}
+              label="Allow Duel Rematch"
+              sx={{ marginTop: '0.5rem' }}
+              disabled={(form.values?.duels?.allow !== true)}
+            />
+          )}
+        </Field>
       </Form>
     </Formik>
   </Box>

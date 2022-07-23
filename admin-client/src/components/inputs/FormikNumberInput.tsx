@@ -8,6 +8,10 @@ interface Props extends FieldAttributes<any> {
 
 export default function FormikNumberInput({field, form: { setFieldValue }, mantineProps}: Props) {
   return (
-    <NumberInput {...field} {...mantineProps} onChange={(value: number) => setFieldValue(field.name, value)} />
+    <NumberInput
+      {...field}
+      {...mantineProps}
+      onChange={(value: number) => setFieldValue(field.name, value)}
+    />
   )
 }
