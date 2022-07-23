@@ -235,11 +235,9 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     const {
       projectUuid,
       uuid: activityUuid,
-      wordId,
       name,
       description,
       value,
-      createdAt
     } = req.body;
     if( projectUuid !== req.params.projectUuid || activityUuid !== req.params.activityUuid ) {
       reply.status(400).send("Activity and/or project uuids do not match");
@@ -320,7 +318,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
-  app.post<{ 
+  app.put<{ 
     Body: ProjectSettingsType,
     Params: { projectUuid: string }
   }>('/projects/:projectUuid/settings', (req, reply) => {
@@ -337,7 +335,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         jsonData: JSON.stringify(req.body),
         updatedAt: Date.now()
       })
-      reply.status(200).send();
+      const select = app.db.prepare(`
+        SELECT jsonData FROM project_settings
+        WHERE uuid=@projectUuid
+      `)
+      reply.status(200).send(select.get({projectUuid: req.params.projectUuid}).jsonData);
     } catch (e) {
       console.error(e);
       reply.status(500).send()

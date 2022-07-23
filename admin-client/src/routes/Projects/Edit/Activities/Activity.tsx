@@ -8,6 +8,7 @@ import { ADMIN_API_BASE } from '../../../../constants';
 import activityToQr from '../../../../conversions/activityToQr';
 import { ApiActionCallback } from '../../../../types';
 import FormikNumberInput from '../../../../components/inputs/FormikNumberInput';
+import { useServerResource } from '../../../../hooks/useServerResource';
 
 const useActivity = (projectUuid: string, activityUuid: string) => {
   const [activity, setActivity] = useState<null | SavedActivityType>(null);
@@ -91,7 +92,19 @@ const useActivity = (projectUuid: string, activityUuid: string) => {
 
 export default function Activity() {
   const { projectUuid, activityUuid } = useParams();
-  const {activity, isSaving, isLoading, error, load, save} = useActivity(projectUuid, activityUuid);
+  const {
+    data: activity,
+    isSaving,
+    isLoading,
+    saveError,
+    loadError,
+    update,
+    load
+  } = useServerResource<SavedActivityType, SavedActivityType>({
+    load: `projects/${projectUuid}/activities/${activityUuid}`,
+    update: `projects/${projectUuid}/activities/${activityUuid}`,
+  })
+  console.log(activity);
   const [qrCode, setQrCode] = useState<null | string>(null)
   const [qrCodeError, setQrCodeError] = useState<null | Error>(null);
   const theme = useMantineTheme();
@@ -116,14 +129,13 @@ export default function Activity() {
 
   const handleSubmit = (values: SavedActivityType, helpers: FormikHelpers<SavedActivityType>) => {
     if( isSaving ) return;
-    save(values, (saveSuccessful) => {
+    update(values, () => {
       helpers.setSubmitting(false)
-      load()
     });
   }
 
   if( isLoading ) return <Loader />
-  if( error ) return <Text color="red">{error ? error.message : "Error loading project"}</Text>
+  if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activity"}</Text>
   if( !activity ) return null;
   return <Box>
     <Button
@@ -135,10 +147,10 @@ export default function Activity() {
     >Back</Button>
     <Grid sx={{ marginTop: '0.5rem'}}>
       <Grid.Col xs={12}>
-      <Formik initialValues={activity} onSubmit={handleSubmit}>
+      <Formik initialValues={activity} onSubmit={handleSubmit} enableReinitialize>
         {({ dirty }) => (
           <Form>
-            {error && <Text color="red">{error.message}</Text>}
+            {saveError && <Text color="red">{saveError.message}</Text>}
             <Field name="name" as={TextInput} label="Activity Name" />
             <Field name="description" as={Textarea} label="Description" sx={{ marginTop: theme.spacing['xs'] }} />
             <Field

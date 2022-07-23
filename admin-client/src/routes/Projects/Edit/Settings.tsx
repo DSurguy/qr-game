@@ -1,104 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { Field, FieldAttributes, Form, Formik, FormikHelpers, useFormikContext } from 'formik';
-import { Box, Checkbox, Text, useMantineTheme } from '@mantine/core';
+import React, { useEffect } from 'react';
+import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
+import { Box, Checkbox, Text } from '@mantine/core';
 import { useParams } from 'react-router-dom';
 import { ProjectSettingsType } from '@qr-game/types';
-import { ADMIN_API_BASE } from '../../../constants';
-import FormikNumberInput from '../../../components/inputs/FormikNumberInput';
 import { AutoSave } from '../../../components/forms/AutoSave';
-import { ApiActionCallback } from '../../../types';
-
-const useProjectSettings = (projectUuid: string) => {
-  const [settings, setSettings] = useState<null | ProjectSettingsType>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<null | Error>(null);
-
-  /**
-   * Load project settings from
-   * @param callback A function that can perform cleanup actions, such as telling Formik loading is complete. It will receive one argument, indicating if the API action was successful or not
-   */
-  const load = (callback?: ApiActionCallback) => {
-    setIsLoading(true);
-    (async () => {
-      try {
-        const result = await fetch(`${ADMIN_API_BASE}/projects/${projectUuid}/settings`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        if( result.status <= 299 && result.status >= 200 ) {
-          setSettings(await result.json());
-          setError(null);
-          if( callback ) callback(true);
-        }
-        else {
-          const message = (result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
-        }
-      } catch (e) {
-        setError(e);
-        if( callback ) callback(false)
-      } finally {
-        setIsLoading(false);
-      }
-    })()
-  }
-
-  /**
-   * Save project settings to the server
-   * @param values 
-   * @param callback A function that can perform cleanup actions, such as telling Formik submission is complete. It will receive one argument, indicating if the API action was successful or not
-   */
-  const save = (values: ProjectSettingsType, callback?: ApiActionCallback) => {
-    setIsSaving(true);
-    (async () => {
-      try {
-        const result = await fetch(`${ADMIN_API_BASE}/projects/${projectUuid}/settings`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(values)
-        })
-        if( result.status > 299 || result.status < 200 ) {
-          const message = (result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
-        }
-        setSettings(values);
-        setError(null);
-        callback(true);
-      } catch (e) {
-        setError(e);
-        callback(false)
-      } finally {
-        setIsSaving(false);
-      }
-    })()
-  }
-
-  return {
-    settings,
-    isSaving,
-    isLoading,
-    error,
-    load,
-    save
-  } as const
-}
+import { useServerResource } from '../../../hooks/useServerResource';
 
 export function Settings() {
   const { projectUuid } = useParams();
-  const {settings, isSaving, isLoading, error, load, save} = useProjectSettings(projectUuid);
+  const {
+    data: settings,
+    isSaving,
+    isLoading,
+    loadError,
+    saveError,
+    load: loadSettings,
+    update: saveSettings
+  } = useServerResource<ProjectSettingsType, ProjectSettingsType>({
+    update: `projects/${projectUuid}/settings`,
+    load: `projects/${projectUuid}/settings`
+  })
 
   useEffect(() => {
-    load();
+    loadSettings();
   }, [])
 
   const handleSubmit = (values: ProjectSettingsType, helpers: FormikHelpers<ProjectSettingsType>) => {
     if( isSaving ) return;
-    save(values, () => helpers.setSubmitting(false));
+    saveSettings(values, () => helpers.setSubmitting(false));
   }
 
   const form = (
@@ -106,10 +35,11 @@ export function Settings() {
       <Formik
         initialValues={settings}
         onSubmit={handleSubmit}
+        enableReinitialize
       >
         <Form>
           <AutoSave />
-          {error && <Text color="red">{error.message}</Text>}
+          {saveError && <Text color="red">{saveError.message}</Text>}
           <Text component="h3" sx={{ fontSize: '1.5rem', margin: 0, marginTop: '1rem' }}>Duels</Text>
           <Field
             name="duels.allow"
@@ -142,7 +72,7 @@ export function Settings() {
   );
 
   const unLoadedForm = (<Box>
-    {isLoading ? 'Loading...' : error ? 'Error' : 'Unknown state'}
+    {isLoading ? 'Loading...' : loadError ? 'Error' : 'Unknown state'}
   </Box>)
 
   return settings ? form : unLoadedForm;

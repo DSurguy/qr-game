@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { Field, FieldAttributes, Form, Formik } from 'formik';
+import React from 'react';
+import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
 import { Box, Button, Checkbox, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { ADMIN_API_BASE } from '../../constants';
 import FormikNumberInput from '../../components/inputs/FormikNumberInput';
-import { UnsavedProjectType } from '@qr-game/types';
+import { SavedProjectType, UnsavedProjectType } from '@qr-game/types';
+import { useServerResource } from '../../hooks/useServerResource';
 
 const initialValues: UnsavedProjectType = {
   name: "Test Project Name",
@@ -18,53 +18,28 @@ const initialValues: UnsavedProjectType = {
   }
 }
 
-function useSaveForm (onSave: Function) {
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<null | Error>(null)
-  const save = (values: UnsavedProjectType) => {
-    setIsSaving(true);
-    (async () => {
-      try {
-        const result = await fetch(`${ADMIN_API_BASE}/projects`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(values)
-        })
-        if( result.status > 299 || result.status < 200 ) {
-          const message = (result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
-        }
-        onSave()
-      } catch (e) {
-        setError(e);
-      } finally {
-        setIsSaving(false);
-      }
-    })()
-  }
-  return [
-    save,
-    isSaving,
-    error,
-  ] as const;
-}
-
 export function CreateProjectRoute() {
   const theme = useMantineTheme()
   const navigate = useNavigate();
-  const [save, isSaving, error] = useSaveForm(() => {
-    navigate('/projects')
+
+  const {
+    create,
+    isSaving,
+    saveError
+  } = useServerResource<UnsavedProjectType, SavedProjectType>({
+    create: 'projects'
   });
-  const handleSubmit = (values: UnsavedProjectType) => {
+  const handleSubmit = (values: UnsavedProjectType, helpers: FormikHelpers<UnsavedProjectType>) => {
     if( isSaving ) return;
-    save(values);
+    create(values, (wasSuccessful) => {
+      if( wasSuccessful ) navigate('/projects')
+      helpers.setSubmitting(false)
+    });
   }
   return <Box>
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+    <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
       <Form>
-        {error && <Text color="red">{error.message}</Text>}
+        {saveError && <Text color="red">{saveError.message}</Text>}
         <Field name="name" as={TextInput} label="Project Name" />
         <Field name="description" as={Textarea} label="Project Description" sx={{ marginTop: theme.spacing['xs'] }} />
         <Field

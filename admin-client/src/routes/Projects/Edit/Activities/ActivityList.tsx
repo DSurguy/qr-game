@@ -6,57 +6,20 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { SavedActivityType } from '@qr-game/types';
 import { ApiActionCallback } from '../../../../types';
 import { ADMIN_API_BASE } from '../../../../constants';
-
-const useActivities = (projectUuid: string) => {
-  const [activities, setActivities] = useState<null | SavedActivityType[]>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<null | Error>(null);
-
-  /**
-   * Load project settings from
-   * @param callback A function that can perform cleanup actions, such as telling Formik loading is complete. It will receive one argument, indicating if the API action was successful or not
-   */
-  const load = (callback?: ApiActionCallback) => {
-    setIsLoading(true);
-    (async () => {
-      try {
-        const result = await fetch(`${ADMIN_API_BASE}/projects/${projectUuid}/activities`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
-        if( result.status <= 299 && result.status >= 200 ) {
-          setActivities(await result.json());
-          setError(null);
-          if( callback ) callback(true);
-        }
-        else {
-          const message = (result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
-        }
-      } catch (e) {
-        setError(e);
-        if( callback ) callback(false)
-      } finally {
-        setIsLoading(false);
-      }
-    })()
-  }
-
-  return {
-    activities,
-    isLoading,
-    error,
-    load
-  } as const
-}
+import { useServerResource } from '../../../../hooks/useServerResource';
 
 export default function ActivityList () {
   const theme = useMantineTheme();
   const { projectUuid } = useParams();
   const navigate = useNavigate();
-  const {activities, isLoading, error, load} = useActivities(projectUuid);
+  const {
+    data: activities,
+    isLoading,
+    loadError,
+    load
+  } = useServerResource<SavedActivityType[], SavedActivityType[]>({
+    load: `projects/${projectUuid}/activities`
+  })
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
 
   useEffect(() => {
@@ -111,7 +74,7 @@ export default function ActivityList () {
 
   const activityContent = () => activities.map((activity: SavedActivityType) => renderActivity(activity)) 
   if( isLoading ) return <Loader />
-  if( error ) return <Text color="red">{error ? error.message : "Error loading activities"}</Text>
+  if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activities"}</Text>
   if( !activities ) return null;
   return (<Box>
     <Button

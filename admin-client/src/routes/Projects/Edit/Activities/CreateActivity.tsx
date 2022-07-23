@@ -79,7 +79,7 @@ export default function CreateActivity() {
       leftIcon={<ChevronLeft size={16} />}
     >Back</Button>
     <Text component="h2">Create New Activity</Text>
-    <Formik initialValues={initialValues} onSubmit={handleSubmit}>
+    <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
       <Form>
         {error && <Text color="red">{error.message}</Text>}
         <Field name="name" as={TextInput} label="Activity Name" />
