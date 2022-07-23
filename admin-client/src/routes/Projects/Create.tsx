@@ -54,7 +54,6 @@ function useSaveForm (onSave: Function) {
   ] as const;
 }
 
-
 export function CreateProjectRoute() {
   const theme = useMantineTheme()
   const navigate = useNavigate();

@@ -10,6 +10,9 @@ export function bootstrap(path: string = "") {
     let stmt = db.prepare("CREATE TABLE IF NOT EXISTS projects (uuid TEXT PRIMARY KEY, wordId TEXT, deleted INTEGER, name TEXT, description TEXT, createdAt INTEGER, updatedAt INTEGER)")
     stmt.run();
 
+    stmt = db.prepare("CREATE TABLE IF NOT EXISTS project_settings (uuid TEXT PRIMARY KEY REFERENCES projects(uuid), jsonData TEXT, updatedAt INTEGER)")
+    stmt.run();
+
     console.log("Database bootstrapped");
 
     return db;

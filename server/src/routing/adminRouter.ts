@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType } from '@qr-game/types';
+import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettings } from '@qr-game/types';
 import { FastifyPluginCallback } from 'fastify/types/plugin'
 import { getRandomInt } from '../utils/random';
 import animals from '../lists/animals.js';
@@ -120,8 +120,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       reply.status(500).send()
     }
   })
-
-  app.post<{ Body: UnsavedActivityType, Reply: SavedActivityType}>('/projects/:projectUuid/activity', (req, reply) => {
+  
+  app.post<{ 
+    Body: UnsavedActivityType,
+    Reply: SavedActivityType
+  }>('/projects/:projectUuid/activity', (req, reply) => {
     const {
       name,
       description,
@@ -144,6 +147,30 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         updatedAt: timestamp,
         createdAt: timestamp
       });
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
+  app.post<{ 
+    Body: ProjectSettings,
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid/settings', (req, reply) => {
+    const insert = app.db.prepare(`
+      INSERT INTO project_settings (uuid, jsonData, updatedAt)
+      VALUES (@uuid, @jsonData, @updatedAt)
+      ON CONFLICT (uuid) DO UPDATE SET
+        jsonData=@jsonData,
+        updatedAt=@updatedAt
+    `)
+    try {
+      insert.run({
+        uuid: req.params.projectUuid,
+        jsonData: req.body.toString(),
+        updatedAt: Date.now()
+      })
+      reply.status(201).send();
     } catch (e) {
       console.error(e);
       reply.status(500).send()
