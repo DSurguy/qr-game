@@ -5,6 +5,14 @@ import { getRandomInt } from '../utils/random';
 import animals from '../lists/animals.js';
 import adjectives from '../lists/adjectives.js';
 
+const defaultProjectSettings: ProjectSettings = {
+  numPlayers: 50,
+  duels: {
+    allow: true,
+    allowRematch: false
+  }
+}
+
 export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   app.get('/health', (req, reply) => {
     try {
@@ -27,9 +35,24 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
     const wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
     const timestamp = Date.now();
-    const insert = app.db.prepare(`INSERT INTO projects (uuid, wordId, name, description, deleted, createdAt, updatedAt) VALUES (?,?,?,?, 0, ?,?)`)
+    const insertProject = app.db.prepare(`
+      INSERT INTO projects (uuid, wordId, name, description, deleted, createdAt, updatedAt)
+      VALUES (@uuid, @wordId, @name, @description, 0, @timestamp, @timestamp)
+    `)
+    const insertSettings = app.db.prepare(`
+      INSERT INTO project_settings (uuid, jsonData, updatedAt)
+      VALUES (@uuid, @jsonData, @timestamp)
+    `)
+    const transaction = app.db.transaction(() => {
+      insertProject.run({uuid, wordId, name, description, timestamp})
+      insertSettings.run({
+        uuid,
+        jsonData: JSON.stringify(defaultProjectSettings),
+        timestamp
+      })
+    })
     try {
-      insert.run(uuid, wordId, name, description, timestamp, timestamp)
+      transaction()
       reply.status(201).send({
         uuid,
         wordId,

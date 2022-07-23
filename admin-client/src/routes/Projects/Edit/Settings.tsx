@@ -7,49 +7,7 @@ import { ADMIN_API_BASE } from '../../../constants';
 import FormikNumberInput from '../../../components/inputs/FormikNumberInput';
 import { AutoSave } from '../../../components/forms/AutoSave';
 
-function useSaveForm (projectUuid: string) {
-  const [isSaving, setIsSaving] = useState(false)
-  const [error, setError] = useState<null | Error>(null)
-  const save = (values: ProjectSettings, callback?: Function) => {
-    setIsSaving(true);
-    (async () => {
-      try {
-        const result = await fetch(`${ADMIN_API_BASE}/projects/${projectUuid}/settings`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(values)
-        })
-        if( result.status > 299 || result.status < 200 ) {
-          const message = (result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
-        }
-        callback(true)
-      } catch (e) {
-        setError(e);
-        callback(false)
-      } finally {
-        setIsSaving(false);
-      }
-    })()
-  }
-  return [
-    save,
-    isSaving,
-    error,
-  ] as const;
-}
-
 type ApiActionCallback = (actionWasSuccessful: boolean) => void;
-
-const initialValues: ProjectSettings = {
-  numPlayers: 50,
-  duels: {
-    allow: true,
-    allowRematch: false
-  }
-}
 
 const useProjectSettings = (projectUuid: string) => {
   const [settings, setSettings] = useState<null | ProjectSettings>(null);
@@ -74,13 +32,6 @@ const useProjectSettings = (projectUuid: string) => {
         if( result.status <= 299 && result.status >= 200 ) {
           setSettings(await result.json());
           setError(null);
-          if( callback ) callback(true);
-        }
-        else if( result.status === 404 ) {
-          setSettings({
-            ...initialValues
-          })
-          setError(null)
           if( callback ) callback(true);
         }
         else {
