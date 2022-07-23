@@ -1,13 +1,24 @@
-import React from 'react';
-import { Box, Grid, Text, useMantineTheme } from '@mantine/core';
+import React, { useState } from 'react';
+import { Box, Button, Grid, Text, useMantineTheme } from '@mantine/core';
 import { faker } from '@faker-js/faker';
 import { useMediaQuery } from '@mantine/hooks';
+import { SquarePlus } from 'tabler-icons-react';
+import CreateActivity from './CreateActivity';
+import { useParams } from 'react-router-dom';
 
 const toTitleCase = (str: string) => str ? str[0].toUpperCase() + str.substring(1): str
 
+enum ActivityRoute {
+  index,
+  create,
+  edit
+}
+
 export function Activities() {
   const theme = useMantineTheme();
-  const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`)
+  const { projectUuid } = useParams();
+  const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
+  const [routingState, setRoutingState] = useState<ActivityRoute>(ActivityRoute.index);
 
   const getRandomActivity = () => ({
     uuid: faker.datatype.uuid(),
@@ -60,7 +71,20 @@ export function Activities() {
   )
 
   const activities = Array(5).fill(1).map((v: number) => getRandomActivity()).map((activity: ReturnType<typeof getRandomActivity>) => renderActivity(activity)) 
-  return <Box>
-    {activities}
-  </Box>
+  const indexContent = (<Box>
+    <Button
+      compact
+      leftIcon={<SquarePlus size={theme.fontSizes['xl']} />}
+      onClick={() => setRoutingState(ActivityRoute.create)}
+    >New Activity</Button>
+    <Box>{activities}</Box>
+  </Box>)
+
+  const createContent = <CreateActivity projectUuid={projectUuid} />
+
+  switch(routingState) {
+    case ActivityRoute.index: return indexContent;
+    case ActivityRoute.create: return createContent;
+    default: return null;
+  }
 }

@@ -4,7 +4,7 @@ import { SavedProjectType } from '@qr-game/types';
 import { ADMIN_API_BASE } from '../../../constants';
 import { useParams } from 'react-router-dom';
 import { faker } from '@faker-js/faker';
-import { Activities } from './Activities';
+import { Activities } from './Activities/Activities';
 import { DuelActivities } from './DuelActivities';
 import { Settings } from './Settings';
 

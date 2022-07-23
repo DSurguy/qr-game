@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { RoutedPageLayout } from './components/RoutedPageLayout';
 import { ProjectsRoute } from './routes/Projects';
 import { CreateProjectRoute } from './routes/Projects/Create';
-import { EditProjectRoute } from './routes/Projects/Edit';
+import { EditProjectRoute } from './routes/Projects/Edit/EditProject';
 
 export function Router(){
   return <BrowserRouter>
