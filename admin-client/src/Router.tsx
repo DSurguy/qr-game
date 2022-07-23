@@ -9,6 +9,7 @@ import ActivityList from './routes/Projects/Edit/Activities/ActivityList';
 import CreateActivity from './routes/Projects/Edit/Activities/CreateActivity';
 import { DuelActivities } from './routes/Projects/Edit/DuelActivities';
 import { EditProjectRoute } from './routes/Projects/Edit/EditProject';
+import Players from './routes/Projects/Edit/Players';
 import { Settings } from './routes/Projects/Edit/Settings';
 
 export function Router(){
@@ -24,6 +25,7 @@ export function Router(){
           </Route>
           <Route path="duelActivities" element={<DuelActivities />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="players" element={<Players />} />
         </Route>
         <Route path="/projects" element={<ProjectsRoute />} />
       </Route>
