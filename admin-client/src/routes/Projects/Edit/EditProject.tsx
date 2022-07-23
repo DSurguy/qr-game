@@ -7,7 +7,8 @@ import { useServerResource } from '../../../hooks/useServerResource';
 enum ProjectTab {
   activities = 0,
   duelActivities = 1,
-  settings = 2
+  players = 2,
+  settings = 3
 }
 
 export function EditProjectRoute() {
@@ -26,6 +27,7 @@ export function EditProjectRoute() {
   const locationToTab = () => {
     if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities
     else if( matchPath({ path: "projects/:id/duelActivities", end: false }, location.pathname) ) return ProjectTab.duelActivities
+    else if( matchPath({ path: "projects/:id/players", end: false }, location.pathname) ) return ProjectTab.players
     else if( matchPath({ path: "projects/:id/settings", end: false }, location.pathname) ) return ProjectTab.settings
   }
 
@@ -43,6 +45,7 @@ export function EditProjectRoute() {
     switch(tab){
       case ProjectTab.activities: navigate("activities"); break;
       case ProjectTab.duelActivities: navigate("duelActivities"); break;
+      case ProjectTab.players: navigate("players"); break;
       case ProjectTab.settings: navigate("settings"); break;
     }
   };
@@ -56,6 +59,7 @@ export function EditProjectRoute() {
     <Tabs active={activeTab} onTabChange={onTabChange} sx={{ marginBottom: '0.5rem'}}>
       <Tabs.Tab label="Activities" />
       <Tabs.Tab label="Duel Activities" />
+      <Tabs.Tab label="Players" />
       <Tabs.Tab label="Settings" />
     </Tabs>
     <Outlet />

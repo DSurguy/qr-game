@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettingsType } from '@qr-game/types';
+import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettingsType, SavedPlayerType } from '@qr-game/types';
 import { FastifyPluginCallback } from 'fastify/types/plugin'
 import { getRandomInt } from '../utils/random';
 import animals from '../lists/animals.js';
@@ -360,6 +360,32 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         reply.status(201).send(result.jsonData);
       else
         reply.status(404).send();
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
+  app.get<{
+    Params: { projectUuid: string },
+    Querystring: { deleted?: boolean },
+    Reply: SavedPlayerType[]
+  }>('/projects/:projectUuid/players', (req, reply) => {
+    try {
+      const {
+        deleted
+      } = req.query;
+      const {
+        projectUuid
+      } = req.params;
+      const select = app.db.prepare(`
+        SELECT * FROM project_players WHERE projectUuid=@projectUuid AND deleted=@deleted
+      `)
+      const players = select.all({
+        deleted: deleted ? 1 : 0,
+        projectUuid
+      })
+      reply.status(200).send(players)
     } catch (e) {
       console.error(e);
       reply.status(500).send()

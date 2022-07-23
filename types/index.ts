@@ -54,3 +54,14 @@ export const SavedActivity = Type.Object({
 
 export type UnsavedActivityType = Static<typeof UnsavedActivity>
 export type SavedActivityType = Static<typeof SavedActivity>
+
+export const SavedPlayer = Type.Object({
+  projectUuid: Type.String(),
+  uuid: Type.String(),
+  wordId: Type.String(),
+  name: Type.String(),
+  claimed: Type.Number(),
+  ...savedItemBase
+})
+
+export type SavedPlayerType = Static<typeof SavedPlayer>
