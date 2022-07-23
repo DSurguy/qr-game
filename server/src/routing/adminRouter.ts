@@ -167,10 +167,30 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     try {
       insert.run({
         uuid: req.params.projectUuid,
-        jsonData: req.body.toString(),
+        jsonData: JSON.stringify(req.body),
         updatedAt: Date.now()
       })
-      reply.status(201).send();
+      reply.status(200).send();
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
+  app.get<{ 
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid/settings', (req, reply) => {
+    const select = app.db.prepare(`
+      SELECT jsonData FROM project_settings WHERE uuid=@uuid
+    `)
+    try {
+      const result = select.get({
+        uuid: req.params.projectUuid,
+      })
+      if( result ) 
+        reply.status(201).send(result.jsonData);
+      else
+        reply.status(404).send();
     } catch (e) {
       console.error(e);
       reply.status(500).send()
