@@ -37,7 +37,7 @@ export const AutoSave = ({ duration = 500 }: { duration?: number }) => {
       return;
     }
     if( timeoutId ) clearTimeout(timeoutId)
-    setTimeoutId(setTimeout(() => {
+    setTimeoutId(window.setTimeout(() => {
       formik.submitForm()
       setSaved(true);
       setTimeoutId(0)

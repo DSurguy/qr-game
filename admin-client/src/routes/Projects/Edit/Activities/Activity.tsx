@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'tabler-icons-react';
 import { ADMIN_API_BASE } from '../../../../constants';
+import activityToQr from '../../../../conversions/activityToQr';
 import { ApiActionCallback } from '../../../../types';
 
 const useActivity = (projectUuid: string, activityUuid: string) => {
@@ -89,9 +90,26 @@ const useActivity = (projectUuid: string, activityUuid: string) => {
 export default function Activity() {
   const { projectUuid, activityUuid } = useParams();
   const {activity, isSaving, isLoading, error, load, save} = useActivity(projectUuid, activityUuid);
+  const [qrCode, setQrCode] = useState<null | string>(null)
+  const [qrCodeError, setQrCodeError] = useState<null | Error>(null);
+
   useEffect(() => {
     load();
   }, [])
+
+  useEffect(() => {
+    ( async () => {
+      try {
+        if( activity ) {
+          const code = await activityToQr(activity);
+          setQrCode(code);
+          setQrCodeError(null);
+        }
+      } catch (e) {
+        setQrCodeError(e);
+      }
+    })();
+  }, [activity])
 
   if( isLoading ) return <Loader />
   if( error ) return <Text color="red">{error ? error.message : "Error loading project"}</Text>
@@ -105,5 +123,9 @@ export default function Activity() {
       leftIcon={<ChevronLeft size={16} />}
     >Back</Button>
     <Box>{activity.uuid} {activity.wordId}</Box>
+    <Box>
+      { qrCodeError && qrCodeError.message }
+      { qrCode && <img src={qrCode} /> }
+    </Box>
   </Box>
 }
