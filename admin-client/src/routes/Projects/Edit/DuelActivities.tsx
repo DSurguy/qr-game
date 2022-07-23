@@ -29,7 +29,7 @@ export function DuelActivities() {
       width: '100%',
       borderRadius: theme.radius['sm'],
       marginTop: theme.spacing['xs'],
-      '&:nth-child(odd)': {
+      '&:nth-of-type(odd)': {
         backgroundColor: theme.colors.gray[1]
       }
     }} key={activity.uuid}>
