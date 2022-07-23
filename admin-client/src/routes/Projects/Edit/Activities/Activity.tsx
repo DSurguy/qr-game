@@ -1,11 +1,13 @@
-import { Box, Button, Loader, Text } from '@mantine/core';
+import { Box, Button, Grid, Loader, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { SavedActivityType } from '@qr-game/types';
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'tabler-icons-react';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { ADMIN_API_BASE } from '../../../../constants';
 import activityToQr from '../../../../conversions/activityToQr';
 import { ApiActionCallback } from '../../../../types';
+import FormikNumberInput from '../../../../components/inputs/FormikNumberInput';
 
 const useActivity = (projectUuid: string, activityUuid: string) => {
   const [activity, setActivity] = useState<null | SavedActivityType>(null);
@@ -55,7 +57,7 @@ const useActivity = (projectUuid: string, activityUuid: string) => {
     (async () => {
       try {
         const result = await fetch(`${ADMIN_API_BASE}/projects/${projectUuid}/activities/${activityUuid}`, {
-          method: 'POST',
+          method: 'PUT',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -92,6 +94,7 @@ export default function Activity() {
   const {activity, isSaving, isLoading, error, load, save} = useActivity(projectUuid, activityUuid);
   const [qrCode, setQrCode] = useState<null | string>(null)
   const [qrCodeError, setQrCodeError] = useState<null | Error>(null);
+  const theme = useMantineTheme();
 
   useEffect(() => {
     load();
@@ -111,6 +114,14 @@ export default function Activity() {
     })();
   }, [activity])
 
+  const handleSubmit = (values: SavedActivityType, helpers: FormikHelpers<SavedActivityType>) => {
+    if( isSaving ) return;
+    save(values, (saveSuccessful) => {
+      helpers.setSubmitting(false)
+      load()
+    });
+  }
+
   if( isLoading ) return <Loader />
   if( error ) return <Text color="red">{error ? error.message : "Error loading project"}</Text>
   if( !activity ) return null;
@@ -122,7 +133,30 @@ export default function Activity() {
       to=".."
       leftIcon={<ChevronLeft size={16} />}
     >Back</Button>
-    <Box>{activity.uuid} {activity.wordId}</Box>
+    <Grid sx={{ marginTop: '0.5rem'}}>
+      <Grid.Col xs={12}>
+      <Formik initialValues={activity} onSubmit={handleSubmit}>
+        {({ dirty }) => (
+          <Form>
+            {error && <Text color="red">{error.message}</Text>}
+            <Field name="name" as={TextInput} label="Activity Name" />
+            <Field name="description" as={Textarea} label="Description" sx={{ marginTop: theme.spacing['xs'] }} />
+            <Field
+                name="value"
+                component={FormikNumberInput}
+                mantineProps={{
+                  sx: { width: '8rem' },
+                  label: "Value"
+                }}
+              />
+            {dirty && <Button type="submit" disabled={isSaving} sx={{
+              marginTop: theme.spacing['xs']
+            }}>Save Activity</Button>}
+          </Form>
+        )}
+      </Formik>
+      </Grid.Col>
+    </Grid>
     <Box>
       { qrCodeError && qrCodeError.message }
       { qrCode && <img src={qrCode} /> }

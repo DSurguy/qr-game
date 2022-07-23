@@ -198,6 +198,51 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
+  app.put<{ 
+    Body: SavedActivityType,
+    Reply: SavedActivityType | string,
+    Params: { projectUuid: string, activityUuid: string }
+  }>('/projects/:projectUuid/activities/:activityUuid', (req, reply) => {
+    const {
+      projectUuid,
+      uuid: activityUuid,
+      wordId,
+      name,
+      description,
+      value,
+      createdAt
+    } = req.body;
+    if( projectUuid !== req.params.projectUuid || activityUuid !== req.params.activityUuid ) {
+      reply.status(400).send("Activity and/or project uuids do not match");
+    }
+    const timestamp = Date.now();
+    const update = app.db.prepare(`
+      UPDATE project_activities SET
+        name=@name,
+        description=@description,
+        value=@value,
+        updatedAt=@timestamp
+      WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0`)
+    try {
+      const result = update.run({projectUuid, activityUuid, name, description, value, timestamp})
+      if( result.changes === 0 ){
+        //no change made, report this
+        reply.status(404).send()
+      }
+      else {
+        const getItem = app.db.prepare(`SELECT * FROM project_activities WHERE uuid=@activityUuid AND projectUuid=@projectUuid`)
+        const item = getItem.get({
+          projectUuid,
+          activityUuid
+        });
+        reply.status(200).send(item)
+      }
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
   app.get<{
     Reply: SavedActivityType[],
     Params: { projectUuid: string }
