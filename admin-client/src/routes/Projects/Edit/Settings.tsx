@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Field, FieldAttributes, Form, Formik, FormikHelpers, useFormikContext } from 'formik';
 import { Box, Checkbox, Text, useMantineTheme } from '@mantine/core';
 import { useParams } from 'react-router-dom';
-import { ProjectSettings } from '@qr-game/types';
+import { ProjectSettingsType } from '@qr-game/types';
 import { ADMIN_API_BASE } from '../../../constants';
 import FormikNumberInput from '../../../components/inputs/FormikNumberInput';
 import { AutoSave } from '../../../components/forms/AutoSave';
 import { ApiActionCallback } from '../../../types';
 
 const useProjectSettings = (projectUuid: string) => {
-  const [settings, setSettings] = useState<null | ProjectSettings>(null);
+  const [settings, setSettings] = useState<null | ProjectSettingsType>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<null | Error>(null);
@@ -51,7 +51,7 @@ const useProjectSettings = (projectUuid: string) => {
    * @param values 
    * @param callback A function that can perform cleanup actions, such as telling Formik submission is complete. It will receive one argument, indicating if the API action was successful or not
    */
-  const save = (values: ProjectSettings, callback?: ApiActionCallback) => {
+  const save = (values: ProjectSettingsType, callback?: ApiActionCallback) => {
     setIsSaving(true);
     (async () => {
       try {
@@ -96,7 +96,7 @@ export function Settings() {
     load();
   }, [])
 
-  const handleSubmit = (values: ProjectSettings, helpers: FormikHelpers<ProjectSettings>) => {
+  const handleSubmit = (values: ProjectSettingsType, helpers: FormikHelpers<ProjectSettingsType>) => {
     if( isSaving ) return;
     save(values, () => helpers.setSubmitting(false));
   }
@@ -110,15 +110,6 @@ export function Settings() {
         <Form>
           <AutoSave />
           {error && <Text color="red">{error.message}</Text>}
-          <Text component="h3" sx={{ fontSize: '1.5rem', margin: 0 }}>Players</Text>
-          <Field
-            name="numPlayers"
-            component={FormikNumberInput}
-            mantineProps={{
-              sx: { width: '8rem' },
-              label: "Number of Players"
-            }}
-          />
           <Text component="h3" sx={{ fontSize: '1.5rem', margin: 0, marginTop: '1rem' }}>Duels</Text>
           <Field
             name="duels.allow"

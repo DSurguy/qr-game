@@ -44,6 +44,28 @@ export function bootstrap(path: string = "") {
     `)
     stmt.run();
 
+    stmt = db.prepare(`
+      CREATE TABLE IF NOT EXISTS project_players (
+        projectUuid TEXT REFERENCES projects(uuid),
+        uuid TEXT PRIMARY KEY,
+        wordId TEXT,
+        deleted INTEGER,
+        name TEXT,
+        claimed INTEGER,
+        createdAt INTEGER,
+        updatedAt INTEGER
+      )
+    `)
+    stmt.run();
+
+    stmt = db.prepare(`
+      CREATE TABLE IF NOT EXISTS project_wordIds (
+        projectUuid TEXT REFERENCES projects(uuid),
+        wordId TEXT
+      )
+    `)
+    stmt.run();
+
     console.log("Database bootstrapped");
 
     return db;

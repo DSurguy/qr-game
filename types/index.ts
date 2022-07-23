@@ -6,13 +6,24 @@ const savedItemBase = {
   deleted: Type.Boolean(),
 }
 
+export const ProjectSettings = Type.Object({
+  duels: Type.Object({
+    allow: Type.Boolean(),
+    allowRematch: Type.Boolean(),
+  })
+});
+
+export type ProjectSettingsType = Static<typeof ProjectSettings>;
+
 const projectBase = {
   name: Type.String(),
   description: Type.String()
 }
 
 export const UnsavedProject = Type.Object({
-  ...projectBase
+  ...projectBase,
+  settings: ProjectSettings,
+  numPlayers: Type.Number()
 })
 export const SavedProject = Type.Object({
   uuid: Type.String(),
@@ -43,11 +54,3 @@ export const SavedActivity = Type.Object({
 
 export type UnsavedActivityType = Static<typeof UnsavedActivity>
 export type SavedActivityType = Static<typeof SavedActivity>
-
-export type ProjectSettings = {
-  numPlayers: number;
-  duels: {
-    allow: boolean;
-    allowRematch: boolean;
-  }
-}

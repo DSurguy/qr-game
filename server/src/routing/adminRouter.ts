@@ -1,19 +1,32 @@
 import { randomUUID } from 'crypto';
-import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettings } from '@qr-game/types';
+import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettingsType } from '@qr-game/types';
 import { FastifyPluginCallback } from 'fastify/types/plugin'
 import { getRandomInt } from '../utils/random';
 import animals from '../lists/animals.js';
 import adjectives from '../lists/adjectives.js';
 
-const defaultProjectSettings: ProjectSettings = {
-  numPlayers: 50,
-  duels: {
-    allow: true,
-    allowRematch: false
-  }
-}
+const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
 
 export const adminRouter: FastifyPluginCallback = (app, options, done) => {
+  const claimNewWordId = (projectUuid): string => {
+    let wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
+    const selectWordId = app.db.prepare(`
+      SELECT * FROM project_wordIds
+      WHERE projectUuid=@projectUuid AND wordId=@wordId
+    `)
+    const insertNewWordId = app.db.prepare(`
+      INSERT INTO project_wordIds (projectUuid, wordId)
+      VALUES (@projectUuid, @wordId)
+    `)
+    let existingId = selectWordId.get({ projectUuid, wordId })
+    while(existingId) {
+      wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
+      existingId = selectWordId.get({ projectUuid, wordId })
+    }
+    insertNewWordId.run({ projectUuid, wordId })
+    return wordId;
+  }
+
   app.get('/health', (req, reply) => {
     try {
       //See if we can access and pragma the database
@@ -32,39 +45,56 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   }>('/projects', (req, reply) => {
     const {
       name,
-      description
+      description,
+      numPlayers,
+      settings
     } = req.body;
     const uuid = randomUUID();
-    const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
-    const wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
+    
     const timestamp = Date.now();
     const insertProject = app.db.prepare(`
       INSERT INTO projects (uuid, wordId, name, description, deleted, createdAt, updatedAt)
       VALUES (@uuid, @wordId, @name, @description, 0, @timestamp, @timestamp)
     `)
+    const updateProjectWordId = app.db.prepare(`
+      UPDATE projects SET wordId=@wordId WHERE uuid=@uuid
+    `)
     const insertSettings = app.db.prepare(`
       INSERT INTO project_settings (uuid, jsonData, updatedAt)
       VALUES (@uuid, @jsonData, @timestamp)
     `)
+    const insertPlayers = app.db.transaction(() => {
+      const insertPlayer = app.db.prepare(`
+        INSERT INTO project_players (projectUuid, uuid, wordId, name, claimed, deleted, createdAt, updatedAt)
+        VALUES (@projectUuid, @uuid, @wordId, @name, 0, 0, @timestamp, @timestamp)
+      `)
+      for( let i=0; i<numPlayers; i++ ) {
+        const playerUuid = randomUUID();
+        const playerWordId = claimNewWordId(uuid);
+        insertPlayer.run({
+          projectUuid: uuid,
+          uuid: playerUuid,
+          wordId: playerWordId,
+          name: "",
+          timestamp
+        })
+      }
+    })
     const transaction = app.db.transaction(() => {
-      insertProject.run({uuid, wordId, name, description, timestamp})
+      insertProject.run({uuid, wordId: "", name, description, timestamp})
+      const wordId = claimNewWordId(uuid)
+      updateProjectWordId.run({ wordId, uuid })
       insertSettings.run({
         uuid,
-        jsonData: JSON.stringify(defaultProjectSettings),
+        jsonData: JSON.stringify(settings),
         timestamp
       })
+      insertPlayers();
     })
     try {
-      transaction()
-      reply.status(201).send({
-        uuid,
-        wordId,
-        name,
-        description,
-        deleted: false,
-        updatedAt: timestamp,
-        createdAt: timestamp
-      });
+      transaction();
+      const selectProject = app.db.prepare(`SELECT * FROM projects WHERE uuid=@uuid`)
+      reply.status(201).send(selectProject.get({uuid}));
     } catch (e) {
       console.error(e);
       reply.status(500).send()
@@ -172,10 +202,9 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       value
     } = req.body;
     const uuid = randomUUID();
-    const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
-    const wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
-    const timestamp = Date.now();
     const { projectUuid } = req.params;
+    const wordId = claimNewWordId(projectUuid);
+    const timestamp = Date.now();
     const insert = app.db.prepare(`
       INSERT INTO project_activities (projectUuid, uuid, wordId, name, description, value, deleted, createdAt, updatedAt)
       VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, 0, @timestamp, @timestamp)`)
@@ -292,7 +321,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   app.post<{ 
-    Body: ProjectSettings,
+    Body: ProjectSettingsType,
     Params: { projectUuid: string }
   }>('/projects/:projectUuid/settings', (req, reply) => {
     const insert = app.db.prepare(`
