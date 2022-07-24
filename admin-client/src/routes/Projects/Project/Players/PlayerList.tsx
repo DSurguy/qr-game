@@ -2,11 +2,11 @@ import { Box, Grid, Loader, Text, UnstyledButton, useMantineTheme } from '@manti
 import { useMediaQuery } from '@mantine/hooks';
 import { SavedPlayerType } from '@qr-game/types';
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Alien, UserCheck } from 'tabler-icons-react';
-import { useServerResource } from '../../../hooks/useServerResource';
+import { useServerResource } from '../../../../hooks/useServerResource';
 
-export default function Players() {
+export default function PlayerList() {
   const { projectUuid } = useParams();
   const {
     data: players,
@@ -18,6 +18,7 @@ export default function Players() {
   })
   const theme = useMantineTheme();
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
+  const navigate = useNavigate();
 
   useEffect(() => {
     load();
@@ -42,7 +43,7 @@ export default function Players() {
       '&:nth-of-type(odd)': {
         backgroundColor: theme.colors.gray[1]
       }
-    }} key={player.uuid} onClick={() => {}}>
+    }} key={player.uuid} onClick={() => navigate(`./${player.uuid}`)}>
       <Grid>
         <Grid.Col xs={12} sm={9}>
           <Text component="h3" sx={{ margin: 0, fontSize: '1.4rem' }}>{player.name || 'UNCLAIMED'}</Text>

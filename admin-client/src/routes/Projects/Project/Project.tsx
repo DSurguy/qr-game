@@ -11,7 +11,7 @@ enum ProjectTab {
   settings = 3
 }
 
-export function EditProjectRoute() {
+export function ProjectRoute() {
   const { projectUuid } = useParams();
   const location = useLocation();
   const navigate = useNavigate();

@@ -392,5 +392,72 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
+  app.get<{
+    Params: { projectUuid: string, playerUuid: string },
+    Reply: SavedPlayerType[]
+  }>('/projects/:projectUuid/players/:playerUuid', (req, reply) => {
+    try {
+      const {
+        projectUuid,
+        playerUuid
+      } = req.params;
+      const select = app.db.prepare(`
+        SELECT * FROM project_players WHERE projectUuid=@projectUuid AND uuid=@playerUuid
+      `)
+      const player = select.get({
+        projectUuid,
+        playerUuid
+      })
+      reply.status(200).send(player)
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
+  app.put<{
+    Params: { projectUuid: string, playerUuid: string },
+    Body: SavedPlayerType,
+    Reply: SavedPlayerType | string
+  }>('/projects/:projectUuid/players/:playerUuid', (req, reply) => {
+    try {
+      const {
+        claimed,
+        name,
+        projectUuid,
+        uuid: playerUuid
+      } = req.body;
+      if( projectUuid !== req.params.projectUuid || playerUuid !== req.params.playerUuid ) {
+        reply.status(400).send("Player and/or project uuids do not match");
+      }
+      const update = app.db.prepare(`
+        UPDATE project_players
+        SET claimed=@claimed, name=@name
+        WHERE projectUuid=@projectUuid AND uuid=@playerUuid
+      `);
+      const result = update.run({
+        claimed,
+        name,
+        projectUuid,
+        playerUuid
+      })
+      if( result.changes === 0 ){
+        //no change made, report this
+        reply.status(404).send()
+      }
+      else {
+        const getItem = app.db.prepare(`SELECT * FROM project_players WHERE uuid=@playerUuid AND projectUuid=@projectUuid`)
+        const item = getItem.get({
+          projectUuid,
+          playerUuid
+        });
+        reply.status(200).send(item)
+      }
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
   done()
 }
