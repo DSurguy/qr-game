@@ -8,6 +8,7 @@
 [x] Apply settings and generate players up front to eliminate need for patching
 [ ] Fix all get endpoints to allow retrieving deleted
 [ ] Add delete/restore action to the UI
+  - Remove wordId from DB when item is deleted so it can be re-used
 [ ] Add searches to lists
 [ ] Add editing project meta (name/descrip)
 [ ] Create game client :)

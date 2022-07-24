@@ -15,3 +15,7 @@
   - `cd admin-client`
   - `pnpm start`
 - Visit `localhost:8080` in your browser
+
+A **sqlite** database will be created in the `runtime` folder of the project, and you can inspect/edit it with any normal sql/sqlite editor you choose.
+
+Every time the server starts, it will attempt to bootstrap the database (creating it and/or tables if they don't exist), so if you want to start fresh, just delete the DB and restart the server.
