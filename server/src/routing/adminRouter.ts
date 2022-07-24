@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettingsType, SavedPlayerType } from '@qr-game/types';
+import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettingsType, SavedPlayerType, UnsavedDuelActivityType, SavedDuelActivityType } from '@qr-game/types';
 import { FastifyPluginCallback } from 'fastify/types/plugin'
 import { getRandomInt } from '../utils/random';
 import animals from '../lists/animals.js';
@@ -304,6 +304,133 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       const activity = select.get({
         projectUuid,
         activityUuid
+      })
+      if( activity ) {
+        reply.status(200).send({
+          ...activity
+        });
+      } else {
+        reply.status(404).send()
+      }
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send();
+    }
+  })
+
+  app.post<{ 
+    Body: UnsavedDuelActivityType,
+    Reply: SavedDuelActivityType,
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid/duelActivities', (req, reply) => {
+    const {
+      name,
+      description,
+      value
+    } = req.body;
+    const uuid = randomUUID();
+    const { projectUuid } = req.params;
+    const wordId = claimNewWordId(projectUuid);
+    const timestamp = Date.now();
+    const insert = app.db.prepare(`
+      INSERT INTO project_duel_activities (projectUuid, uuid, wordId, name, description, value, deleted, createdAt, updatedAt)
+      VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, 0, @timestamp, @timestamp)`)
+    try {
+      insert.run({projectUuid, uuid, wordId, name, description, value, timestamp})
+      reply.status(201).send({
+        projectUuid,
+        uuid,
+        wordId,
+        name,
+        description,
+        value,
+        deleted: false,
+        updatedAt: timestamp,
+        createdAt: timestamp
+      });
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
+  app.put<{ 
+    Body: SavedDuelActivityType,
+    Reply: SavedDuelActivityType | string,
+    Params: { projectUuid: string, duelActivityUuid: string }
+  }>('/projects/:projectUuid/duelActivities/:duelActivityUuid', (req, reply) => {
+    const {
+      projectUuid,
+      uuid: duelActivityUuid,
+      name,
+      description,
+      value,
+    } = req.body;
+    if( projectUuid !== req.params.projectUuid || duelActivityUuid !== req.params.duelActivityUuid ) {
+      reply.status(400).send("Duel activity and/or project uuids do not match");
+    }
+    const timestamp = Date.now();
+    const update = app.db.prepare(`
+      UPDATE project_duel_activities SET
+        name=@name,
+        description=@description,
+        value=@value,
+        updatedAt=@timestamp
+      WHERE projectUuid=@projectUuid AND uuid=@duelActivityUuid AND deleted=0`)
+    try {
+      const result = update.run({projectUuid, duelActivityUuid, name, description, value, timestamp})
+      if( result.changes === 0 ){
+        //no change made, report this
+        reply.status(404).send()
+      }
+      else {
+        const getItem = app.db.prepare(`SELECT * FROM project_duel_activities WHERE uuid=@duelActivityUuid AND projectUuid=@projectUuid`)
+        const item = getItem.get({
+          projectUuid,
+          duelActivityUuid
+        });
+        reply.status(200).send(item)
+      }
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send()
+    }
+  })
+
+  app.get<{
+    Reply: SavedDuelActivityType[],
+    Params: { projectUuid: string }
+  }>('/projects/:projectUuid/duelActivities', (req, reply) => {
+    try {
+      const { projectUuid } = req.params;
+      const select = app.db.prepare(`
+        SELECT * FROM project_duel_activities
+        WHERE projectUuid=@projectUuid
+      `)
+      const duelActivities = select.all({
+        projectUuid
+      })
+      reply.status(200).send(duelActivities);
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send();
+    }
+  })
+
+  app.get<{
+    Reply: SavedDuelActivityType,
+    Params: { projectUuid: string, duelActivityUuid: string }
+  }>('/projects/:projectUuid/duelActivities/:duelActivityUuid', (req, reply) => {
+    try {
+      const { projectUuid, duelActivityUuid } = req.params;
+      const select = app.db.prepare(`
+        SELECT * FROM project_duel_activities
+        WHERE projectUuid=@projectUuid
+        AND uuid=@duelActivityUuid
+      `)
+      const activity = select.get({
+        projectUuid,
+        duelActivityUuid
       })
       if( activity ) {
         reply.status(200).send({

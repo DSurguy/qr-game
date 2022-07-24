@@ -55,6 +55,20 @@ export const SavedActivity = Type.Object({
 export type UnsavedActivityType = Static<typeof UnsavedActivity>
 export type SavedActivityType = Static<typeof SavedActivity>
 
+export const UnsavedDuelActivity = Type.Object({
+  ...activityBase
+})
+export const SavedDuelActivity = Type.Object({
+  projectUuid: Type.String(),
+  uuid: Type.String(),
+  wordId: Type.String(),
+  ...savedItemBase,
+  ...activityBase
+})
+
+export type UnsavedDuelActivityType = Static<typeof UnsavedDuelActivity>
+export type SavedDuelActivityType = Static<typeof SavedDuelActivity>
+
 export const SavedPlayer = Type.Object({
   projectUuid: Type.String(),
   uuid: Type.String(),

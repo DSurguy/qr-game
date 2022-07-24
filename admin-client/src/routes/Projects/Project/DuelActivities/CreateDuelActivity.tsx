@@ -1,21 +1,21 @@
 import React from 'react';
 import { Box, Button, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
-import { SavedActivityType, UnsavedActivityType } from '@qr-game/types';
+import { SavedDuelActivityType, UnsavedDuelActivityType } from '@qr-game/types';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'tabler-icons-react';
 import FormikNumberInput from '../../../../components/inputs/FormikNumberInput';
 import { useServerResource } from '../../../../hooks/useServerResource';
 
-export default function CreateActivity() {
+export default function CreateDuelActivity() {
   const { projectUuid } = useParams();
   const theme = useMantineTheme();
   const navigate = useNavigate()
-  const {isSaving, saveError, create} = useServerResource<UnsavedActivityType, SavedActivityType>({
+  const {isSaving, saveError, create} = useServerResource<UnsavedDuelActivityType, SavedDuelActivityType>({
     create: `projects/${projectUuid}/duelActivities`
   });
 
-  const handleSubmit = (values: UnsavedActivityType, helpers: FormikHelpers<UnsavedActivityType>) => {
+  const handleSubmit = (values: UnsavedDuelActivityType, helpers: FormikHelpers<UnsavedDuelActivityType>) => {
     if( isSaving ) return;
     create(values, (saveSuccessful) => {
       helpers.setSubmitting(false)
@@ -23,7 +23,7 @@ export default function CreateActivity() {
     });
   }
 
-  const initialValues: UnsavedActivityType = {
+  const initialValues: UnsavedDuelActivityType = {
     name: "New Activity",
     description: "",
     value: 1
@@ -37,7 +37,7 @@ export default function CreateActivity() {
       to=".."
       leftIcon={<ChevronLeft size={16} />}
     >Back</Button>
-    <Text component="h2">Create New Activity</Text>
+    <Text component="h2">Create New Duel Activity</Text>
     <Formik initialValues={initialValues} onSubmit={handleSubmit} enableReinitialize>
       <Form>
         {saveError && <Text color="red">{saveError.message}</Text>}

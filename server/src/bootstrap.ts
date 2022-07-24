@@ -45,6 +45,21 @@ export function bootstrap(path: string = "") {
     stmt.run();
 
     stmt = db.prepare(`
+      CREATE TABLE IF NOT EXISTS project_duel_activities (
+        projectUuid TEXT REFERENCES projects(uuid),
+        uuid TEXT PRIMARY KEY,
+        wordId TEXT,
+        deleted INTEGER,
+        name TEXT,
+        description TEXT,
+        value INTEGER,
+        createdAt INTEGER,
+        updatedAt INTEGER
+      )
+    `)
+    stmt.run();
+
+    stmt = db.prepare(`
       CREATE TABLE IF NOT EXISTS project_players (
         projectUuid TEXT REFERENCES projects(uuid),
         uuid TEXT PRIMARY KEY,
