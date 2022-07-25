@@ -22,7 +22,7 @@ export default function PlayerList() {
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
   const navigate = useNavigate();
   const [playerSearch, setPlayerSearch, isDebouncingSearch] = useDebouncedState("");
-  const [filteredPlayers, setFilteredPlayers] = useState<null | SavedPlayerType[]>([])
+  const [filteredPlayers, setFilteredPlayers] = useState<typeof players>([]);
 
   useEffect(() => {
     load();

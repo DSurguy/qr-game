@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
-import { Box, Button, Grid, Loader, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SquarePlus } from 'tabler-icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { SavedDuelActivityType } from '@qr-game/types';
 import { useServerResource } from '../../../../hooks/useServerResource';
+import fuzzysort from 'fuzzysort';
+import useDebouncedState from '../../../../hooks/useDebouncedState';
 
 export default function DuelActivityList () {
   const theme = useMantineTheme();
@@ -19,10 +21,24 @@ export default function DuelActivityList () {
     load: `projects/${projectUuid}/duelActivities`
   })
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
+  const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
+  const [filteredDuelActivities, setFilteredDuelActivities] = useState<typeof duelActivities>(duelActivities);
 
   useEffect(() => {
     load();
   }, [])
+
+  useEffect(() => {
+    if( duelActivities && search ) {
+      const results = fuzzysort.go(search, duelActivities, {
+        limit: 50,
+        keys: ['name', 'uuid', 'wordId'],
+        threshold: -10000
+      })
+      setFilteredDuelActivities(results.map(result => result.obj));
+    }
+    else setFilteredDuelActivities(duelActivities)
+  }, [duelActivities, search])
 
   const renderDuelActivity = (duelActivity: SavedDuelActivityType) => (
     <UnstyledButton sx={{ 
@@ -70,17 +86,27 @@ export default function DuelActivityList () {
     </UnstyledButton>
   )
 
-  const duelActivityContent = () => duelActivities.map((duelActivity: SavedDuelActivityType) => renderDuelActivity(duelActivity)) 
+  const duelActivityContent = () => filteredDuelActivities.map((duelActivity: SavedDuelActivityType) => renderDuelActivity(duelActivity)) 
   if( isLoading ) return <Loader />
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading duelActivities"}</Text>
-  if( !duelActivities ) return null;
+  if( !filteredDuelActivities ) return null;
   return (<Box>
-    <Button
-      compact
-      leftIcon={<SquarePlus size={theme.fontSizes['xl']} />}
-      component={Link}
-      to="create"
-    >New Activity</Button>
-    <Box>{duelActivityContent()}</Box>
+    <Grid>
+      <Grid.Col xs={12} sm={6}>
+        <TextInput
+          placeholder="Search"
+          onChange={({ currentTarget: { value }}) => setSearch(value)}
+          rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
+        />
+      </Grid.Col>
+      <Grid.Col xs={12} sm={6}>
+        <Button
+          leftIcon={<SquarePlus size={theme.fontSizes['xl']} />}
+          component={Link}
+          to="create"
+        >New Activity</Button>
+      </Grid.Col>
+      <Grid.Col xs={12}>{duelActivityContent()}</Grid.Col>
+    </Grid>
   </Box>)
 }

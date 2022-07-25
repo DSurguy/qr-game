@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
-import { Box, Button, Grid, Loader, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SquarePlus } from 'tabler-icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { SavedActivityType } from '@qr-game/types';
 import { useServerResource } from '../../../../hooks/useServerResource';
+import useDebouncedState from '../../../../hooks/useDebouncedState';
+import fuzzysort from 'fuzzysort';
 
 export default function ActivityList () {
   const theme = useMantineTheme();
@@ -19,10 +21,24 @@ export default function ActivityList () {
     load: `projects/${projectUuid}/activities`
   })
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
+  const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
+  const [filteredActivities, setFilteredActivities] = useState<typeof activities>(activities);
 
   useEffect(() => {
     load();
   }, [])
+
+  useEffect(() => {
+    if( activities && search ) {
+      const results = fuzzysort.go(search, activities, {
+        limit: 50,
+        keys: ['name', 'uuid', 'wordId'],
+        threshold: -10000
+      })
+      setFilteredActivities(results.map(result => result.obj));
+    }
+    else setFilteredActivities(activities)
+  }, [activities, search])
 
   const renderActivity = (activity: SavedActivityType) => (
     <UnstyledButton sx={{ 
@@ -70,17 +86,27 @@ export default function ActivityList () {
     </UnstyledButton>
   )
 
-  const activityContent = () => activities.map((activity: SavedActivityType) => renderActivity(activity)) 
+  const activityContent = () => filteredActivities.map((activity: SavedActivityType) => renderActivity(activity)) 
   if( isLoading ) return <Loader />
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activities"}</Text>
-  if( !activities ) return null;
+  if( !filteredActivities ) return null;
   return (<Box>
-    <Button
-      compact
-      leftIcon={<SquarePlus size={theme.fontSizes['xl']} />}
-      component={Link}
-      to="create"
-    >New Activity</Button>
-    <Box>{activityContent()}</Box>
+    <Grid>
+      <Grid.Col xs={12} sm={6}>
+        <TextInput
+          placeholder="Search"
+          onChange={({ currentTarget: { value }}) => setSearch(value)}
+          rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
+        />
+      </Grid.Col>
+      <Grid.Col xs={12} sm={6}>
+        <Button
+          leftIcon={<SquarePlus size={theme.fontSizes['xl']} />}
+          component={Link}
+          to="create"
+        >New Activity</Button>
+      </Grid.Col>
+      <Grid.Col xs={12}>{activityContent()}</Grid.Col>
+    </Grid>
   </Box>)
 }
