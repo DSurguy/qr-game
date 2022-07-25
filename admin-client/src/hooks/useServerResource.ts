@@ -37,7 +37,8 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           }
         })
         if( result.status <= 299 && result.status >= 200 ) {
-          setData(await result.json());
+          if( result.headers.get('Content-Type')?.includes('application/json') )
+            setData(await result.json());
           setLoadError(null);
           if( callback ) callback(true);
         }
@@ -79,7 +80,8 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           const message = (result.json() as any)['message'] || 'Internal Server Error'
           throw new Error(message)
         }
-        setData(await result.json());
+        if( result.headers.get('Content-Type')?.includes('application/json') )
+          setData(await result.json());
         setSaveError(null);
         callback(true);
       } catch (e) {
@@ -116,7 +118,8 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           const message = (result.json() as any)['message'] || 'Internal Server Error'
           throw new Error(message)
         }
-        setData(await result.json())
+        if( result.headers.get('Content-Type')?.includes('application/json') )
+          setData(await result.json());
         setSaveError(null);
         callback(true);
       } catch (e) {

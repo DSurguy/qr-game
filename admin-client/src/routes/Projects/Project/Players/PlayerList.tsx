@@ -1,4 +1,4 @@
-import { Box, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme } from '@mantine/core';
+import { Box, Button, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SavedPlayerType } from '@qr-game/types';
 import fuzzysort from 'fuzzysort';
@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Alien, UserCheck } from 'tabler-icons-react';
 import useDebouncedState from '../../../../hooks/useDebouncedState';
 import { useServerResource } from '../../../../hooks/useServerResource';
+import AddPlayersModal from './AddPlayersModal';
 
 export default function PlayerList() {
   const { projectUuid } = useParams();
@@ -23,6 +24,7 @@ export default function PlayerList() {
   const navigate = useNavigate();
   const [playerSearch, setPlayerSearch, isDebouncingSearch] = useDebouncedState("");
   const [filteredPlayers, setFilteredPlayers] = useState<typeof players>([]);
+  const [addPlayerModalOpen, setAddPlayerModalOpen] = useState(false);
 
   useEffect(() => {
     load();
@@ -99,9 +101,21 @@ export default function PlayerList() {
           rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
         />
       </Grid.Col>
+      <Grid.Col>
+        <Button
+          onClick={() => setAddPlayerModalOpen(true)}
+        >Add More Players</Button>
+      </Grid.Col>
       <Grid.Col xs={12}>
         {playerContent()}
       </Grid.Col>
     </Grid>
+    <AddPlayersModal
+      opened={addPlayerModalOpen}
+      onClose={() => {
+        setAddPlayerModalOpen(false);
+        load();
+      }}
+    />
   </Box>)
 }

@@ -79,3 +79,9 @@ export const SavedPlayer = Type.Object({
 })
 
 export type SavedPlayerType = Static<typeof SavedPlayer>
+
+export const CreatePlayerPayload = Type.Object({
+  numPlayers: Type.Number()
+})
+
+export type CreatePlayerPayloadType = Static<typeof CreatePlayerPayload>;

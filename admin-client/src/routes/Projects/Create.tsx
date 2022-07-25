@@ -43,13 +43,13 @@ export function CreateProjectRoute() {
         <Field name="name" as={TextInput} label="Project Name" />
         <Field name="description" as={Textarea} label="Project Description" sx={{ marginTop: theme.spacing['xs'] }} />
         <Field
-            name="numPlayers"
-            component={FormikNumberInput}
-            mantineProps={{
-              sx: { width: '8rem' },
-              label: "Number of Players"
-            }}
-          />
+          name="numPlayers"
+          component={FormikNumberInput}
+          mantineProps={{
+            sx: { width: '8rem' },
+            label: "Number of Players"
+          }}
+        />
         <Text component="h3">Settings</Text>
         <Field
           name="settings.duels.allow"

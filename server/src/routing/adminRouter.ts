@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettingsType, SavedPlayerType, UnsavedDuelActivityType, SavedDuelActivityType } from '@qr-game/types';
+import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettingsType, SavedPlayerType, UnsavedDuelActivityType, SavedDuelActivityType, CreatePlayerPayloadType } from '@qr-game/types';
 import { FastifyPluginCallback } from 'fastify/types/plugin'
 import { getRandomInt } from '../utils/random';
 import animals from '../lists/animals.js';
@@ -94,10 +94,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     try {
       transaction();
       const selectProject = app.db.prepare(`SELECT * FROM projects WHERE uuid=@uuid`)
-      reply.status(201).send(selectProject.get({uuid}));
+      reply.code(201).send(selectProject.get({uuid}));
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -109,10 +109,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     try {
       const retrieve = app.db.prepare(`SELECT * FROM projects WHERE deleted = ?`);
       const results = retrieve.all(req.query.deleted !== undefined ? 1 : 0);
-      reply.status(200).send(results);
+      reply.code(200).send(results);
     } catch (e) {
       console.error(e);
-      reply.status(500).send();
+      reply.code(500).send();
     }
   })
 
@@ -122,10 +122,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   }>('/projects/:projectUuid', (req, reply) => {
     try {
       const retrieve = app.db.prepare(`SELECT * FROM projects WHERE uuid = ?`);
-      reply.status(200).send(retrieve.get(req.params.projectUuid));
+      reply.code(200).send(retrieve.get(req.params.projectUuid));
     } catch (e) {
       console.error(e);
-      reply.status(500).send();
+      reply.code(500).send();
     }
   })
 
@@ -150,16 +150,16 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       const result = update.run(name, description, timestamp, uuid)
       if( result.changes === 0 ){
         //no change made, report this
-        reply.status(404).send()
+        reply.code(404).send()
       }
       else {
         const getItem = app.db.prepare(`SELECT * FROM projects WHERE uuid=?`)
         const item = getItem.get(uuid);
-        reply.status(200).send(item)
+        reply.code(200).send(item)
       }
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -169,11 +169,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     try {
       const del = app.db.prepare(`UPDATE projects SET deleted = 1 WHERE uuid = ? AND deleted = 0`)
       const result = del.run(req.params.projectUuid);
-      if( result.changes === 0 ) reply.status(404).send()
-      else reply.status(200).send()
+      if( result.changes === 0 ) reply.code(404).send()
+      else reply.code(200).send()
     } catch (e) {
       console.error(e);
-      reply.status(500).send();
+      reply.code(500).send();
     }
   })
 
@@ -183,11 +183,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     try {
       const undelete = app.db.prepare(`UPDATE projects SET deleted = 0 WHERE uuid = ? AND deleted = 1`)
       const result = undelete.run(req.body.uuid)
-      if( result.changes === 0 ) reply.status(404).send()
-      else reply.status(200).send()
+      if( result.changes === 0 ) reply.code(404).send()
+      else reply.code(200).send()
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
   
@@ -210,7 +210,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, 0, @timestamp, @timestamp)`)
     try {
       insert.run({projectUuid, uuid, wordId, name, description, value, timestamp})
-      reply.status(201).send({
+      reply.code(201).send({
         projectUuid,
         uuid,
         wordId,
@@ -223,7 +223,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       });
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -240,7 +240,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       value,
     } = req.body;
     if( projectUuid !== req.params.projectUuid || activityUuid !== req.params.activityUuid ) {
-      reply.status(400).send("Activity and/or project uuids do not match");
+      reply.code(400).send("Activity and/or project uuids do not match");
     }
     const timestamp = Date.now();
     const update = app.db.prepare(`
@@ -254,7 +254,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       const result = update.run({projectUuid, activityUuid, name, description, value, timestamp})
       if( result.changes === 0 ){
         //no change made, report this
-        reply.status(404).send()
+        reply.code(404).send()
       }
       else {
         const getItem = app.db.prepare(`SELECT * FROM project_activities WHERE uuid=@activityUuid AND projectUuid=@projectUuid`)
@@ -262,11 +262,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
           projectUuid,
           activityUuid
         });
-        reply.status(200).send(item)
+        reply.code(200).send(item)
       }
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -283,10 +283,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       const activities = select.all({
         projectUuid
       })
-      reply.status(200).send(activities);
+      reply.code(200).send(activities);
     } catch (e) {
       console.error(e.message);
-      reply.status(500).send();
+      reply.code(500).send();
     }
   })
 
@@ -306,15 +306,15 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         activityUuid
       })
       if( activity ) {
-        reply.status(200).send({
+        reply.code(200).send({
           ...activity
         });
       } else {
-        reply.status(404).send()
+        reply.code(404).send()
       }
     } catch (e) {
       console.error(e.message);
-      reply.status(500).send();
+      reply.code(500).send();
     }
   })
 
@@ -337,7 +337,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, 0, @timestamp, @timestamp)`)
     try {
       insert.run({projectUuid, uuid, wordId, name, description, value, timestamp})
-      reply.status(201).send({
+      reply.code(201).send({
         projectUuid,
         uuid,
         wordId,
@@ -350,7 +350,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       });
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -367,7 +367,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       value,
     } = req.body;
     if( projectUuid !== req.params.projectUuid || duelActivityUuid !== req.params.duelActivityUuid ) {
-      reply.status(400).send("Duel activity and/or project uuids do not match");
+      reply.code(400).send("Duel activity and/or project uuids do not match");
     }
     const timestamp = Date.now();
     const update = app.db.prepare(`
@@ -381,7 +381,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       const result = update.run({projectUuid, duelActivityUuid, name, description, value, timestamp})
       if( result.changes === 0 ){
         //no change made, report this
-        reply.status(404).send()
+        reply.code(404).send()
       }
       else {
         const getItem = app.db.prepare(`SELECT * FROM project_duel_activities WHERE uuid=@duelActivityUuid AND projectUuid=@projectUuid`)
@@ -389,11 +389,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
           projectUuid,
           duelActivityUuid
         });
-        reply.status(200).send(item)
+        reply.code(200).send(item)
       }
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -410,10 +410,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       const duelActivities = select.all({
         projectUuid
       })
-      reply.status(200).send(duelActivities);
+      reply.code(200).send(duelActivities);
     } catch (e) {
       console.error(e.message);
-      reply.status(500).send();
+      reply.code(500).send();
     }
   })
 
@@ -433,15 +433,15 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         duelActivityUuid
       })
       if( activity ) {
-        reply.status(200).send({
+        reply.code(200).send({
           ...activity
         });
       } else {
-        reply.status(404).send()
+        reply.code(404).send()
       }
     } catch (e) {
       console.error(e.message);
-      reply.status(500).send();
+      reply.code(500).send();
     }
   })
 
@@ -466,10 +466,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         SELECT jsonData FROM project_settings
         WHERE uuid=@projectUuid
       `)
-      reply.status(200).send(select.get({projectUuid: req.params.projectUuid}).jsonData);
+      reply.code(200).send(select.get({projectUuid: req.params.projectUuid}).jsonData);
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -484,12 +484,12 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         uuid: req.params.projectUuid,
       })
       if( result ) 
-        reply.status(201).send(result.jsonData);
+        reply.code(201).send(result.jsonData);
       else
-        reply.status(404).send();
+        reply.code(404).send();
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -512,10 +512,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         deleted: deleted ? 1 : 0,
         projectUuid
       })
-      reply.status(200).send(players)
+      reply.code(200).send(players)
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -535,10 +535,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         projectUuid,
         playerUuid
       })
-      reply.status(200).send(player)
+      reply.code(200).send(player)
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
     }
   })
 
@@ -555,7 +555,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         uuid: playerUuid
       } = req.body;
       if( projectUuid !== req.params.projectUuid || playerUuid !== req.params.playerUuid ) {
-        reply.status(400).send("Player and/or project uuids do not match");
+        reply.code(400).send("Player and/or project uuids do not match");
       }
       const update = app.db.prepare(`
         UPDATE project_players
@@ -570,7 +570,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       })
       if( result.changes === 0 ){
         //no change made, report this
-        reply.status(404).send()
+        reply.code(404).send()
       }
       else {
         const getItem = app.db.prepare(`SELECT * FROM project_players WHERE uuid=@playerUuid AND projectUuid=@projectUuid`)
@@ -578,11 +578,43 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
           projectUuid,
           playerUuid
         });
-        reply.status(200).send(item)
+        reply.code(200).send(item)
       }
     } catch (e) {
       console.error(e);
-      reply.status(500).send()
+      reply.code(500).send()
+    }
+  })
+
+  app.post<{
+    Params: { projectUuid: string },
+    Body: CreatePlayerPayloadType,
+  }>('/projects/:projectUuid/players', (req, reply) => {
+    try {
+      const { projectUuid } = req.params;
+      const timestamp = Date.now();
+      const insertPlayers = app.db.transaction(() => {
+        const insertPlayer = app.db.prepare(`
+          INSERT INTO project_players (projectUuid, uuid, wordId, name, claimed, deleted, createdAt, updatedAt)
+          VALUES (@projectUuid, @uuid, @wordId, @name, 0, 0, @timestamp, @timestamp)
+        `)
+        for( let i=0; i<req.body.numPlayers; i++ ) {
+          const playerUuid = randomUUID();
+          const playerWordId = claimNewWordId(projectUuid);
+          insertPlayer.run({
+            projectUuid: projectUuid,
+            uuid: playerUuid,
+            wordId: playerWordId,
+            name: "",
+            timestamp
+          })
+        }
+      })
+      insertPlayers();
+      reply.code(200).header("content-type", "none").send();
+    } catch (e) {
+      console.error(e);
+      reply.code(500).send()
     }
   })
 

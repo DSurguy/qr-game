@@ -22,7 +22,6 @@ export default function Activity() {
     load: `projects/${projectUuid}/activities/${activityUuid}`,
     update: `projects/${projectUuid}/activities/${activityUuid}`,
   })
-  console.log(activity);
   const [qrCode, setQrCode] = useState<null | string>(null)
   const [qrCodeError, setQrCodeError] = useState<null | Error>(null);
   const theme = useMantineTheme();
