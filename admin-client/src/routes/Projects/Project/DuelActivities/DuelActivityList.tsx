@@ -104,7 +104,7 @@ export default function DuelActivityList () {
           leftIcon={<SquarePlus size={theme.fontSizes['xl']} />}
           component={Link}
           to="create"
-        >New Activity</Button>
+        >New Duel Activity</Button>
       </Grid.Col>
       <Grid.Col xs={12}>{duelActivityContent()}</Grid.Col>
     </Grid>
