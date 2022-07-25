@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button, Grid, Loader, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SquarePlus } from 'tabler-icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { SavedActivityType } from '@qr-game/types';
-import { ApiActionCallback } from '../../../../types';
-import { ADMIN_API_BASE } from '../../../../constants';
 import { useServerResource } from '../../../../hooks/useServerResource';
 
 export default function ActivityList () {

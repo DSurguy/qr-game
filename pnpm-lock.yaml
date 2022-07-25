@@ -21,6 +21,7 @@ importers:
       core-js: ^3.23.3
       css-loader: ^6.7.1
       formik: ^2.2.9
+      fuzzysort: ^2.0.1
       html-webpack-plugin: ^5.5.0
       postcss: ^8.4.14
       postcss-loader: ^7.0.0
@@ -43,6 +44,7 @@ importers:
       '@mantine/notifications': 4.2.12_n5fi23fjjzlwcbqhnnpdtjftw4
       '@qr-game/types': link:../types
       formik: 2.2.9_react@18.2.0
+      fuzzysort: 2.0.1
       qrcode: 1.5.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -3346,6 +3348,10 @@ packages:
 
   /function-bind/1.1.1:
     resolution: {integrity: sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A==}
+
+  /fuzzysort/2.0.1:
+    resolution: {integrity: sha512-SlgbPAq0eQ6JQ1h3l4MNeGH/t9DHKH8GGM0RD/6RhmJrNnSoWt3oIVaiQm9g9BPB+wAhRMeMqlUTbhbd7+Ufcg==}
+    dev: false
 
   /gensync/1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}

@@ -1,9 +1,11 @@
-import { Box, Grid, Loader, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
+import { Box, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SavedPlayerType } from '@qr-game/types';
-import React, { useEffect } from 'react';
+import fuzzysort from 'fuzzysort';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Alien, UserCheck } from 'tabler-icons-react';
+import useDebouncedState from '../../../../hooks/useDebouncedState';
 import { useServerResource } from '../../../../hooks/useServerResource';
 
 export default function PlayerList() {
@@ -19,10 +21,24 @@ export default function PlayerList() {
   const theme = useMantineTheme();
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
   const navigate = useNavigate();
+  const [playerSearch, setPlayerSearch, isDebouncingSearch] = useDebouncedState("");
+  const [filteredPlayers, setFilteredPlayers] = useState<null | SavedPlayerType[]>([])
 
   useEffect(() => {
     load();
   }, [])
+
+  useEffect(() => {
+    if( players && playerSearch ) {
+      const results = fuzzysort.go(playerSearch, players, {
+        limit: 50,
+        keys: ['name', 'uuid', 'wordId'],
+        threshold: -10000
+      })
+      setFilteredPlayers(results.map(result => result.obj));
+    }
+    else setFilteredPlayers(players)
+  }, [players, playerSearch])
 
   const renderPlayer = (player: SavedPlayerType) => (
     <UnstyledButton sx={{ 
@@ -69,12 +85,23 @@ export default function PlayerList() {
     </UnstyledButton>
   );
 
-  const playerContent = () => players.map(player => renderPlayer(player)) 
+  const playerContent = () => filteredPlayers.map(player => renderPlayer(player)) 
 
   if( isLoading ) return <Loader />
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activities"}</Text>
-  if( !players ) return null;
+  if( !filteredPlayers ) return null;
   return (<Box>
-    {playerContent()}
+    <Grid>
+      <Grid.Col xs={12} sm={6}>
+        <TextInput
+          placeholder="Search"
+          onChange={({ currentTarget: { value }}) => setPlayerSearch(value)}
+          rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
+        />
+      </Grid.Col>
+      <Grid.Col xs={12}>
+        {playerContent()}
+      </Grid.Col>
+    </Grid>
   </Box>)
 }
