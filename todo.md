@@ -10,7 +10,7 @@
 [ ] Add delete/restore action to the UI
   - Remove wordId from DB when item is deleted so it can be re-used
 [x] Add searches to lists
-  - [ ] Add it to projects
+  - [x] Add it to projects
 [x] Add modal to create new project players
 [x] Add editing project meta (name/descrip)
 [ ] Create game client :)
