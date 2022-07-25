@@ -11,7 +11,7 @@
   - Remove wordId from DB when item is deleted so it can be re-used
 [x] Add searches to lists
   - [ ] Add it to projects
-[ ] Add modal to create new project players
+[x] Add modal to create new project players
 [ ] Add editing project meta (name/descrip)
 [ ] Create game client :)
 

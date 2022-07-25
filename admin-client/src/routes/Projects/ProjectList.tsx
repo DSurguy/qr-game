@@ -1,66 +1,28 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, Divider, Grid, Loader, Text, UnstyledButton, useMantineTheme} from '@mantine/core';
+import React, { useEffect } from 'react';
+import { Box, Button, Grid, Loader, Text, UnstyledButton, useMantineTheme} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { showNotification } from '@mantine/notifications';
 import { Link } from 'react-router-dom';
 import { SquarePlus } from 'tabler-icons-react';
-import { ADMIN_API_BASE } from '../constants';
-import { ProjectMeta } from '../types';
+import { useServerResource } from '../../hooks/useServerResource';
+import { SavedProjectType } from '@qr-game/types';
 
-function useProjects(loadImmediately: boolean = false) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<null | Error>(null);
-  const [projects, setProjects] = useState<ProjectMeta[]>([]);
-
-  useEffect(() => {
-    if( loadImmediately ) loadProjects()
-  }, [])
-
-  const loadProjects = () => {
-    if( isLoading ) return;
-    (async () => {
-      try {
-        setIsLoading(true);
-        const result = await fetch(`${ADMIN_API_BASE}/projects`)
-        const data = await result.json();
-        setProjects(data as ProjectMeta[]);
-        setError(null);
-      } catch (e) {
-        setError(e);
-      } finally {
-        setIsLoading(false);
-      }
-    })()
-  }
-  return [
-    isLoading,
-    error,
-    projects,
-    loadProjects
-  ] as const;
-}
-
-export function ProjectsRoute() {
+export function ProjectsList() {
   const theme = useMantineTheme();
   const isSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`)
-  const [
+  const {
+    data: projects,
     isLoading,
-    error,
-    projects
-  ] = useProjects(true);
+    loadError,
+    load
+  } = useServerResource<null, SavedProjectType[]>({
+    load: `projects`
+  });
 
   useEffect(() => {
-    if( error ) {
-      showNotification({
-        id: 'load-projects-error-notification',
-        title: 'Error loading projects',
-        message: error.message,
-        color: 'red'
-      })
-    }
-  }, [error])
+    load();
+  }, [])
 
-  const renderProject = (project: ProjectMeta) => (
+  const renderProject = (project: SavedProjectType) => (
     <UnstyledButton key={project.uuid} component={Link} to={`/projects/${project.uuid}`} sx={{ 
       display: 'block',
       padding: theme.spacing['xs'],
@@ -94,6 +56,9 @@ export function ProjectsRoute() {
     </UnstyledButton>
   )
 
+  if( isLoading ) return <Loader />
+  if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activities"}</Text>
+  if( !projects ) return null;
   return <Box>
     <Text>Project List</Text>
     <Button

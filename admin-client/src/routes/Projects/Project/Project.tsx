@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
-import { Box, Loader, Tabs, Text, } from '@mantine/core';
+import { Box, Button, Loader, Tabs, Text, Textarea, TextInput, useMantineTheme, } from '@mantine/core';
 import { SavedProjectType } from '@qr-game/types';
-import { matchPath, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, matchPath, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useServerResource } from '../../../hooks/useServerResource';
+import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { ChevronLeft } from 'tabler-icons-react';
 
 enum ProjectTab {
   activities = 0,
@@ -16,13 +18,18 @@ export function ProjectRoute() {
   const location = useLocation();
   const navigate = useNavigate();
   const {
-    isLoading,
-    loadError,
     data: project,
-    load
+    isLoading,
+    isSaving,
+    loadError,
+    saveError,
+    load,
+    update
   } = useServerResource<SavedProjectType, SavedProjectType>({
-    load: `projects/${projectUuid}`
+    load: `projects/${projectUuid}`,
+    update: `projects/${projectUuid}`
   })
+  const theme = useMantineTheme();
 
   const locationToTab = () => {
     if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities
@@ -41,6 +48,13 @@ export function ProjectRoute() {
     if( project && activeTab === undefined ) navigate("activities");
   }, [project])
 
+  const handleSubmit = (values: SavedProjectType, helpers: FormikHelpers<SavedProjectType>) => {
+    if( isSaving ) return;
+    update(values, () => {
+      helpers.setSubmitting(false)
+    });
+  }
+
   const onTabChange = (tab: number) => {
     switch(tab){
       case ProjectTab.activities: navigate("activities"); break;
@@ -54,9 +68,26 @@ export function ProjectRoute() {
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading project"}</Text>
   if( !project ) return null;
   return <Box style={{maxWidth: `700px`}}>
-    <Text component="h1" size="xl">{project.name}</Text>
-    <Text component="p">{project.description}</Text>
-    <Tabs active={activeTab} onTabChange={onTabChange} sx={{ marginBottom: '0.5rem'}}>
+    <Button
+      compact
+      variant="subtle"
+      component={Link}
+      to=".."
+      leftIcon={<ChevronLeft size={16} />}
+    >Back</Button>
+    <Formik initialValues={project} onSubmit={handleSubmit} enableReinitialize>
+      {({ dirty }) => (
+        <Form>
+          {saveError && <Text color="red">{saveError.message}</Text>}
+          <Field name="name" as={TextInput} label="Project Name" />
+          <Field name="description" as={Textarea} label="Description" sx={{ marginTop: theme.spacing['xs'] }} />
+          {dirty && <Button type="submit" disabled={isSaving} sx={{
+            marginTop: theme.spacing['xs']
+          }}>Save</Button>}
+        </Form>
+      )}
+    </Formik>
+    <Tabs active={activeTab} onTabChange={onTabChange} sx={{ marginBottom: '0.5rem', marginTop: '1rem' }}>
       <Tabs.Tab label="Activities" />
       <Tabs.Tab label="Duel Activities" />
       <Tabs.Tab label="Players" />
