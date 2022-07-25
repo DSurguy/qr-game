@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
-import { Box, Button, Grid, Loader, Text, UnstyledButton, useMantineTheme} from '@mantine/core';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme} from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { SquarePlus } from 'tabler-icons-react';
 import { useServerResource } from '../../hooks/useServerResource';
 import { SavedProjectType } from '@qr-game/types';
+import fuzzysort from 'fuzzysort';
+import useDebouncedState from '../../hooks/useDebouncedState';
 
 export function ProjectsList() {
   const theme = useMantineTheme();
@@ -17,10 +19,25 @@ export function ProjectsList() {
   } = useServerResource<null, SavedProjectType[]>({
     load: `projects`
   });
+  const navigate = useNavigate();
+  const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
+  const [filteredProjects, setFilteredProjects] = useState<typeof projects>([]);
 
   useEffect(() => {
     load();
   }, [])
+
+  useEffect(() => {
+    if( projects && search ) {
+      const results = fuzzysort.go(search, projects, {
+        limit: 50,
+        keys: ['name', 'uuid', 'wordId'],
+        threshold: -10000
+      })
+      setFilteredProjects(results.map(result => result.obj));
+    }
+    else setFilteredProjects(projects)
+  }, [projects, search])
 
   const renderProject = (project: SavedProjectType) => (
     <UnstyledButton key={project.uuid} component={Link} to={`/projects/${project.uuid}`} sx={{ 
@@ -56,22 +73,28 @@ export function ProjectsList() {
     </UnstyledButton>
   )
 
+  const projectContent = () => filteredProjects.map(project => renderProject(project))
+
   if( isLoading ) return <Loader />
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activities"}</Text>
-  if( !projects ) return null;
+  if( !filteredProjects ) return null;
   return <Box>
-    <Text>Project List</Text>
-    <Button
-      compact
-      leftIcon={<SquarePlus size={theme.fontSizes['xl']} />}
-      component={Link}
-      to='/projects/create'
-    >New Project</Button>
-    { isLoading && <Loader size={20} />}
-    <Box sx={{
-      maxWidth: `700px`
-    }}>
-      {projects.map(renderProject)}
-    </Box>
+    <Grid>
+      <Grid.Col xs={12} sm={6}>
+        <TextInput
+          placeholder="Search"
+          onChange={({ currentTarget: { value }}) => setSearch(value)}
+          rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
+        />
+      </Grid.Col>
+      <Grid.Col xs={12} sm={6}>
+        <Button
+          onClick={() => navigate('./create')}
+        >Create New Project</Button>
+      </Grid.Col>
+      <Grid.Col xs={12}>
+        {projectContent()}
+      </Grid.Col>
+    </Grid>
   </Box>
 }

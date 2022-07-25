@@ -12,7 +12,7 @@
 [x] Add searches to lists
   - [ ] Add it to projects
 [x] Add modal to create new project players
-[ ] Add editing project meta (name/descrip)
+[x] Add editing project meta (name/descrip)
 [ ] Create game client :)
 
 ### Notes

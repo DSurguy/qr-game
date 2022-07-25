@@ -22,7 +22,7 @@ export default function PlayerList() {
   const theme = useMantineTheme();
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
   const navigate = useNavigate();
-  const [playerSearch, setPlayerSearch, isDebouncingSearch] = useDebouncedState("");
+  const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
   const [filteredPlayers, setFilteredPlayers] = useState<typeof players>([]);
   const [addPlayerModalOpen, setAddPlayerModalOpen] = useState(false);
 
@@ -31,8 +31,8 @@ export default function PlayerList() {
   }, [])
 
   useEffect(() => {
-    if( players && playerSearch ) {
-      const results = fuzzysort.go(playerSearch, players, {
+    if( players && search ) {
+      const results = fuzzysort.go(search, players, {
         limit: 50,
         keys: ['name', 'uuid', 'wordId'],
         threshold: -10000
@@ -40,7 +40,7 @@ export default function PlayerList() {
       setFilteredPlayers(results.map(result => result.obj));
     }
     else setFilteredPlayers(players)
-  }, [players, playerSearch])
+  }, [players, search])
 
   const renderPlayer = (player: SavedPlayerType) => (
     <UnstyledButton sx={{ 
@@ -97,11 +97,11 @@ export default function PlayerList() {
       <Grid.Col xs={12} sm={6}>
         <TextInput
           placeholder="Search"
-          onChange={({ currentTarget: { value }}) => setPlayerSearch(value)}
+          onChange={({ currentTarget: { value }}) => setSearch(value)}
           rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
         />
       </Grid.Col>
-      <Grid.Col>
+      <Grid.Col xs={12} sm={6}>
         <Button
           onClick={() => setAddPlayerModalOpen(true)}
         >Add More Players</Button>
