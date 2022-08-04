@@ -4,7 +4,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: './src/index.tsx',
   output: {
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/'
   },
   resolve: 
   {
@@ -36,10 +37,11 @@ module.exports = {
     ]
   },
   devServer: {
-    static: './dist',
+    static: 'dist',
+    historyApiFallback: true,
     client: {
       overlay: false
-    }
+    },
   },
   devtool: 'eval-source-map',
   plugins: [
