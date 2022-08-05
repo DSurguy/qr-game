@@ -92,6 +92,7 @@ importers:
       formik: ^2.2.9
       fuzzysort: ^2.0.1
       html-webpack-plugin: ^5.5.0
+      jsqr: ^1.4.0
       postcss: ^8.4.14
       postcss-loader: ^7.0.0
       qrcode: ^1.5.0
@@ -114,6 +115,7 @@ importers:
       '@qr-game/types': link:../types
       formik: 2.2.9_react@18.2.0
       fuzzysort: 2.0.1
+      jsqr: 1.4.0
       qrcode: 1.5.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -3739,6 +3741,10 @@ packages:
       core-js: 3.23.3
       dompurify: 2.3.8
       html2canvas: 1.4.1
+    dev: false
+
+  /jsqr/1.4.0:
+    resolution: {integrity: sha512-dxLob7q65Xg2DvstYkRpkYtmKm2sPJ9oFhrhmudT1dZvNFFTlroai3AWSpLey/w5vMcLBXRgOJsbXpdN9HzU/A==}
     dev: false
 
   /kind-of/6.0.3:
