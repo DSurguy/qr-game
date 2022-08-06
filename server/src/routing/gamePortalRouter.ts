@@ -1,12 +1,16 @@
 import { FastifyPluginCallback } from "fastify"
 
-/*
+// /api/admin/*
+// ----
+// BASE /api/game/portal/*
+// POST /api/game/portal/player?playerUuid&projectUuid
+// ----
+// BASE /api/game/* <authenticated>
+// GET  /api/game - project info
+// GET  /api/game/me - current authenticated player info
+// GET  /api/game/players - all claimed players
+// GET  /api/game/players/:playerUuid - specific player info
 
-returns {
-  target: '/login'
-}
-
-*/
 
 // /portal
 export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
@@ -38,7 +42,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       }
       else {
         const sessionId = app.sessions.startSession(projectUuid, playerUuid)
-        reply.setCookie(qrGameSession, sessionId, {
+        reply.setCookie('qrGameSession', sessionId, {
           path: '/',
           expires: new Date(Date.now() + 24 * 60 * 60 * 1000), //24 hours
           signed: true

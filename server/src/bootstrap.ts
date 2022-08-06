@@ -91,7 +91,8 @@ export function bootstrap(path: string = "") {
         sessionId TEXT,
         UNIQUE (projectUuid, playerUuid),
         UNIQUE (projectUuid, sessionId),
-        FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid )
+        FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid ),
+        PRIMARY KEY ( sessionId )
       )
     `)
     stmt.run();

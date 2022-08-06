@@ -41,3 +41,9 @@ export type ProjectDefinition = {
   activities: Activity[];
   duelActivities?: Activity[];
 }
+
+export type ProjectSession = {
+  projectUuid: string;
+  playerUuid: string;
+  sessionId: string;
+}

@@ -6,6 +6,7 @@ import { Database } from 'better-sqlite3';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import SessionManager from "../sessionManager";
 import { gamePortalRouter } from "./gamePortalRouter";
+import { gameRouter } from "./gameRouter";
 
 export function start(db: Database) {
   const app = fastify({
@@ -26,7 +27,11 @@ export function start(db: Database) {
   })
 
   app.register(gamePortalRouter, {
-    prefix: 'api/portal'
+    prefix: 'api/game/portal'
+  })
+
+  app.register(gameRouter, {
+    prefix: 'api/game'
   })
   
   app.listen({ port: 8011 }, (err, address) => {
