@@ -1,7 +1,11 @@
 import fastify from "fastify";
+import type { FastifyCookieOptions } from '@fastify/cookie'
+import cookie from '@fastify/cookie'
 import { adminRouter } from './adminRouter';
 import { Database } from 'better-sqlite3';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
+import SessionManager from "../sessionManager";
+import { gamePortalRouter } from "./gamePortalRouter";
 
 export function start(db: Database) {
   const app = fastify({
@@ -9,11 +13,20 @@ export function start(db: Database) {
   }).withTypeProvider<TypeBoxTypeProvider>()
 
   app.decorate('db', db);
+
+  app.decorate('sessions', new SessionManager(db));
   
   app.register(require('@fastify/cors'))
+  app.register(cookie, {
+    secret: 'change-this-secret-later'
+  } as FastifyCookieOptions)
   
   app.register(adminRouter, {
     prefix: 'api/admin'
+  })
+
+  app.register(gamePortalRouter, {
+    prefix: 'api/portal'
   })
   
   app.listen({ port: 8011 }, (err, address) => {

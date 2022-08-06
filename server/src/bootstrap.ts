@@ -32,14 +32,15 @@ export function bootstrap(path: string = "") {
     stmt = db.prepare(`
       CREATE TABLE IF NOT EXISTS project_activities (
         projectUuid TEXT REFERENCES projects(uuid),
-        uuid TEXT PRIMARY KEY,
+        uuid TEXT,
         wordId TEXT,
         deleted INTEGER,
         name TEXT,
         description TEXT,
         value INTEGER,
         createdAt INTEGER,
-        updatedAt INTEGER
+        updatedAt INTEGER,
+        PRIMARY KEY (projectUuid, uuid)
       )
     `)
     stmt.run();
@@ -47,14 +48,15 @@ export function bootstrap(path: string = "") {
     stmt = db.prepare(`
       CREATE TABLE IF NOT EXISTS project_duel_activities (
         projectUuid TEXT REFERENCES projects(uuid),
-        uuid TEXT PRIMARY KEY,
+        uuid TEXT,
         wordId TEXT,
         deleted INTEGER,
         name TEXT,
         description TEXT,
         value INTEGER,
         createdAt INTEGER,
-        updatedAt INTEGER
+        updatedAt INTEGER,
+        PRIMARY KEY (projectUuid, uuid)
       )
     `)
     stmt.run();
@@ -62,13 +64,14 @@ export function bootstrap(path: string = "") {
     stmt = db.prepare(`
       CREATE TABLE IF NOT EXISTS project_players (
         projectUuid TEXT REFERENCES projects(uuid),
-        uuid TEXT PRIMARY KEY,
+        uuid TEXT,
         wordId TEXT,
         deleted INTEGER,
         name TEXT,
         claimed INTEGER,
         createdAt INTEGER,
-        updatedAt INTEGER
+        updatedAt INTEGER,
+        UNIQUE (projectUuid, uuid)
       )
     `)
     stmt.run();
@@ -77,6 +80,18 @@ export function bootstrap(path: string = "") {
       CREATE TABLE IF NOT EXISTS project_wordIds (
         projectUuid TEXT REFERENCES projects(uuid),
         wordId TEXT
+      )
+    `)
+    stmt.run();
+
+    stmt = db.prepare(`
+      CREATE TABLE IF NOT EXISTS project_sessions (
+        projectUuid TEXT,
+        playerUuid TEXT,
+        sessionId TEXT,
+        UNIQUE (projectUuid, playerUuid),
+        UNIQUE (projectUuid, sessionId),
+        FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid )
       )
     `)
     stmt.run();

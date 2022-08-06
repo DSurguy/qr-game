@@ -1,9 +1,11 @@
 import { Database } from 'better-sqlite3';
 import fastify from 'fastify';
+import SessionManager from './sessionManager';
 
 declare module 'fastify' {
   export interface FastifyInstance{
     db: Database;
+    sessions: SessionManager;
   }
 }
 
