@@ -36,20 +36,14 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
   }>('/player', (req, reply) => {
     try {
       const { playerUuid, projectUuid } = req.query;
-      const { qrGameSession } = req.cookies;
-      if( qrGameSession ) {
-        console.log("Authenticated User");
-      }
-      else {
-        const sessionId = app.sessions.startSession(projectUuid, playerUuid)
-        reply.setCookie('qrGameSession', sessionId, {
-          path: '/',
-          expires: new Date(Date.now() + 24 * 60 * 60 * 1000), //24 hours
-          signed: true
-        }).status(200).send({
-          target: '/player'
-        });
-      }
+      //const { qrGameSession } = req.cookies;
+      //TODO: don't overwrite session
+      const sessionId = app.sessions.startSession(projectUuid, playerUuid)
+      const signedSessionId = app.signCookie(sessionId);
+      reply.status(200).send({
+        target: '/game/me',
+        setAuth: signedSessionId
+      });
     } catch (e) {
       reply.status(500).send();
     }

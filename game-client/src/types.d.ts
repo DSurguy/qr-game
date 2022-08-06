@@ -1,0 +1,1 @@
+export type ApiActionCallback = (actionWasSuccessful: boolean) => void;

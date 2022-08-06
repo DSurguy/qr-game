@@ -13,7 +13,9 @@
   - [x] Add it to projects
 [x] Add modal to create new project players
 [x] Add editing project meta (name/descrip)
-[ ] Create game client :)
+[x] Create game client :)
+[ ] Apply auth concept to admin client useServerResource
+[ ] Expire session manually since cookies don't work
 
 ### Notes
 - If settings are changed when a game is running, need to cancel/handle related activities (such as duel allow)

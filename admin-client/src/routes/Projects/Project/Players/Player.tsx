@@ -4,7 +4,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useServerResource } from '../../../../hooks/useServerResource';
 import { Badge, Box, Button, Grid, Loader, Text, useMantineTheme } from '@mantine/core';
 import { ChevronLeft } from 'tabler-icons-react';
-import playerToQr from '../../../../conversions/playerToQr';
+import { playerToQrAsUrl } from '../../../../conversions/playerToQr';
 import ClaimPlayerModal from './ClaimPlayerModal';
 
 export default function Player() {
@@ -34,7 +34,7 @@ export default function Player() {
     ( async () => {
       try {
         if( player ) {
-          const code = await playerToQr(player);
+          const code = await playerToQrAsUrl(player, 'http://192.168.1.3:8081');
           setQrCode(code);
           setQrCodeError(null);
         }

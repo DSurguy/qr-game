@@ -34,7 +34,7 @@ export function start(db: Database) {
     prefix: 'api/game'
   })
   
-  app.listen({ port: 8011 }, (err, address) => {
+  app.listen({ port: 8011, host: '::' }, (err, address) => {
     if (err) {
       app.log.error(err)
       process.exit(1)

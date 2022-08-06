@@ -1,0 +1,1 @@
+export const ADMIN_API_BASE = 'http://192.168.1.3:8011/api/game'

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, Text } from '@mantine/core';
+import { Box, Button, Text, TextInput } from '@mantine/core';
 import jsQR from 'jsqr';
 
 const useMedia = () => {
@@ -58,7 +58,11 @@ const drawLine = (ctx: CanvasRenderingContext2D, begin: Point, end: Point, color
   ctx.stroke();
 }
 
-export default function CameraTestRoute () {
+type Props = {
+  onQrPayload: (payload: string) => void;
+}
+
+export default function CameraTestRoute ({ onQrPayload }: Props) {
   const {
     stream,
     cameraTrack,
@@ -68,6 +72,7 @@ export default function CameraTestRoute () {
   const canvasRef = useRef<HTMLCanvasElement>()
   const videoRef = useRef<HTMLVideoElement>()
   const [animationFrameCallbackId, setAnimationFrameCallbackId] = useState(0);
+  const [qrPayload, setQrPayload] = useState("");
 
   useEffect(() => {
     if( stream && videoRef.current){
@@ -86,10 +91,11 @@ export default function CameraTestRoute () {
           drawLine(ctx, code.location.topRightCorner, code.location.bottomRightCorner, "#FF3B58");
           drawLine(ctx, code.location.bottomRightCorner, code.location.bottomLeftCorner, "#FF3B58");
           drawLine(ctx, code.location.bottomLeftCorner, code.location.topLeftCorner, "#FF3B58");
+          setQrPayload(code.data)
+          onQrPayload(code.data);
         }
         setAnimationFrameCallbackId(requestAnimationFrame(processFrame))
       }
-
       setAnimationFrameCallbackId(requestAnimationFrame(processFrame));
     }
     else {
@@ -133,6 +139,7 @@ export default function CameraTestRoute () {
           }}
         />
       </Box>
+      { qrPayload && <TextInput value={qrPayload} readOnly sx={{ fontFamily: 'monospace'}} />}
     </Box>
   )
 }

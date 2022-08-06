@@ -32,8 +32,15 @@ export const SavedProject = Type.Object({
   ...projectBase
 })
 
+export const GameProject = Type.Object({
+  uuid: Type.String(),
+  wordId: Type.String(),
+  ...projectBase
+})
+
 export type UnsavedProjectType = Static<typeof UnsavedProject>
 export type SavedProjectType = Static<typeof SavedProject>
+export type GameProjectType = Static<typeof GameProject>
 
 const activityBase = {
   name: Type.String(),
@@ -78,7 +85,16 @@ export const SavedPlayer = Type.Object({
   ...savedItemBase
 })
 
+export const GamePlayer = Type.Object({
+  projectUuid: Type.String(),
+  uuid: Type.String(),
+  wordId: Type.String(),
+  name: Type.String(),
+  claimed: Type.Number(),
+})
+
 export type SavedPlayerType = Static<typeof SavedPlayer>
+export type GamePlayerType = Static<typeof GamePlayer>
 
 export const CreatePlayerPayload = Type.Object({
   numPlayers: Type.Number()
