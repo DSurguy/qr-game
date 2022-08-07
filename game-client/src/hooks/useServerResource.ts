@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { ADMIN_API_BASE } from "../constants";
+import { ADMIN_API_BASE, STORAGE_KEY_SESSION_ID } from "../constants";
 import { ApiActionCallback } from "../types";
+import { useLocalStoredState } from "./useLocalStoredState";
 
 type ResourceEndpoints = {
   create?: string,
@@ -11,6 +12,7 @@ type ResourceEndpoints = {
 }
 
 export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEndpoints) {
+  const [sessionId] = useLocalStoredState<string>(STORAGE_KEY_SESSION_ID)
   const [data, setData] = useState<null | SavedType>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +36,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('qrgame/session')
+            'Authorization': sessionId
           }
         })
         if( result.status <= 299 && result.status >= 200 ) {
@@ -74,7 +76,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('qrgame/session')
+            'Authorization': sessionId
           },
           body: JSON.stringify(values)
         })
@@ -85,10 +87,10 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
         if( result.headers.get('Content-Type')?.includes('application/json') )
           setData(await result.json());
         setSaveError(null);
-        callback(true);
+        if( callback ) callback(true);
       } catch (e) {
         setSaveError(e);
-        callback(false)
+        if( callback ) callback(false)
       } finally {
         setIsSaving(false);
       }
@@ -113,7 +115,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem('qrgame/session')
+            'Authorization': sessionId
           },
           body: JSON.stringify(values)
         })
@@ -124,10 +126,10 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
         if( result.headers.get('Content-Type')?.includes('application/json') )
           setData(await result.json());
         setSaveError(null);
-        callback(true);
+        if( callback ) callback(true);
       } catch (e) {
         setSaveError(e);
-        callback(false)
+        if( callback ) callback(false)
       } finally {
         setIsSaving(false);
       }

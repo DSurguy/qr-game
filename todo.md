@@ -16,6 +16,8 @@
 [x] Create game client :)
 [ ] Apply auth concept to admin client useServerResource
 [ ] Expire session manually since cookies don't work
+[ ] Abstract portal route parsing, since we want to use an embedded camera modal
+  - [ ] Also make the embedded camera modal
 
 ### Notes
 - If settings are changed when a game is running, need to cancel/handle related activities (such as duel allow)

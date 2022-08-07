@@ -69,8 +69,8 @@ export default function CameraTestRoute ({ onQrPayload }: Props) {
     error,
     isLoading
   } = useMedia();
-  const canvasRef = useRef<HTMLCanvasElement>()
-  const videoRef = useRef<HTMLVideoElement>()
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement | null>(null)
   const [animationFrameCallbackId, setAnimationFrameCallbackId] = useState(0);
   const [qrPayload, setQrPayload] = useState("");
 
@@ -81,6 +81,10 @@ export default function CameraTestRoute ({ onQrPayload }: Props) {
       const processFrame = () => {
         if( !canvasRef.current || !videoRef.current ) return;
         var ctx = canvasRef.current.getContext('2d');
+        if( !ctx ) {
+          setAnimationFrameCallbackId(requestAnimationFrame(processFrame))
+          return;
+        }
         ctx.drawImage(videoRef.current, 0, 0, canvasRef.current.width, canvasRef.current.height);
         var imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
         var code = jsQR(imageData.data, imageData.width, imageData.height, {
@@ -99,7 +103,7 @@ export default function CameraTestRoute ({ onQrPayload }: Props) {
       setAnimationFrameCallbackId(requestAnimationFrame(processFrame));
     }
     else {
-      videoRef.current.srcObject = null;
+      if( videoRef.current) videoRef.current.srcObject = null;
       cancelAnimationFrame(animationFrameCallbackId);
       setAnimationFrameCallbackId(0);
     }

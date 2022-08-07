@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Text, Textarea } from '@mantine/core';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { ADMIN_API_BASE } from '../constants';
+import { ADMIN_API_BASE, STORAGE_KEY_SESSION_ID } from '../constants';
+import { useLocalStoredState } from '../hooks/useLocalStoredState';
 
 enum EntityType {
   player = 'player'
 }
 
 export default function EntryPortalRoute() {
+  const [, setSessionId] = useLocalStoredState<string>(STORAGE_KEY_SESSION_ID)
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -33,7 +35,7 @@ export default function EntryPortalRoute() {
               },
             })
             const { target, setAuth } = await response.json();
-            localStorage.setItem('qrgame/session', setAuth);
+            setSessionId(setAuth);
             navigate(target);
             break;
           }
