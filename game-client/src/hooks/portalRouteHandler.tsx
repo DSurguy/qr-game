@@ -17,6 +17,10 @@ export function usePortalHandler({ onSuccess }: Props = {}) {
   const [isHandling, setIsHandling] = useState(false);
   const [error, setError] = useState("");
 
+  /**
+   * 
+   * @param path A string that contains a URLSearchParams string, like 'some/path/?a=b&c=d' etc. It can be a full path, or just the searchParams
+   */
   const handlePortalRoute = (path: string) => {
     setIsHandling(true);
     ( async () => {
