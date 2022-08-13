@@ -2,4 +2,6 @@ node_modules
 .pnpm-debug.log
 dist
 runtime/*
+server/certs/*
+!server/certs/readme.md
 !/**/.gitkeep

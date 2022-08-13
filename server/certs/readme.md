@@ -1,0 +1,1 @@
+run `openssl req -nodes -new -x509 -keyout server.key -out server.cert` in this folder to generate some certs

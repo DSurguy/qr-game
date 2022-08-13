@@ -48,7 +48,7 @@ export function usePortalHandler({ onSuccess }: Props = {}) {
           }
           default: setError("Unknown entity type, please try again");
         }
-        if( onSuccess ) onSuccess;
+        if( onSuccess ) onSuccess();
       } catch (e) {
         console.error(e);
         setError(`Unable to process portal link through server. ${e.message}`);

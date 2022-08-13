@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "dev:ssl": "concurrently \"tsc -w\" \"nodemon dist/indexHttps\"",
     "dev": "concurrently \"tsc -w\" \"nodemon dist/index\"",
     "start": "tsc && node dist/index",
     "generate-lists": "ts-node src/lists/generation/generateLists"
@@ -20,14 +21,14 @@
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "@fastify/cookie": "^7.3.1",
+    "@fastify/cookie": "^7.4.0",
     "@fastify/cors": "^8.0.0",
     "@fastify/static": "^6.4.0",
     "@fastify/type-provider-typebox": "^2.1.0",
     "@qr-game/types": "workspace:^1.0.0",
     "@sinclair/typebox": "^0.24.17",
     "better-sqlite3": "^7.6.0",
-    "fastify": "^4.2.0",
+    "fastify": "^4.4.0",
     "jspdf": "^2.5.1",
     "project-editor-client": "workspace:1.0.0",
     "qrcode": "^1.5.0",

@@ -6,7 +6,32 @@ declare module 'fastify' {
   export interface FastifyInstance{
     db: Database;
     sessions: SessionManager;
+    //FIXME: Find out why the types aren't loading from the plugin
+    /**
+     * Unsigns the specified cookie using the secret provided.
+     * @param value Cookie value
+     */
+     unsignCookie(value: string): {
+      valid: boolean;
+      renew: boolean;
+      value: string | null;
+    };
+    /**
+     * Manual cookie parsing method
+     * @docs https://github.com/fastify/fastify-cookie#manual-cookie-parsing
+     * @param cookieHeader Raw cookie header value
+     */
+    parseCookie(cookieHeader: string): {
+      [key: string]: string;
+    };
+    /**
+     * Manual cookie signing method
+     * @docs https://github.com/fastify/fastify-cookie#manual-cookie-parsing
+     * @param value cookie value
+     */
+    signCookie(value: string): string;
   }
+  
 }
 
 export type Player = {

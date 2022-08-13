@@ -148,7 +148,7 @@ importers:
 
   server:
     specifiers:
-      '@fastify/cookie': ^7.3.1
+      '@fastify/cookie': ^7.4.0
       '@fastify/cors': ^8.0.0
       '@fastify/static': ^6.4.0
       '@fastify/type-provider-typebox': ^2.1.0
@@ -159,7 +159,7 @@ importers:
       '@types/qrcode': ^1.4.2
       better-sqlite3: ^7.6.0
       concurrently: ^7.2.2
-      fastify: ^4.2.0
+      fastify: ^4.4.0
       jspdf: ^2.5.1
       nodemon: ^2.0.19
       project-editor-client: workspace:1.0.0
@@ -167,14 +167,14 @@ importers:
       ts-node: ^10.8.2
       typescript: ^4.7.4
     dependencies:
-      '@fastify/cookie': 7.3.1
+      '@fastify/cookie': 7.4.0
       '@fastify/cors': 8.0.0
       '@fastify/static': 6.4.0
-      '@fastify/type-provider-typebox': 2.1.0_soh2lbpdid3v6vhlcewby5bpeu
+      '@fastify/type-provider-typebox': 2.1.0_lcbnz4jr62ixea4jv76n3el26q
       '@qr-game/types': link:../types
       '@sinclair/typebox': 0.24.17
       better-sqlite3: 7.6.0
-      fastify: 4.2.0
+      fastify: 4.4.0
       jspdf: 2.5.1
       project-editor-client: link:../admin-client
       qrcode: 1.5.0
@@ -1557,19 +1557,18 @@ packages:
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
     dev: false
 
-  /@fastify/ajv-compiler/3.1.0:
-    resolution: {integrity: sha512-+hRMMxcUmdqtnCGPwrI2yczFdlgp3IBR88WlPLimXlgRb8vHBTXz38I17R/9ui+hIt9jx0uOdZKOis77VooHfA==}
+  /@fastify/ajv-compiler/3.1.2:
+    resolution: {integrity: sha512-m2nzzQJeuVmeGOB9rnII9sZiY8AZ02a9WMQfMBfK1jxdFnxm3FPYKGbYpPjODj4halNogwpolyugbTNpnDCi0A==}
     dependencies:
       ajv: 8.11.0
       ajv-formats: 2.1.1
-      fast-uri: 1.0.1
+      fast-uri: 2.1.0
     dev: false
 
-  /@fastify/cookie/7.3.1:
-    resolution: {integrity: sha512-io16UMtIkXKvHUTm63LHPQpMm1NcQ7NT2aAeGYLzX94jJXeQnu0by8VSm3iCrfnFuF0bGTWzUtefHSjKHNxppw==}
+  /@fastify/cookie/7.4.0:
+    resolution: {integrity: sha512-82MUHsZJY/Wl+rG2E+bnYxSifOtNRChm2M+8xnZHnKtYmyNfLvy/37ElCtqD3KzUyTycR+GE7v7uiDD/tY4TkA==}
     dependencies:
       cookie: 0.5.0
-      cookie-signature: 1.2.0
       fastify-plugin: 4.0.0
     dev: false
 
@@ -1604,14 +1603,14 @@ packages:
       - supports-color
     dev: false
 
-  /@fastify/type-provider-typebox/2.1.0_soh2lbpdid3v6vhlcewby5bpeu:
+  /@fastify/type-provider-typebox/2.1.0_lcbnz4jr62ixea4jv76n3el26q:
     resolution: {integrity: sha512-FwuzHZAco34m6bEtY/bw4dcEkFCDV2aigWSFkVw7yYomCJ4umA/cn7jstkF3mJKcZXc+1qthx4g3l5BsXXlLPQ==}
     peerDependencies:
       '@sinclair/typebox': ^0.24.1
       fastify: ^4.0.0
     dependencies:
       '@sinclair/typebox': 0.24.17
-      fastify: 4.2.0
+      fastify: 4.4.0
     dev: false
 
   /@floating-ui/core/0.7.3:
@@ -3016,11 +3015,6 @@ packages:
     resolution: {integrity: sha512-QADzlaHc8icV8I7vbaJXJwod9HWYp8uCqf1xa4OfNu1T7JVxQIrUgOWtHdNDtPiywmFbiS12VjotIXLrKM3orQ==}
     dev: true
 
-  /cookie-signature/1.2.0:
-    resolution: {integrity: sha512-R0BOPfLGTitaKhgKROKZQN6iyq2iDQcH1DOF8nJoaWapguX5bC2w+Q/I9NmmM5lfcvEarnLZr+cCvmEYYSXvYA==}
-    engines: {node: '>=6.6.0'}
-    dev: false
-
   /cookie/0.5.0:
     resolution: {integrity: sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw==}
     engines: {node: '>= 0.6'}
@@ -3500,10 +3494,6 @@ packages:
     engines: {node: '>=6'}
     dev: false
 
-  /fast-uri/1.0.1:
-    resolution: {integrity: sha512-dbO/+ny6lX4tt7pvfPMTiHfQVR5igYKFa5BJ2a21TWuOgd2ySp5DYswsEGuMcJZLL3/eJ/MQJ5KNcXyNUvDt8w==}
-    dev: false
-
   /fast-uri/2.1.0:
     resolution: {integrity: sha512-qKRta6N7BWEFVlyonVY/V+BMLgFqktCUV0QjT259ekAIlbVrMaFnFLxJ4s/JPl4tou56S1BzPufI60bLe29fHA==}
     dev: false
@@ -3520,10 +3510,10 @@ packages:
     resolution: {integrity: sha512-ZJcXPPcqkj7HFDYqbsCuOIAgIZ/sd2b+OnBxNGyxAcUDUJfIpxp4t23CwxO2E7LZpqUrIliA4TnjxTXG8mLoqw==}
     dev: false
 
-  /fastify/4.2.0:
-    resolution: {integrity: sha512-0QXEp+8ceKc0fwVakeBLM/1Ss/+fc7a3auuygT+1GjbSAgHfwqxSucUuu0rYjziu32UgEZXfjItYN/a89HWKhw==}
+  /fastify/4.4.0:
+    resolution: {integrity: sha512-ePI4g9vPJXIBF4YlVcDSLxjvtdTrlM8QzdgYAPFGdCH+rot+4MXoFFAUb10fGrIcRRjaq6CvcbIzxiWQzMMHkw==}
     dependencies:
-      '@fastify/ajv-compiler': 3.1.0
+      '@fastify/ajv-compiler': 3.1.2
       '@fastify/error': 3.0.0
       '@fastify/fast-json-stringify-compiler': 4.0.0
       abstract-logging: 2.0.1

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AppShell, Header, useMantineTheme } from '@mantine/core';
+import { AppShell, Header, Loader, useMantineTheme } from '@mantine/core';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useLocalStoredState } from '../../hooks/useLocalStoredState';
 import { STORAGE_KEY_SESSION_ID } from '../../constants';
@@ -12,6 +12,8 @@ export default function AuthLayout() {
   useEffect(() => {
     if( !sessionId ) navigate('/login')
   }, [sessionId])
+
+  if( !sessionId ) return <Loader />
   
   return (
     <AppShell
