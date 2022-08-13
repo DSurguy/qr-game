@@ -34,7 +34,7 @@ export default function Player() {
     ( async () => {
       try {
         if( player ) {
-          const code = await playerToQrAsUrl(player, 'http://192.168.1.3:8081');
+          const code = await playerToQrAsUrl(player, window.location.origin);
           setQrCode(code);
           setQrCodeError(null);
         }
