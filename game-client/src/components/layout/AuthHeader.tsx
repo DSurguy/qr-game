@@ -1,8 +1,15 @@
 import React from 'react';
-import { Button, Header, Text, useMantineTheme } from '@mantine/core';
+import { Burger, Button, Header, Text, useMantineTheme } from '@mantine/core';
 import { Camera } from 'tabler-icons-react'
 
-export default function AuthHeader() {
+type Props = {
+  openCaptureQrModal: () => void;
+  openNavbar: () => void;
+  closeNavbar: () => void;
+  navbarOpen: boolean;
+}
+
+export default function AuthHeader({ openCaptureQrModal, openNavbar, closeNavbar, navbarOpen }: Props) {
   const theme = useMantineTheme();
   
   return (
@@ -12,8 +19,9 @@ export default function AuthHeader() {
       justifyContent: 'center',
       padding: theme.spacing['xs']
     }}>
+      <Burger opened={navbarOpen} onClick={() => navbarOpen ? closeNavbar() : openNavbar() } />
       <Text component="h1" sx={{ fontSize: '1.5rem', margin: 0, padding: 0 }}>QR Game</Text>
-      <Button sx={{ marginLeft: 'auto' }}>
+      <Button sx={{ marginLeft: 'auto' }} onClick={openCaptureQrModal}>
         <Camera size={28} />
       </Button>
     </Header>

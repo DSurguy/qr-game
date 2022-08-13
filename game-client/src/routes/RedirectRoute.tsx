@@ -8,8 +8,12 @@ export default function RedirectRoute() {
   const [sessionId] = useLocalStoredState<string>(STORAGE_KEY_SESSION_ID);
 
   useEffect(() => {
-    if( sessionId ) navigate('/game/me')
-    else navigate('/login')
+    if( sessionId ) navigate('/game/me', {
+      replace: true
+    })
+    else navigate('/login', {
+      replace: true
+    })
   }, [])
 
   return <></>;
