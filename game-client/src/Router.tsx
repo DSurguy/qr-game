@@ -1,8 +1,8 @@
 import { Box } from '@mantine/core';
 import React from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import AuthLayout from './components/layouts/AuthLayout';
-import PublicLayout from './components/layouts/PublicLayout';
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import AuthLayout from './components/layout/AuthLayout';
+import PublicLayout from './components/layout/PublicLayout';
 import CameraTestRoute from './routes/CameraTest';
 import EntryPortalRoute from './routes/EntryPortal';
 import LoginRoute from './routes/LoginRoute';

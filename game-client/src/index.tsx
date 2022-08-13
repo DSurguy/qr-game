@@ -1,10 +1,11 @@
-import { MantineProvider } from "@mantine/core";
-import "core-js/stable";
 import React from 'react';
+import "core-js/stable";
 import { createRoot } from 'react-dom/client';
+import { MantineProvider } from "@mantine/core";
+import { NotificationsProvider } from '@mantine/notifications';
 import { Router } from './Router';
-import './normalize.css';
 import favicon from './assets/favicon.png';
+import './normalize.css';
 
 //<link rel="icon" href="favicon.ico" type="image/x-icon">
 const linkTag = document.createElement('link');
@@ -17,7 +18,9 @@ const appContainer = document.querySelector('#app-container');
 if( appContainer ) {
   const appRoot = createRoot(appContainer)
   appRoot.render(<MantineProvider>
-    <Router />
+    <NotificationsProvider>
+      <Router />
+    </NotificationsProvider>
   </MantineProvider>)
 }
 else console.error("Unable to find #app-container in document")

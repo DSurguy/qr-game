@@ -42,6 +42,7 @@ module.exports = {
     client: {
       overlay: false
     },
+    https: true
   },
   devtool: 'eval-source-map',
   plugins: [
