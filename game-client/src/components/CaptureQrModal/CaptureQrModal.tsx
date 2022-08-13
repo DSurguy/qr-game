@@ -1,28 +1,20 @@
 import React from 'react';
 import { Box, Button, Modal } from '@mantine/core';
-import { showNotification } from '@mantine/notifications';
 import QrCapture from '../QrCapture';
 import { useMediaQuery, useViewportSize } from '@mantine/hooks';
 
 type Props = {
   opened: boolean;
   onClose: () => void;
+  onQrPayload: (payload: string) => void;
 }
 
-export default function CaptureQrModal({ opened, onClose }: Props) {
+export default function CaptureQrModal({ opened, onClose, onQrPayload }: Props) {
   const isTooSmall = useMediaQuery('(max-width: 640px), (max-height: 640px)')
 
   const { height: viewHeight, width: viewWidth } = useViewportSize();
   const captureHeight = viewHeight < 500 ? viewHeight : 500;
   const captureWidth = viewWidth < 500 ? viewWidth : 500;
-
-  const onQrPayload = (payload: string) => {
-    showNotification({
-      title: "Payload Received",
-      message: payload
-    })
-    onClose()
-  }
 
   const modalProps = {
     centered: isTooSmall ? undefined : true,
