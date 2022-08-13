@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { resolvePath, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { showNotification, updateNotification } from '@mantine/notifications';
 import { ADMIN_API_BASE, STORAGE_KEY_SESSION_ID } from '../constants';
 import { useLocalStoredState } from './useLocalStoredState';
+import { AlertTriangle, Check } from 'tabler-icons-react';
 
 enum EntityType {
   player = 'player'
@@ -9,9 +11,10 @@ enum EntityType {
 
 type Props = {
   onSuccess?: () => void;
+  useNotifications?: boolean
 }
 
-export function usePortalHandler({ onSuccess }: Props = {}) {
+export function usePortalHandler({ onSuccess, useNotifications = true }: Props = {}) {
   const [, setSessionId] = useLocalStoredState<string>(STORAGE_KEY_SESSION_ID)
   const navigate = useNavigate();
   const [isHandling, setIsHandling] = useState(false);
@@ -23,6 +26,12 @@ export function usePortalHandler({ onSuccess }: Props = {}) {
    */
   const handlePortalRoute = (path: string) => {
     setIsHandling(true);
+    if( useNotifications ) showNotification({
+      id: 'qr-loader',
+      title: "Processing QR Code",
+      message: 'Hang tight...',
+      loading: true
+    });
     ( async () => {
       const resolvedPath = resolvePath(path)
       const searchParams = new URLSearchParams(resolvedPath.search);
@@ -52,9 +61,24 @@ export function usePortalHandler({ onSuccess }: Props = {}) {
           }
           default: setError("Unknown entity type, please try again");
         }
-        if( onSuccess ) onSuccess();
+        if( useNotifications ) updateNotification({
+          id: 'qr-loader',
+          title: 'Processing QR Code',
+          icon: <Check />,
+          message: 'Success!',
+          color: 'green',
+          autoClose: 2000
+        })
       } catch (e) {
         console.error(e);
+        if( useNotifications ) updateNotification({
+          id: 'qr-loader',
+          title: 'Processing QR Code',
+          icon: <AlertTriangle />,
+          message: 'Error processing QR code. Find an admin!',
+          color: 'red',
+          autoClose: 2000
+        })
         setError(`Unable to process portal link through server. ${e.message}`);
       } finally {
         setIsHandling(false);
