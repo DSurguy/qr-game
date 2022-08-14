@@ -12,7 +12,7 @@ export default function CreateActivity() {
   const theme = useMantineTheme();
   const navigate = useNavigate()
   const {isSaving, saveError, create} = useServerResource<UnsavedActivityType, SavedActivityType>({
-    create: `projects/${projectUuid}/duelActivities`
+    create: `projects/${projectUuid}/activities`
   });
 
   const handleSubmit = (values: UnsavedActivityType, helpers: FormikHelpers<UnsavedActivityType>) => {
