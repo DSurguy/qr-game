@@ -14,7 +14,10 @@
 - open a SECOND terminal window:
   - `cd admin-client`
   - `pnpm start`
-- Visit `localhost:8080` in your browser
+- open YET A THIRD TERMINAL WINDOW:
+  - `cd game-client`
+  - `pnpm start`
+- Visit `localhost:8080` and `localhost:8081` in your browser
 
 A **sqlite** database will be created in the `runtime` folder of the project, and you can inspect/edit it with any normal sql/sqlite editor you choose.
 
