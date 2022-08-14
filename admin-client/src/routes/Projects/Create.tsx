@@ -14,7 +14,8 @@ const initialValues: UnsavedProjectType = {
     duels: {
       allow: true,
       allowRematch: false
-    }
+    },
+    initialPlayerBalance: 0
   }
 }
 
@@ -76,6 +77,14 @@ export function CreateProjectRoute() {
             />
           )}
         </Field>
+        <Field
+          name="settings.initialPlayerBalance"
+          component={FormikNumberInput}
+          mantineProps={{
+            sx: { width: '8rem', marginTop: '0.5rem' },
+            label: "Initial Player Balance"
+          }}
+        />
         <Button type="submit" disabled={isSaving} sx={{
           marginTop: theme.spacing['xs']
         }}>Save Project</Button>

@@ -496,7 +496,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         SELECT jsonData FROM project_settings
         WHERE uuid=@projectUuid
       `)
-      reply.code(200).send(select.get({projectUuid: req.params.projectUuid}).jsonData);
+      reply.code(200).send(JSON.parse(select.get({projectUuid: req.params.projectUuid}).jsonData));
     } catch (e) {
       console.error(e);
       reply.code(500).send()
@@ -514,7 +514,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         uuid: req.params.projectUuid,
       })
       if( result ) 
-        reply.code(201).send(result.jsonData);
+        reply.code(201).send(JSON.parse(result.jsonData));
       else
         reply.code(404).send();
     } catch (e) {

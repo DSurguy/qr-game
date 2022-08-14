@@ -10,7 +10,8 @@ export const ProjectSettings = Type.Object({
   duels: Type.Object({
     allow: Type.Boolean(),
     allowRematch: Type.Boolean(),
-  })
+  }),
+  initialPlayerBalance: Type.Number()
 });
 
 export type ProjectSettingsType = Static<typeof ProjectSettings>;
