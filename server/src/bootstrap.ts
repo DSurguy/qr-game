@@ -38,6 +38,8 @@ export function bootstrap(path: string = "") {
         name TEXT,
         description TEXT,
         value INTEGER,
+        isRepeatable INTEGER,
+        repeatValue INTEGER,
         createdAt INTEGER,
         updatedAt INTEGER,
         PRIMARY KEY (projectUuid, uuid)
@@ -54,6 +56,8 @@ export function bootstrap(path: string = "") {
         name TEXT,
         description TEXT,
         value INTEGER,
+        isRepeatable INTEGER,
+        repeatValue INTEGER,
         createdAt INTEGER,
         updatedAt INTEGER,
         PRIMARY KEY (projectUuid, uuid)
@@ -93,6 +97,32 @@ export function bootstrap(path: string = "") {
         UNIQUE (projectUuid, sessionId),
         FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid ),
         PRIMARY KEY ( sessionId )
+      )
+    `)
+    stmt.run();
+
+    stmt = db.prepare(`
+      CREATE TABLE IF NOT EXISTS project_events (
+        projectUuid TEXT,
+        uuid TEXT,
+        type TEXT,
+        payload TEXT,
+        timestamp INTEGER,
+        UNIQUE (projectUuid, uuid),
+        FOREIGN KEY ( projectUuid ) REFERENCES projects ( uuid )
+      )
+    `)
+    stmt.run()
+
+    stmt = db.prepare(`
+      CREATE TABLE IF NOT EXISTS project_transactions (
+        projectUuid TEXT,
+        playerUuid TEXT,
+        eventUuid TEXT,
+        amount INTEGER,
+        timestamp INTEGER,
+        FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid ),
+        FOREIGN KEY ( projectUuid, eventUuid ) REFERENCES project_events ( projectUuid, uuid )
       )
     `)
     stmt.run();

@@ -25,6 +25,7 @@
   - Picture
   - event on change
 [ ] Activity Claim
+[ ] Combine activity and duelActivity. Just add a stupid property for isDuel
 
 ### Notes
 - If settings are changed when a game is running, need to cancel/handle related activities (such as duel allow)

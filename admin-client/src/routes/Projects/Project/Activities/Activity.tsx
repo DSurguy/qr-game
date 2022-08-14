@@ -1,9 +1,9 @@
-import { Box, Button, Grid, Loader, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
+import { Box, Button, Checkbox, Grid, Loader, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { SavedActivityType } from '@qr-game/types';
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'tabler-icons-react';
-import { Field, Form, Formik, FormikHelpers } from 'formik';
+import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
 import activityToQr from '../../../../conversions/activityToQr';
 import FormikNumberInput from '../../../../components/inputs/FormikNumberInput';
 import { useServerResource } from '../../../../hooks/useServerResource';
@@ -71,13 +71,40 @@ export default function Activity() {
               <Field name="name" as={TextInput} label="Activity Name" />
               <Field name="description" as={Textarea} label="Description" sx={{ marginTop: theme.spacing['xs'] }} />
               <Field
-                  name="value"
-                  component={FormikNumberInput}
-                  mantineProps={{
-                    sx: { width: '8rem' },
-                    label: "Value"
-                  }}
-                />
+                name="value"
+                component={FormikNumberInput}
+                mantineProps={{
+                  sx: { width: '8rem' },
+                  label: "Value"
+                }}
+              />
+              <Field
+                name="isRepeatable"
+              >
+                {({ field }: FieldAttributes<any>) => (
+                  <Checkbox
+                    {...field}
+                    checked={field.value}
+                    label="Is Repeatable?"
+                    sx={{ marginTop: '0.5rem' }}
+                  />
+                )}
+              </Field>
+              <Field
+                name="repeatValue"
+              >
+                {({ field, form }: FieldAttributes<any>) => (
+                  <FormikNumberInput
+                    field={field}
+                    form={form}
+                    mantineProps={{
+                      disabled: form.values?.isRepeatable !== true,
+                      sx: { width: '8rem' },
+                      label: "Repeat Value"
+                    }}
+                  />
+                )}
+              </Field>
               {dirty && <Button type="submit" disabled={isSaving} sx={{
                 marginTop: theme.spacing['xs']
               }}>Save Activity</Button>}

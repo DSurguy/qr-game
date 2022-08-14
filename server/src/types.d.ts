@@ -72,3 +72,14 @@ export type ProjectSession = {
   playerUuid: string;
   sessionId: string;
 }
+
+export type PlayerClaimedEventPayload = {
+  playerUuid: string;
+  displayName: string;
+}
+
+export type ActivityCompletedEventPayload = {
+  playerUuid: string;
+  activityUuid: string;
+  isRepeat: boolean;
+}

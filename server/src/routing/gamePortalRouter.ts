@@ -1,4 +1,8 @@
+import { randomUUID } from 'node:crypto';
 import { FastifyPluginCallback } from "fastify"
+import { ActivityCompletedEventPayload } from "../types";
+import { EventType } from '../enums';
+import { SavedActivityType } from '@qr-game/types';
 
 // /api/admin/*
 // ----
@@ -29,15 +33,10 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
     Querystring: {
       playerUuid: string;
       projectUuid: string;
-    },
-    Cookies: {
-      qrGameSession: string | undefined;
     }
   }>('/player', (req, reply) => {
     try {
       const { playerUuid, projectUuid } = req.query;
-      //const { qrGameSession } = req.cookies;
-      //TODO: don't overwrite session
       const sessionId = app.sessions.startSession(projectUuid, playerUuid)
       const signedSessionId = app.signCookie(sessionId);
       reply.status(200).send({
@@ -46,6 +45,92 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       });
     } catch (e) {
       reply.status(500).send();
+    }
+  })
+
+  app.post<{
+    Querystring: {
+      projectUuid: string;
+      activityUuid: string;
+    },
+    Headers: {
+      Authorization?: string;
+    }
+  }>('/activity', (req, reply) => {
+    const { projectUuid, activityUuid } = req.query;
+    const session = req.headers.Authorization ? app.unsignCookie(req.headers.Authorization).value : null;
+    const currentPlayer = session ? app.sessions.getLoggedInPlayer(projectUuid, session) : null;
+    if( currentPlayer ) {
+      const hasCompletedBefore = false;
+
+      const timestamp = Date.now();
+      const payload: ActivityCompletedEventPayload = {
+        playerUuid: currentPlayer,
+        activityUuid,
+        isRepeat: hasCompletedBefore //TODO: handle this
+      }
+      const eventUuid = randomUUID();
+
+      const transation = app.db.transaction(() => {
+        const getActivity = app.db.prepare(`SELECT * FROM project_activities WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0`)
+        const activity = getActivity.get({
+          projectUuid,
+          activityUuid
+        }) as SavedActivityType
+
+        if( !activity ) return reply.status(404).send();
+
+        const insert = app.db.prepare(`
+          INSERT INTO project_events (projectUuid, uuid, type, payload, timestamp)
+          VALUES(
+            @projectUuid,
+            @uuid,
+            @type,
+            @payload,
+            @timestamp
+          )
+        `)
+
+        insert.run({
+          projectUuid: req.query,
+          uuid: eventUuid,
+          type: EventType.ActivityCompleted,
+          payload,
+          timestamp
+        })
+
+        //TODO: If has completed before, cheaper
+        const insertTransation = app.db.prepare(`
+          INSERT INTO project_transations (projectUuid, playerUuid, eventUuid, amount, timestamp)
+          VALUES (
+            @projectUuid,
+            @playerUuid,
+            @eventUuid,
+            @amount,
+            @timestamp
+          )
+        `)
+
+        insertTransation.run({
+          projectUuid,
+          playerUuid: currentPlayer,
+          eventUuid,
+          amount: activity.value,
+          timestamp
+        })
+      });
+
+      transation();
+
+      reply.status(200).send({
+        target: `/game/activity/${activityUuid}`
+      })
+    }
+    else {
+      //just view the activity without being logged in
+      reply.status(200).send({
+        target: `/activity/${activityUuid}`
+      })
     }
   })
 

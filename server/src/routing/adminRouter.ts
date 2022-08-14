@@ -199,17 +199,19 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     const {
       name,
       description,
-      value
+      value,
+      isRepeatable,
+      repeatValue
     } = req.body;
     const uuid = randomUUID();
     const { projectUuid } = req.params;
     const wordId = claimNewWordId(projectUuid);
     const timestamp = Date.now();
     const insert = app.db.prepare(`
-      INSERT INTO project_activities (projectUuid, uuid, wordId, name, description, value, deleted, createdAt, updatedAt)
-      VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, 0, @timestamp, @timestamp)`)
+      INSERT INTO project_activities (projectUuid, uuid, wordId, name, description, value, isRepeatable, repeatValue, deleted, createdAt, updatedAt)
+      VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, @isRepeatable, @repeatValue, 0, @timestamp, @timestamp)`)
     try {
-      insert.run({projectUuid, uuid, wordId, name, description, value, timestamp})
+      insert.run({projectUuid, uuid, wordId, name, description, value, isRepeatable: (isRepeatable ? 1 : 0), repeatValue, timestamp})
       reply.code(201).send({
         projectUuid,
         uuid,
@@ -217,6 +219,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         name,
         description,
         value,
+        isRepeatable,
+        repeatValue,
         deleted: false,
         updatedAt: timestamp,
         createdAt: timestamp
@@ -238,6 +242,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       name,
       description,
       value,
+      isRepeatable,
+      repeatValue
     } = req.body;
     if( projectUuid !== req.params.projectUuid || activityUuid !== req.params.activityUuid ) {
       reply.code(400).send("Activity and/or project uuids do not match");
@@ -248,10 +254,12 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         name=@name,
         description=@description,
         value=@value,
+        isRepeatable=@isRepeatable,
+        repeatValue=@repeatvalue,
         updatedAt=@timestamp
       WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0`)
     try {
-      const result = update.run({projectUuid, activityUuid, name, description, value, timestamp})
+      const result = update.run({projectUuid, activityUuid, name, description, value, isRepeatable: (isRepeatable ? 1 : 0), repeatValue, timestamp})
       if( result.changes === 0 ){
         //no change made, report this
         reply.code(404).send()
@@ -262,7 +270,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
           projectUuid,
           activityUuid
         });
-        reply.code(200).send(item)
+        reply.code(200).send(({
+          ...item,
+          isRepeatable: !!item.isRepeatable
+        }))
       }
     } catch (e) {
       console.error(e);
@@ -282,8 +293,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       `)
       const activities = select.all({
         projectUuid
-      })
-      reply.code(200).send(activities);
+      }) as SavedActivityType[]
+      reply.code(200).send(activities.map(activity => ({
+        ...activity,
+        isRepeatable: !!activity.isRepeatable
+      })));
     } catch (e) {
       console.error(e.message);
       reply.code(500).send();
@@ -307,7 +321,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       })
       if( activity ) {
         reply.code(200).send({
-          ...activity
+          ...activity,
+          isRepeatable: !!activity.isRepeatable
         });
       } else {
         reply.code(404).send()
@@ -326,17 +341,19 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     const {
       name,
       description,
-      value
+      value,
+      isRepeatable,
+      repeatValue
     } = req.body;
     const uuid = randomUUID();
     const { projectUuid } = req.params;
     const wordId = claimNewWordId(projectUuid);
     const timestamp = Date.now();
     const insert = app.db.prepare(`
-      INSERT INTO project_duel_activities (projectUuid, uuid, wordId, name, description, value, deleted, createdAt, updatedAt)
-      VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, 0, @timestamp, @timestamp)`)
+      INSERT INTO project_duel_activities (projectUuid, uuid, wordId, name, description, value, isRepeatable, repeatValue, deleted, createdAt, updatedAt)
+      VALUES (@projectUuid, @uuid, @wordId, @name, @description, @value, @isRepeatable, @repeatValue, 0, @timestamp, @timestamp)`)
     try {
-      insert.run({projectUuid, uuid, wordId, name, description, value, timestamp})
+      insert.run({projectUuid, uuid, wordId, name, description, value, isRepeatable: isRepeatable ? 1 : 0, repeatValue, timestamp})
       reply.code(201).send({
         projectUuid,
         uuid,
@@ -344,6 +361,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         name,
         description,
         value,
+        isRepeatable,
+        repeatValue,
         deleted: false,
         updatedAt: timestamp,
         createdAt: timestamp
@@ -365,6 +384,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       name,
       description,
       value,
+      isRepeatable,
+      repeatValue
     } = req.body;
     if( projectUuid !== req.params.projectUuid || duelActivityUuid !== req.params.duelActivityUuid ) {
       reply.code(400).send("Duel activity and/or project uuids do not match");
@@ -376,9 +397,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
         description=@description,
         value=@value,
         updatedAt=@timestamp
+        isRepeatable=@isRepeatable,
+        repeatValue=@repeatValue
       WHERE projectUuid=@projectUuid AND uuid=@duelActivityUuid AND deleted=0`)
     try {
-      const result = update.run({projectUuid, duelActivityUuid, name, description, value, timestamp})
+      const result = update.run({projectUuid, duelActivityUuid, name, description, value, isRepeatable: isRepeatable ? 1 : 0, repeatValue, timestamp})
       if( result.changes === 0 ){
         //no change made, report this
         reply.code(404).send()
@@ -389,7 +412,10 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
           projectUuid,
           duelActivityUuid
         });
-        reply.code(200).send(item)
+        reply.code(200).send({
+          ...item,
+          isRepeatable: !!item.isRepeatable
+        })
       }
     } catch (e) {
       console.error(e);
@@ -409,8 +435,11 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       `)
       const duelActivities = select.all({
         projectUuid
-      })
-      reply.code(200).send(duelActivities);
+      }) as SavedDuelActivityType[]
+      reply.code(200).send(duelActivities.map(activity => ({
+        ...activity,
+        isRepeatable: !!activity.isRepeatable
+      })));
     } catch (e) {
       console.error(e.message);
       reply.code(500).send();
@@ -434,7 +463,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       })
       if( activity ) {
         reply.code(200).send({
-          ...activity
+          ...activity,
+          isRepeatable: !!activity.isRepeatable
         });
       } else {
         reply.code(404).send()

@@ -46,6 +46,8 @@ const activityBase = {
   name: Type.String(),
   description: Type.String(),
   value: Type.Number(),
+  isRepeatable: Type.Boolean(),
+  repeatValue: Type.Number()
 }
 
 export const UnsavedActivity = Type.Object({
