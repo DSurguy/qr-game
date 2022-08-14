@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'tabler-icons-react';
 import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
-import activityToQr from '../../../../conversions/activityToQr';
 import FormikNumberInput from '../../../../components/inputs/FormikNumberInput';
 import { useServerResource } from '../../../../hooks/useServerResource';
+import { duelActivityToQrAsUrl } from '../../../../conversions/duelActivityToQr';
 
 export default function DuelActivity() {
   const { projectUuid, duelActivityUuid } = useParams();
@@ -34,7 +34,7 @@ export default function DuelActivity() {
     ( async () => {
       try {
         if( duelActivity ) {
-          const code = await activityToQr(duelActivity);
+          const code = await duelActivityToQrAsUrl(duelActivity, window.location.origin);
           setQrCode(code);
           setQrCodeError(null);
         }

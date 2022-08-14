@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'tabler-icons-react';
 import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
-import activityToQr from '../../../../conversions/activityToQr';
+import { activityToQrAsUrl } from '../../../../conversions/activityToQr';
 import FormikNumberInput from '../../../../components/inputs/FormikNumberInput';
 import { useServerResource } from '../../../../hooks/useServerResource';
 
@@ -34,7 +34,7 @@ export default function Activity() {
     ( async () => {
       try {
         if( activity ) {
-          const code = await activityToQr(activity);
+          const code = await activityToQrAsUrl(activity, window.location.origin);
           setQrCode(code);
           setQrCodeError(null);
         }
