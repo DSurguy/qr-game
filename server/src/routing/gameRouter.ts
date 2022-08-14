@@ -199,7 +199,10 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
         eventUuid
       })
 
-      if( gameEvent ) reply.status(200).send(gameEvent)
+      if( gameEvent ) reply.status(200).send({
+        ...gameEvent,
+        payload: JSON.parse(gameEvent.payload)
+      })
       else reply.status(404).send();
     } catch (e) {
       console.error(e.message);
