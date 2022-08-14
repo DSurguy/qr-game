@@ -7,126 +7,131 @@ export function bootstrap(path: string = "") {
     const db = new Database(resolve(path, "qrgame.db"))
 
     //create tables if not exist
-    let stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS projects (
-        uuid TEXT PRIMARY KEY,
-        wordId TEXT,
-        deleted INTEGER,
-        name TEXT,
-        description TEXT,
-        createdAt INTEGER,
-        updatedAt INTEGER
-      )
-    `)
-    stmt.run();
+    const bootstrapTransaction = db.transaction(() => {
+      let stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS projects (
+          uuid TEXT PRIMARY KEY,
+          wordId TEXT,
+          deleted INTEGER,
+          name TEXT,
+          description TEXT,
+          createdAt INTEGER,
+          updatedAt INTEGER
+        )
+      `)
+      stmt.run();
 
-    stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS project_settings (
-        uuid TEXT PRIMARY KEY REFERENCES projects(uuid),
-        jsonData TEXT,
-        updatedAt INTEGER
-      )
-    `)
-    stmt.run();
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_settings (
+          uuid TEXT PRIMARY KEY REFERENCES projects(uuid),
+          jsonData TEXT,
+          updatedAt INTEGER
+        )
+      `)
+      stmt.run();
 
-    stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS project_activities (
-        projectUuid TEXT REFERENCES projects(uuid),
-        uuid TEXT,
-        wordId TEXT,
-        deleted INTEGER,
-        name TEXT,
-        description TEXT,
-        value INTEGER,
-        isRepeatable INTEGER,
-        repeatValue INTEGER,
-        createdAt INTEGER,
-        updatedAt INTEGER,
-        PRIMARY KEY (projectUuid, uuid)
-      )
-    `)
-    stmt.run();
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_activities (
+          projectUuid TEXT REFERENCES projects(uuid),
+          uuid TEXT,
+          wordId TEXT,
+          deleted INTEGER,
+          name TEXT,
+          description TEXT,
+          value INTEGER,
+          isRepeatable INTEGER,
+          repeatValue INTEGER,
+          createdAt INTEGER,
+          updatedAt INTEGER,
+          PRIMARY KEY (projectUuid, uuid)
+        )
+      `)
+      stmt.run();
 
-    stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS project_duel_activities (
-        projectUuid TEXT REFERENCES projects(uuid),
-        uuid TEXT,
-        wordId TEXT,
-        deleted INTEGER,
-        name TEXT,
-        description TEXT,
-        value INTEGER,
-        isRepeatable INTEGER,
-        repeatValue INTEGER,
-        createdAt INTEGER,
-        updatedAt INTEGER,
-        PRIMARY KEY (projectUuid, uuid)
-      )
-    `)
-    stmt.run();
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_duel_activities (
+          projectUuid TEXT REFERENCES projects(uuid),
+          uuid TEXT,
+          wordId TEXT,
+          deleted INTEGER,
+          name TEXT,
+          description TEXT,
+          value INTEGER,
+          isRepeatable INTEGER,
+          repeatValue INTEGER,
+          createdAt INTEGER,
+          updatedAt INTEGER,
+          PRIMARY KEY (projectUuid, uuid)
+        )
+      `)
+      stmt.run();
 
-    stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS project_players (
-        projectUuid TEXT REFERENCES projects(uuid),
-        uuid TEXT,
-        wordId TEXT,
-        deleted INTEGER,
-        name TEXT,
-        realName TEXT,
-        claimed INTEGER,
-        createdAt INTEGER,
-        updatedAt INTEGER,
-        UNIQUE (projectUuid, uuid)
-      )
-    `)
-    stmt.run();
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_players (
+          projectUuid TEXT REFERENCES projects(uuid),
+          uuid TEXT,
+          wordId TEXT,
+          deleted INTEGER,
+          name TEXT,
+          realName TEXT,
+          claimed INTEGER,
+          createdAt INTEGER,
+          updatedAt INTEGER,
+          UNIQUE (projectUuid, uuid)
+        )
+      `)
+      stmt.run();
 
-    stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS project_wordIds (
-        projectUuid TEXT REFERENCES projects(uuid),
-        wordId TEXT
-      )
-    `)
-    stmt.run();
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_wordIds (
+          projectUuid TEXT REFERENCES projects(uuid),
+          wordId TEXT
+        )
+      `)
+      stmt.run();
 
-    stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS project_sessions (
-        projectUuid TEXT,
-        playerUuid TEXT,
-        sessionId TEXT,
-        UNIQUE (projectUuid, playerUuid),
-        UNIQUE (projectUuid, sessionId),
-        FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid ),
-        PRIMARY KEY ( sessionId )
-      )
-    `)
-    stmt.run();
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_sessions (
+          projectUuid TEXT,
+          playerUuid TEXT,
+          sessionId TEXT,
+          UNIQUE (projectUuid, playerUuid),
+          UNIQUE (projectUuid, sessionId),
+          FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid ),
+          PRIMARY KEY ( sessionId )
+        )
+      `)
+      stmt.run();
 
-    stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS project_events (
-        projectUuid TEXT,
-        uuid TEXT,
-        type TEXT,
-        payload TEXT,
-        timestamp INTEGER,
-        UNIQUE (projectUuid, uuid),
-        FOREIGN KEY ( projectUuid ) REFERENCES projects ( uuid )
-      )
-    `)
-    stmt.run()
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_events (
+          projectUuid TEXT NOT NULL,
+          uuid TEXT NOT NULL,
+          type TEXT NOT NULL,
+          payload TEXT,
+          primaryUuid TEXT,
+          secondaryUuid TEXT,
+          timestamp INTEGER,
+          UNIQUE (projectUuid, uuid),
+          FOREIGN KEY ( projectUuid ) REFERENCES projects ( uuid )
+        )
+      `)
+      stmt.run()
 
-    stmt = db.prepare(`
-      CREATE TABLE IF NOT EXISTS project_transactions (
-        projectUuid TEXT,
-        playerUuid TEXT,
-        eventUuid TEXT,
-        amount INTEGER,
-        timestamp INTEGER,
-        FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid ),
-        FOREIGN KEY ( projectUuid, eventUuid ) REFERENCES project_events ( projectUuid, uuid )
-      )
-    `)
-    stmt.run();
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_transactions (
+          projectUuid TEXT,
+          playerUuid TEXT,
+          eventUuid TEXT,
+          amount INTEGER,
+          timestamp INTEGER,
+          FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid ),
+          FOREIGN KEY ( projectUuid, eventUuid ) REFERENCES project_events ( projectUuid, uuid )
+        )
+      `)
+      stmt.run();
+    })
+    bootstrapTransaction();
 
     console.log("Database bootstrapped");
 

@@ -97,11 +97,12 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
         })
 
         const createEvent = app.db.prepare(`
-          INSERT INTO project_events (projectUuid, uuid, type, payload, timestamp)
+          INSERT INTO project_events (projectUuid, uuid, type, primaryUuid, payload, timestamp)
           VALUES (
             @projectUuid,
             @uuid,
             @type,
+            @primaryUuid,
             @payload,
             @timestamp
           )
@@ -119,6 +120,7 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
           uuid: eventUuid,
           type: EventType.PlayerClaimed,
           payload: JSON.stringify(eventPayload),
+          primaryUuid: playerUuid,
           timestamp: timestamp
         })
 
