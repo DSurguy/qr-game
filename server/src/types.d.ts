@@ -76,6 +76,7 @@ export type ProjectSession = {
 export type PlayerClaimedEventPayload = {
   playerUuid: string;
   displayName: string;
+  realName: string;
 }
 
 export type ActivityCompletedEventPayload = {
