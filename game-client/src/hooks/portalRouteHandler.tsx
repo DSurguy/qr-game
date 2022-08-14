@@ -9,12 +9,7 @@ enum EntityType {
   player = 'player'
 }
 
-type Props = {
-  onSuccess?: () => void;
-  useNotifications?: boolean
-}
-
-export function usePortalHandler({ onSuccess, useNotifications = true }: Props = {}) {
+export function usePortalHandler() {
   const [, setSessionId] = useLocalStoredState<string>(STORAGE_KEY_SESSION_ID)
   const navigate = useNavigate();
   const [isHandling, setIsHandling] = useState(false);
@@ -26,6 +21,16 @@ export function usePortalHandler({ onSuccess, useNotifications = true }: Props =
    */
   const handlePortalRoute = (path: string) => {
     setIsHandling(true);
+    const resolvedPath = resolvePath(path)
+    const searchParams = new URLSearchParams(resolvedPath.search);
+    const type = searchParams.get('type');
+    const uuid = searchParams.get('uuid');
+    const useNotifications = searchParams.get('suppressNotifications') === null
+    const projectUuid = searchParams.get('projectUuid');
+    if( !type || !uuid || !projectUuid ) {
+      setError("Malformed Portal URL, please try again")
+      return;
+    }
     if( useNotifications ) showNotification({
       id: 'qr-loader',
       title: "Processing QR Code",
@@ -33,20 +38,10 @@ export function usePortalHandler({ onSuccess, useNotifications = true }: Props =
       loading: true
     });
     ( async () => {
-      const resolvedPath = resolvePath(path)
-      const searchParams = new URLSearchParams(resolvedPath.search);
-      const type = searchParams.get('type');
-      const uuid = searchParams.get('uuid');
-      const projectUuid = searchParams.get('projectUuid');
-      if( !type || !uuid || !projectUuid ) {
-        setError("Malformed Portal URL, please try again")
-        return;
-      }
-
       try {
         switch(type) {
           case EntityType.player: {
-            const response = await fetch(`${ADMIN_API_BASE}/portal/player?projectUuid=${projectUuid}&playerUuid=${uuid}`, {
+            const response = await fetch(`${ADMIN_API_BASE}/game/portal/player?projectUuid=${projectUuid}&playerUuid=${uuid}`, {
               method: 'POST',
               headers: {
                 'Accept': 'application/json'

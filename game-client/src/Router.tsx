@@ -5,7 +5,7 @@ import PublicLayout from './components/layout/PublicLayout';
 import EntryPortalRoute from './routes/EntryPortal';
 import LoginRoute from './routes/LoginRoute';
 import ProfileRoute from './routes/ProfileRoute';
-import PublicPlayerRoute from './routes/PublicPlayerRoute';
+import PublicPlayerRoute from './routes/PublicPlayer/PublicPlayerRoute';
 import RedirectRoute from './routes/RedirectRoute';
 
 export function Router(){

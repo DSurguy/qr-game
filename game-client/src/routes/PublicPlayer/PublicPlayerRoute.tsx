@@ -1,8 +1,9 @@
 import { Box, Button, Loader, Text } from '@mantine/core';
 import { GamePlayerType } from '@qr-game/types';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useServerResource } from '../hooks/useServerResource';
+import { useServerResource } from '../../hooks/useServerResource';
+import ClaimPlayerModal from './ClaimPlayerModal';
 
 export default function PublicPlayerRoute() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function PublicPlayerRoute() {
   } = useServerResource<GamePlayerType, GamePlayerType>({
     load: `public/player/${playerUuid}?projectUuid=${projectUuid}`,
   })
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     loadPlayer();
@@ -35,7 +37,8 @@ export default function PublicPlayerRoute() {
     <Box>
       <Text>{player.uuid}</Text>
       <Text>{player.wordId}</Text>
-      <Button>Claim Player</Button>
+      <Button onClick={() => setModalOpen(true)}>Claim Player</Button>
+      <ClaimPlayerModal opened={modalOpen} onClose={() => setModalOpen(false)} projectUuid={projectUuid} playerUuid={playerUuid} />
     </Box>
   )
 }

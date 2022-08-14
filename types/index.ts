@@ -83,6 +83,7 @@ export const SavedPlayer = Type.Object({
   uuid: Type.String(),
   wordId: Type.String(),
   name: Type.String(),
+  realName: Type.String(),
   claimed: Type.Number(),
   ...savedItemBase
 })
@@ -92,6 +93,7 @@ export const GamePlayer = Type.Object({
   uuid: Type.String(),
   wordId: Type.String(),
   name: Type.String(),
+  realName: Type.String(),
   claimed: Type.Number(),
 })
 

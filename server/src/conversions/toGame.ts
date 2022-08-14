@@ -15,6 +15,7 @@ export function playerToGame(player: SavedPlayerType): GamePlayerType {
     uuid: player.uuid,
     wordId: player.wordId,
     name: player.name,
+    realName: player.realName,
     claimed: player.claimed
   };
 }

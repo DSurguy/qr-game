@@ -72,6 +72,7 @@ export function bootstrap(path: string = "") {
         wordId TEXT,
         deleted INTEGER,
         name TEXT,
+        realName TEXT,
         claimed INTEGER,
         createdAt INTEGER,
         updatedAt INTEGER,

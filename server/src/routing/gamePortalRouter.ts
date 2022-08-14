@@ -51,7 +51,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
         });
       } else {
         reply.status(200).send({
-          target: `/player/${playerUuid}`
+          target: `/player?game=${projectUuid}&player=${playerUuid}`
         })
       }
     } catch (e) {
