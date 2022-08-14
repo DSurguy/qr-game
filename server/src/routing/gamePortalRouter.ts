@@ -78,7 +78,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       const payload: ActivityCompletedEventPayload = {
         playerUuid: currentPlayer,
         activityUuid,
-        isRepeat: hasCompletedBefore //TODO: handle this
+        isRepeat: hasCompletedBefore //TODO: Check events to see if this player has completed, and use the appropriate value
       }
       const eventUuid = randomUUID();
 
@@ -110,7 +110,6 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
           timestamp
         })
 
-        //TODO: If has completed before, cheaper
         const insertTransation = app.db.prepare(`
           INSERT INTO project_transations (projectUuid, playerUuid, eventUuid, amount, timestamp)
           VALUES (
@@ -138,9 +137,8 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       })
     }
     else {
-      //just view the activity without being logged in
       reply.status(200).send({
-        target: `/activity/${activityUuid}`
+        target: `/activity?game=${projectUuid}&activity=${activityUuid}`
       })
     }
   })
