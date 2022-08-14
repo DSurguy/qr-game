@@ -6,11 +6,12 @@ import { useLocalStoredState } from './useLocalStoredState';
 import { AlertTriangle, Check } from 'tabler-icons-react';
 
 enum EntityType {
-  player = 'player'
+  player = 'player',
+  activity = 'activity'
 }
 
 export function usePortalHandler() {
-  const [, setSessionId] = useLocalStoredState<string>(STORAGE_KEY_SESSION_ID)
+  const [sessionId, setSessionId] = useLocalStoredState<string>(STORAGE_KEY_SESSION_ID)
   const navigate = useNavigate();
   const [isHandling, setIsHandling] = useState(false);
   const [error, setError] = useState("");
@@ -44,7 +45,23 @@ export function usePortalHandler() {
             const response = await fetch(`${ADMIN_API_BASE}/game/portal/player?projectUuid=${projectUuid}&playerUuid=${uuid}`, {
               method: 'POST',
               headers: {
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'Authorization': sessionId
+              },
+            })
+            const { target, setAuth } = await response.json();
+            if( setAuth ) setSessionId(setAuth);
+            navigate(target, {
+              replace: true
+            });
+            break;
+          }
+          case EntityType.activity: {
+            const response = await fetch(`${ADMIN_API_BASE}/game/portal/activity?projectUuid=${projectUuid}&activityUuid=${uuid}`, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Authorization': sessionId
               },
             })
             const { target, setAuth } = await response.json();

@@ -12,7 +12,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
 
   app.get<{
     Header: {
-      Authorization: string | undefined;
+      authorization: string | undefined;
     },
     Reply: GameProjectType | undefined;
   }>('/', (req, reply) => {
@@ -50,7 +50,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
 
   app.get<{
     Header: {
-      Authorization: string | undefined;
+      authorization: string | undefined;
     },
     Reply: GamePlayerType | undefined;
   }>('/me', (req, reply) => {
@@ -92,7 +92,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
 
   app.get<{
     Header: {
-      Authorization: string | undefined;
+      authorization: string | undefined;
     },
     Reply: number | undefined;
   }>('/me/balance', (req, reply) => {

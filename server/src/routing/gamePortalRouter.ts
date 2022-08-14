@@ -65,53 +65,70 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       activityUuid: string;
     },
     Headers: {
-      Authorization?: string;
+      authorization?: string;
     }
   }>('/activity', (req, reply) => {
     const { projectUuid, activityUuid } = req.query;
-    const session = req.headers.Authorization ? app.unsignCookie(req.headers.Authorization).value : null;
-    const currentPlayer = session ? app.sessions.getLoggedInPlayer(projectUuid, session) : null;
-    if( currentPlayer ) {
-      const hasCompletedBefore = false;
+    const sessionId = req.headers.authorization ? app.unsignCookie(req.headers.authorization).value : null;
+    const session = sessionId ? app.sessions.getSession(sessionId) : null;
+    if( session ) {
+      if( projectUuid !== session.projectUuid ) {
+        reply.status(401).send();
+        return;
+      }
+      const getPreviousActivityEvent = app.db.prepare(`
+        SELECT * FROM project_events WHERE projectUuid=@projectUuid AND type=@type AND primaryUuid=@primaryUuid AND secondaryUuid=@secondaryUuid
+      `)
+      const previousEvent = getPreviousActivityEvent.get({
+        projectUuid: session.projectUuid,
+        type: EventType.ActivityCompleted,
+        primaryUuid: activityUuid,
+        secondaryUuid: session.playerUuid
+      })
+      const hasCompletedBefore = !!previousEvent;
 
       const timestamp = Date.now();
-      const payload: ActivityCompletedEventPayload = {
-        playerUuid: currentPlayer,
+      const eventPayload: ActivityCompletedEventPayload = {
+        playerUuid: session.playerUuid,
         activityUuid,
-        isRepeat: hasCompletedBefore //TODO: Check events to see if this player has completed, and use the appropriate value
+        isRepeat: hasCompletedBefore
       }
       const eventUuid = randomUUID();
 
       const transation = app.db.transaction(() => {
         const getActivity = app.db.prepare(`SELECT * FROM project_activities WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0`)
         const activity = getActivity.get({
-          projectUuid,
+          projectUuid: session.projectUuid,
           activityUuid
         }) as SavedActivityType
 
         if( !activity ) return reply.status(404).send();
 
         const insert = app.db.prepare(`
-          INSERT INTO project_events (projectUuid, uuid, type, payload, timestamp)
+          INSERT INTO project_events (projectUuid, uuid, type, payload, primaryUuid, secondaryUuid, timestamp)
           VALUES(
             @projectUuid,
             @uuid,
             @type,
             @payload,
+            @primaryUuid,
+            @secondaryUuid,
             @timestamp
           )
         `)
 
         insert.run({
-          projectUuid: req.query,
+          projectUuid: session.projectUuid,
           uuid: eventUuid,
           type: EventType.ActivityCompleted,
-          payload,
+          payload: JSON.stringify(eventPayload),
+          primaryUuid: activityUuid,
+          secondaryUuid: session.playerUuid,
           timestamp
         })
 
         const insertTransation = app.db.prepare(`
-          INSERT INTO project_transations (projectUuid, playerUuid, eventUuid, amount, timestamp)
+          INSERT INTO project_transactions (projectUuid, playerUuid, eventUuid, amount, timestamp)
           VALUES (
             @projectUuid,
             @playerUuid,
@@ -122,10 +139,10 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
         `)
 
         insertTransation.run({
-          projectUuid,
-          playerUuid: currentPlayer,
+          projectUuid: session.projectUuid,
+          playerUuid: session.playerUuid,
           eventUuid,
-          amount: activity.value,
+          amount: hasCompletedBefore ? activity.repeatValue : activity.value,
           timestamp
         })
       });
@@ -133,7 +150,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       transation();
 
       reply.status(200).send({
-        target: `/game/activity/${activityUuid}`
+        target: `/game/activity/${activityUuid}?claimed`
       })
     }
     else {
