@@ -1,4 +1,4 @@
-import { GamePlayerType, SavedPlayerType } from "@qr-game/types";
+import { GamePlayerType, ProjectSettingsType, SavedPlayerType } from "@qr-game/types";
 import { randomUUID } from "crypto";
 import { FastifyPluginCallback } from "fastify";
 import { playerToGame } from "../conversions/toGame";
@@ -49,7 +49,7 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
       realName: string;
       //avatar: string;
     }
-    Reply: GamePlayerType | undefined;
+    Reply: GamePlayerType | { message: string } | undefined;
   }>('/player/:playerUuid/claim', (req, reply) => {
     try {
       const { playerUuid } = req.params;
@@ -69,6 +69,16 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
       const player = getPlayer.get({ projectUuid, playerUuid })
       if( !player ) {
         reply.status(404).send();
+        return;
+      }
+
+      const getProjectSettings = app.db.prepare(`
+        SELECT jsonData FROM project_settings
+        WHERE uuid=@projectUuid
+      `);
+      const projectSettings = JSON.parse(getProjectSettings.get({ projectUuid }).jsonData) as ProjectSettingsType
+      if( !projectSettings ) {
+        reply.status(404).send({ message: "Unable to load project settings" });
         return;
       }
 
@@ -101,13 +111,33 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
           displayName,
           realName
         }
+        const eventUuid = randomUUID();
+        const timestamp = Date.now();
         createEvent.run({
           projectUuid,
           playerUuid,
-          uuid: randomUUID(),
+          uuid: eventUuid,
           type: EventType.PlayerClaimed,
           payload: JSON.stringify(eventPayload),
-          timestamp: Date.now()
+          timestamp: timestamp
+        })
+
+        const createInitialBalanceTransaction = app.db.prepare(`
+          INSERT INTO project_transactions (projectUuid, playerUuid, eventUuid, amount, timestamp)
+          VALUES (
+            @projectUuid,
+            @playerUuid,
+            @eventUuid,
+            @amount,
+            @timestamp
+          )
+        `)
+        createInitialBalanceTransaction.run({
+          projectUuid,
+          playerUuid,
+          eventUuid,
+          amount: projectSettings.initialPlayerBalance,
+          timestamp
         })
       })
 

@@ -83,7 +83,44 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
         return;
       }
 
-      else reply.status(200).send(playerToGame(player));
+      reply.status(200).send(playerToGame(player));
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send();
+    }
+  })
+
+  app.get<{
+    Header: {
+      Authorization: string | undefined;
+    },
+    Reply: number | undefined;
+  }>('/me/balance', (req, reply) => {
+    try {
+      //TODO: Move cookie and session validation to some hook, expose { project, player, session } directly somehow
+      const sessionHeader = app.unsignCookie(req.headers.authorization);
+      if( !sessionHeader.valid ) {
+        reply.status(401).send();
+        return;
+      }
+
+      const session = app.sessions.getSession(sessionHeader.value)
+      if( !session || !session.projectUuid ) {
+        reply.status(401).send();
+        return;
+      }
+
+      const getPlayerBalance = app.db.prepare(`
+        SELECT SUM(amount) as playerBalance FROM project_transactions
+        WHERE projectUuid=@projectUuid AND playerUuid=@playerUuid
+      `)
+      let { playerBalance } = getPlayerBalance.get({
+        projectUuid: session.projectUuid,
+        playerUuid: session.playerUuid
+      }) as { playerBalance: number } | undefined
+      if( !playerBalance ) playerBalance = 0;
+
+      reply.status(200).send(playerBalance);
     } catch (e) {
       console.error(e.message);
       reply.status(500).send();

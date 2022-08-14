@@ -22,9 +22,19 @@ export default function ProfileRoute() {
     load: 'game/me',
   })
 
+  const {
+    data: playerBalance,
+    isLoading: isLoadingPlayerBalance,
+    loadError: loadPlayerBalanceError,
+    load: loadPlayerBalance
+  } = useServerResource<null, number>({
+    load: 'game/me/balance',
+  })
+
   useEffect(() => {
     loadProject();
     loadPlayer();
+    loadPlayerBalance();
   }, [])
 
   const projectChunk = () => {
@@ -49,8 +59,20 @@ export default function ProfileRoute() {
     )
   }
 
+  const balanceChunk = () => {
+    if( isLoadingPlayerBalance ) return <Loader />
+    if( loadPlayerBalanceError ) return <Text color="red">Error loading balance {loadPlayerError?.message}</Text>
+    if( typeof playerBalance !== "number" ) return null;
+    return (
+      <Box>
+        Your balance is <Text component="span" sx={{ color: "#fff", backgroundColor: "red", borderRadius: '4px', padding: '0 4px' }}>{playerBalance}</Text> points
+      </Box>
+    )
+  }
+
   return <Box>
     {projectChunk()}
     {playerChunk()}
+    {balanceChunk()}
   </Box>
 }

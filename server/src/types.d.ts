@@ -84,3 +84,9 @@ export type ActivityCompletedEventPayload = {
   activityUuid: string;
   isRepeat: boolean;
 }
+
+export type GameSession = {
+  projectUuid: string;
+  playerUuid: string;
+  sessionId: string;
+}

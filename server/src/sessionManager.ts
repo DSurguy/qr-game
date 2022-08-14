@@ -1,5 +1,6 @@
 import { Database } from "better-sqlite3";
 import { randomUUID } from "crypto";
+import { GameSession } from "./types";
 
 export default class SessionManager {
   private db: Database;
@@ -97,6 +98,21 @@ export default class SessionManager {
         sessionId
       });
       return playerUuid || null;
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+
+  public getSession(sessionId: string): GameSession | null {
+    try {
+      const select = this.db.prepare(`
+        SELECT * from project_sessions WHERE sessionId=@sessionId
+      `)
+      const session = select.get({
+        sessionId
+      });
+      return session || null;
     } catch (e) {
       console.error(e);
       throw e;
