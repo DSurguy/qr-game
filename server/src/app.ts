@@ -9,6 +9,7 @@ import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import SessionManager from "./sessionManager";
 import { gamePortalRouter } from "./routing/gamePortalRouter";
 import { gameRouter } from "./routing/gameRouter";
+import { publicRouter } from './routing/publicRouter';
 
 export function start(db: Database) {
   const httpsOptions = process.env.HTTPS ? {
@@ -42,6 +43,10 @@ export function start(db: Database) {
 
   app.register(gameRouter, {
     prefix: 'api/game'
+  })
+
+  app.register(publicRouter, {
+    prefix: 'api/public'
   })
   
   app.listen({ port: 8011, host: '::' }, (err, address) => {

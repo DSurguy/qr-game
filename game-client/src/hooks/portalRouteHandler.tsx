@@ -53,7 +53,7 @@ export function usePortalHandler({ onSuccess, useNotifications = true }: Props =
               },
             })
             const { target, setAuth } = await response.json();
-            setSessionId(setAuth);
+            if( setAuth ) setSessionId(setAuth);
             navigate(target, {
               replace: true
             });

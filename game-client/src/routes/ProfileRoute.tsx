@@ -10,7 +10,7 @@ export default function ProfileRoute() {
     loadError: loadProjectError,
     load: loadProject
   } = useServerResource<GameProjectType, GameProjectType>({
-    load: '',
+    load: 'game',
   })
 
   const {
@@ -19,7 +19,7 @@ export default function ProfileRoute() {
     loadError: loadPlayerError,
     load: loadPlayer
   } = useServerResource<GamePlayerType, GamePlayerType>({
-    load: 'me',
+    load: 'game/me',
   })
 
   useEffect(() => {

@@ -37,12 +37,23 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
   }>('/player', (req, reply) => {
     try {
       const { playerUuid, projectUuid } = req.query;
-      const sessionId = app.sessions.startSession(projectUuid, playerUuid)
-      const signedSessionId = app.signCookie(sessionId);
-      reply.status(200).send({
-        target: '/game/me',
-        setAuth: signedSessionId
-      });
+
+      const getPlayer = app.db.prepare(`SELECT * FROM project_players WHERE projectUuid=@projectUuid AND uuid=@playerUuid AND deleted=0`);
+      const player = getPlayer.get({ projectUuid, playerUuid })
+      if( !player ) return reply.status(404).send();
+
+      if( player.claimed ) {
+        const sessionId = app.sessions.startSession(projectUuid, playerUuid)
+        const signedSessionId = app.signCookie(sessionId);
+        reply.status(200).send({
+          target: '/game/me',
+          setAuth: signedSessionId
+        });
+      } else {
+        reply.status(200).send({
+          target: `/player/${playerUuid}`
+        })
+      }
     } catch (e) {
       reply.status(500).send();
     }
