@@ -106,3 +106,30 @@ export const CreatePlayerPayload = Type.Object({
 })
 
 export type CreatePlayerPayloadType = Static<typeof CreatePlayerPayload>;
+
+export enum GameEventType {
+  ActivityCompleted = "ACTIVITY_COMPLETED",
+  PlayerClaimed = "PLAYER_CLAIMED"
+}
+
+export type PlayerClaimedEventPayload = {
+  playerUuid: string;
+  displayName: string;
+  realName: string;
+}
+
+export type ActivityCompletedEventPayload = {
+  playerUuid: string;
+  activityUuid: string;
+  isRepeat: boolean;
+}
+
+export type GameEvent = {
+  projectUuid: string;
+  uuid: String;
+  type: GameEventType;
+  payload: PlayerClaimedEventPayload | ActivityCompletedEventPayload;
+  primaryUuid?: string;
+  secondaryUuid?: string;
+  timestamp: number;
+}

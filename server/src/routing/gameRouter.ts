@@ -1,4 +1,4 @@
-import { GamePlayerType, GameProjectType, SavedPlayerType, SavedProjectType } from "@qr-game/types";
+import { GameEvent, GamePlayerType, GameProjectType, SavedActivityType, SavedPlayerType, SavedProjectType } from "@qr-game/types";
 import { FastifyPluginCallback } from "fastify"
 import { playerToGame, projectToGame } from "../conversions/toGame";
 import { ProjectSession } from "../types";
@@ -121,6 +121,86 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       if( !playerBalance ) playerBalance = 0;
 
       reply.status(200).send(playerBalance);
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send();
+    }
+  })
+
+  app.get<{
+    Params: {
+      activityUuid: string;
+    },
+    Header: {
+      authorization: string | undefined;
+    },
+    Reply: SavedActivityType | undefined;
+  }>('/activity/:activityUuid', (req, reply) => {
+    try {
+      const { activityUuid } = req.params;
+      //TODO: Move cookie and session validation to some hook, expose { project, player, session } directly somehow
+      const sessionHeader = app.unsignCookie(req.headers.authorization);
+      if( !sessionHeader.valid ) {
+        reply.status(401).send();
+        return;
+      }
+
+      const session = app.sessions.getSession(sessionHeader.value)
+      if( !session ) {
+        reply.status(401).send();
+        return;
+      }
+
+      const getActivity = app.db.prepare(`
+        SELECT * FROM project_activities WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0
+      `)
+      const activity = getActivity.get({
+        projectUuid: session.projectUuid,
+        activityUuid
+      })
+
+      if( activity ) reply.status(200).send(activity)
+      else reply.status(404).send();
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send();
+    }
+  })
+
+  app.get<{
+    Params: {
+      eventUuid: string;
+    },
+    Header: {
+      authorization: string | undefined;
+    },
+    Reply: GameEvent | undefined;
+  }>('/event/:eventUuid', (req, reply) => {
+    try {
+      const { eventUuid } = req.params;
+      //TODO: Move cookie and session validation to some hook, expose { project, player, session } directly somehow
+      const sessionHeader = app.unsignCookie(req.headers.authorization);
+      if( !sessionHeader.valid ) {
+        reply.status(401).send();
+        return;
+      }
+
+      const session = app.sessions.getSession(sessionHeader.value)
+      if( !session ) {
+        reply.status(401).send();
+        return;
+      }
+
+      const getEvent = app.db.prepare(`
+        SELECT * FROM project_events WHERE projectUuid=@projectUuid AND uuid=@eventUuid
+      `)
+      const gameEvent = getEvent.get({
+        projectUuid: session.projectUuid,
+        eventUuid
+      })
+
+      if( gameEvent ) reply.status(200).send(gameEvent)
+      else reply.status(404).send();
     } catch (e) {
       console.error(e.message);
       reply.status(500).send();

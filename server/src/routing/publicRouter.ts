@@ -1,9 +1,7 @@
-import { GamePlayerType, ProjectSettingsType, SavedPlayerType } from "@qr-game/types";
+import { GamePlayerType, ProjectSettingsType, SavedPlayerType, PlayerClaimedEventPayload, GameEventType } from "@qr-game/types";
 import { randomUUID } from "crypto";
 import { FastifyPluginCallback } from "fastify";
 import { playerToGame } from "../conversions/toGame";
-import { EventType } from "../enums";
-import { PlayerClaimedEventPayload } from "../types";
 
 export const publicRouter: FastifyPluginCallback = (app, options, done) => {
   app.get<{
@@ -118,7 +116,7 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
           projectUuid,
           playerUuid,
           uuid: eventUuid,
-          type: EventType.PlayerClaimed,
+          type: GameEventType.PlayerClaimed,
           payload: JSON.stringify(eventPayload),
           primaryUuid: playerUuid,
           timestamp: timestamp

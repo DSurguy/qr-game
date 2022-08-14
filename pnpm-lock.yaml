@@ -190,8 +190,10 @@ importers:
   types:
     specifiers:
       '@sinclair/typebox': ^0.24.17
+      typescript: ^4.7.4
     dependencies:
       '@sinclair/typebox': 0.24.17
+      typescript: 4.7.4
 
 packages:
 

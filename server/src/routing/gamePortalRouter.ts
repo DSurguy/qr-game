@@ -1,8 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { FastifyPluginCallback } from "fastify"
-import { ActivityCompletedEventPayload } from "../types";
-import { EventType } from '../enums';
-import { SavedActivityType } from '@qr-game/types';
+import { SavedActivityType, ActivityCompletedEventPayload, GameEventType } from '@qr-game/types';
 
 // /api/admin/*
 // ----
@@ -81,7 +79,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       `)
       const previousEvent = getPreviousActivityEvent.get({
         projectUuid: session.projectUuid,
-        type: EventType.ActivityCompleted,
+        type: GameEventType.ActivityCompleted,
         primaryUuid: activityUuid,
         secondaryUuid: session.playerUuid
       })
@@ -120,7 +118,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
         insert.run({
           projectUuid: session.projectUuid,
           uuid: eventUuid,
-          type: EventType.ActivityCompleted,
+          type: GameEventType.ActivityCompleted,
           payload: JSON.stringify(eventPayload),
           primaryUuid: activityUuid,
           secondaryUuid: session.playerUuid,
@@ -150,7 +148,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       transation();
 
       reply.status(200).send({
-        target: `/game/activity/${activityUuid}?claimed`
+        target: `/game/activity/${activityUuid}?claimedByEvent=${eventUuid}`
       })
     }
     else {

@@ -24,10 +24,12 @@
   - Real Name
   - Picture
   - event on change
-[ ] Activity Claim
+[x] Activity Claim
 [ ] Combine activity and duelActivity. Just add a stupid property for isDuel
 [ ] Clean up session stuff. SessionID is golden and gives player + project + session.
   - Add an expiration
+[ ] ? Prompt to claim activity, similar to player
+[ ] ? Add complex markdown-based activity descriptions
 
 ### Notes
 - If settings are changed when a game is running, need to cancel/handle related activities (such as duel allow)

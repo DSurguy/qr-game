@@ -73,18 +73,6 @@ export type ProjectSession = {
   sessionId: string;
 }
 
-export type PlayerClaimedEventPayload = {
-  playerUuid: string;
-  displayName: string;
-  realName: string;
-}
-
-export type ActivityCompletedEventPayload = {
-  playerUuid: string;
-  activityUuid: string;
-  isRepeat: boolean;
-}
-
 export type GameSession = {
   projectUuid: string;
   playerUuid: string;
