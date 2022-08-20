@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, Grid, Loader, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
+import { Box, Button, Card, Checkbox, Grid, Loader, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { SavedActivityType } from '@qr-game/types';
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
@@ -105,6 +105,25 @@ export default function Activity() {
                   />
                 )}
               </Field>
+              <Card shadow="sm" radius="md" sx={{ margin: '1rem' }} withBorder>
+                <Card.Section sx={{ borderBottom: `1px solid ${theme.colors.gray[3]}`, marginBottom: '1rem'}}>
+                  <Text weight="bold" sx={{ margin: '0.25rem 1rem'}}>Duel Settings</Text>
+                </Card.Section>
+                <Box>
+                  <Field
+                    name="isDuel"
+                  >
+                    {({ field }: FieldAttributes<any>) => (
+                      <Checkbox
+                        {...field}
+                        checked={field.value}
+                        label="Is Duel?"
+                        sx={{ marginTop: '0.5rem' }}
+                      />
+                    )}
+                  </Field>
+                </Box>
+              </Card>
               {dirty && <Button type="submit" disabled={isSaving} sx={{
                 marginTop: theme.spacing['xs']
               }}>Save Activity</Button>}

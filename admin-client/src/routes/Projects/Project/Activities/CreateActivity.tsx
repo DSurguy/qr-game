@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Checkbox, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
+import { Box, Button, Card, Checkbox, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { SavedActivityType, UnsavedActivityType } from '@qr-game/types';
 import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -28,7 +28,8 @@ export default function CreateActivity() {
     description: "",
     value: 1,
     isRepeatable: false,
-    repeatValue: 0
+    repeatValue: 0,
+    isDuel: false
   }
 
   return (<Box>
@@ -80,6 +81,25 @@ export default function CreateActivity() {
             />
           )}
         </Field>
+        <Card shadow="sm" radius="md" sx={{ margin: '1rem' }} withBorder>
+          <Card.Section sx={{ borderBottom: `1px solid ${theme.colors.gray[3]}`, marginBottom: '1rem'}}>
+            <Text weight="bold" sx={{ margin: '0.25rem 1rem'}}>Duel Settings</Text>
+          </Card.Section>
+          <Box>
+            <Field
+              name="isDuel"
+            >
+              {({ field }: FieldAttributes<any>) => (
+                <Checkbox
+                  {...field}
+                  checked={field.value}
+                  label="Is Duel?"
+                  sx={{ marginTop: '0.5rem' }}
+                />
+              )}
+            </Field>
+          </Box>
+        </Card>
         <Button type="submit" disabled={isSaving} sx={{
           marginTop: theme.spacing['xs']
         }}>Save Activity</Button>

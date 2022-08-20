@@ -8,9 +8,8 @@ import { ChevronLeft } from 'tabler-icons-react';
 
 enum ProjectTab {
   activities = 0,
-  duelActivities = 1,
-  players = 2,
-  settings = 3
+  players = 1,
+  settings = 2
 }
 
 export function ProjectRoute() {
@@ -33,7 +32,6 @@ export function ProjectRoute() {
 
   const locationToTab = () => {
     if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities
-    else if( matchPath({ path: "projects/:id/duelActivities", end: false }, location.pathname) ) return ProjectTab.duelActivities
     else if( matchPath({ path: "projects/:id/players", end: false }, location.pathname) ) return ProjectTab.players
     else if( matchPath({ path: "projects/:id/settings", end: false }, location.pathname) ) return ProjectTab.settings
   }
@@ -58,7 +56,6 @@ export function ProjectRoute() {
   const onTabChange = (tab: number) => {
     switch(tab){
       case ProjectTab.activities: navigate("activities"); break;
-      case ProjectTab.duelActivities: navigate("duelActivities"); break;
       case ProjectTab.players: navigate("players"); break;
       case ProjectTab.settings: navigate("settings"); break;
     }
@@ -89,7 +86,6 @@ export function ProjectRoute() {
     </Formik>
     <Tabs active={activeTab} onTabChange={onTabChange} sx={{ marginBottom: '0.5rem', marginTop: '1rem' }}>
       <Tabs.Tab label="Activities" />
-      <Tabs.Tab label="Duel Activities" />
       <Tabs.Tab label="Players" />
       <Tabs.Tab label="Settings" />
     </Tabs>

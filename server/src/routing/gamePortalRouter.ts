@@ -74,6 +74,15 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
         reply.status(401).send();
         return;
       }
+
+      const getActivity = app.db.prepare(`SELECT * FROM project_activities WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0`)
+        const activity = getActivity.get({
+          projectUuid: session.projectUuid,
+          activityUuid
+        }) as SavedActivityType
+      if( !activity ) return reply.status(404).send();
+      else if( activity.isDuel ) return reply.status(501).send(); //TODO: Allow
+
       const getPreviousActivityEvent = app.db.prepare(`
         SELECT * FROM project_events WHERE projectUuid=@projectUuid AND type=@type AND primaryUuid=@primaryUuid AND secondaryUuid=@secondaryUuid
       `)
@@ -94,13 +103,6 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       const eventUuid = randomUUID();
 
       const transation = app.db.transaction(() => {
-        const getActivity = app.db.prepare(`SELECT * FROM project_activities WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0`)
-        const activity = getActivity.get({
-          projectUuid: session.projectUuid,
-          activityUuid
-        }) as SavedActivityType
-
-        if( !activity ) return reply.status(404).send();
 
         const insert = app.db.prepare(`
           INSERT INTO project_events (projectUuid, uuid, type, payload, primaryUuid, secondaryUuid, timestamp)

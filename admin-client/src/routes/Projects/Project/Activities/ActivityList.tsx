@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme } from '@mantine/core';
+import { Badge, Box, Button, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { SquarePlus } from 'tabler-icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -81,6 +81,9 @@ export default function ActivityList () {
         </Grid.Col>
         <Grid.Col xs={12} sx={{paddingTop: 0 }}>
           <Text>{activity.description}</Text>
+        </Grid.Col>
+        <Grid.Col xs={12} sx={{ paddingTop: 0}}>
+          <Badge color={activity.isDuel ? 'pink' : 'blue'}>{activity.isDuel ? 'Duel' : 'Standard'}</Badge>
         </Grid.Col>
       </Grid>
     </UnstyledButton>

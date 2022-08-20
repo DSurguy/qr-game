@@ -40,24 +40,7 @@ export function bootstrap(path: string = "") {
           description TEXT,
           value INTEGER,
           isRepeatable INTEGER,
-          repeatValue INTEGER,
-          createdAt INTEGER,
-          updatedAt INTEGER,
-          PRIMARY KEY (projectUuid, uuid)
-        )
-      `)
-      stmt.run();
-
-      stmt = db.prepare(`
-        CREATE TABLE IF NOT EXISTS project_duel_activities (
-          projectUuid TEXT REFERENCES projects(uuid),
-          uuid TEXT,
-          wordId TEXT,
-          deleted INTEGER,
-          name TEXT,
-          description TEXT,
-          value INTEGER,
-          isRepeatable INTEGER,
+          isDuel INTEGER,
           repeatValue INTEGER,
           createdAt INTEGER,
           updatedAt INTEGER,
