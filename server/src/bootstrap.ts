@@ -113,6 +113,23 @@ export function bootstrap(path: string = "") {
         )
       `)
       stmt.run();
+      
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_duels (
+          projectUuid TEXT,
+          uuid TEXT,
+          initiatorUuid TEXT,
+          recipientUuid TEXT,
+          activityUuid TEXT,
+          state TEXT,
+          victorUuid TEXT,
+          FOREIGN KEY ( projectUuid, initiatorUuid ) REFERENCES project_players ( projectUuid, uuid ),
+          FOREIGN KEY ( projectUuid, recipientUuid ) REFERENCES project_players ( projectUuid, uuid ),
+          FOREIGN KEY ( projectUuid, victorUuid ) REFERENCES project_players ( projectUuid, uuid ),
+          FOREIGN KEY ( projectUuid, activityUuid ) REFERENCES project_activities ( projectUuid, uuid )
+        )
+      `)
+      stmt.run();
     })
     bootstrapTransaction();
 

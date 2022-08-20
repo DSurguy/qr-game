@@ -134,3 +134,11 @@ export type GameEvent = {
   secondaryUuid?: string;
   timestamp: number;
 }
+
+export enum DuelState {
+  Pending = "PENDING",
+  Accepted = "ACCEPTED",
+  Rejected = "REJECTED",
+  Cancelled = "CANCELLED",
+  Complete = "COMPLETE",
+}
