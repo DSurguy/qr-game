@@ -1,12 +1,14 @@
-import { Box, Loader, Text } from '@mantine/core';
-import { ActivityCompletedEventPayload, GameEvent, SavedActivityType } from '@qr-game/types';
 import React, { useEffect } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
-import { useServerResource } from '../hooks/useServerResource';
+import { Box, Loader, Text } from '@mantine/core';
+import { ActivityCompletedEventPayload, GameEvent, SavedActivity } from '@qrTypes';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useServerResource } from '../../hooks/useServerResource';
+import DuelModal from './DuelModal';
 
 export default function ActivityRoute () {
   const { activityUuid } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const eventThatClaimedActivity = searchParams.get('claimedByEvent');
   const isDuel = searchParams.get('duel') !== undefined;
 
@@ -15,7 +17,7 @@ export default function ActivityRoute () {
     isLoading: isLoadingActivity,
     loadError: loadActivityError,
     load: loadActivity
-  } = useServerResource<null, SavedActivityType>({
+  } = useServerResource<null, SavedActivity>({
     load: `game/activity/${activityUuid}`,
   })
 
@@ -61,7 +63,7 @@ export default function ActivityRoute () {
 
   const duelSection = () => {
     if( !isDuel ) return null;
-    return <Text>Some Modal For Duel Select Please</Text>
+    return <DuelModal opened onClose={() => {}} />
   }
 
   return <>

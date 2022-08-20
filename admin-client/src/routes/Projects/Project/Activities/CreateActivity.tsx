@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, Card, Checkbox, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
-import { SavedActivityType, UnsavedActivityType } from '@qr-game/types';
+import { SavedActivity, UnsavedActivity } from '@qrTypes';
 import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { ChevronLeft } from 'tabler-icons-react';
@@ -11,11 +11,11 @@ export default function CreateActivity() {
   const { projectUuid } = useParams();
   const theme = useMantineTheme();
   const navigate = useNavigate()
-  const {isSaving, saveError, create} = useServerResource<UnsavedActivityType, SavedActivityType>({
+  const {isSaving, saveError, create} = useServerResource<UnsavedActivity, SavedActivity>({
     create: `projects/${projectUuid}/activities`
   });
 
-  const handleSubmit = (values: UnsavedActivityType, helpers: FormikHelpers<UnsavedActivityType>) => {
+  const handleSubmit = (values: UnsavedActivity, helpers: FormikHelpers<UnsavedActivity>) => {
     if( isSaving ) return;
     create(values, (saveSuccessful) => {
       helpers.setSubmitting(false)
@@ -23,7 +23,7 @@ export default function CreateActivity() {
     });
   }
 
-  const initialValues: UnsavedActivityType = {
+  const initialValues: UnsavedActivity = {
     name: "New Activity",
     description: "",
     value: 1,

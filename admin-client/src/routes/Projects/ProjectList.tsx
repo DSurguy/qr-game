@@ -4,7 +4,7 @@ import { useMediaQuery } from '@mantine/hooks';
 import { Link, useNavigate } from 'react-router-dom';
 import { SquarePlus } from 'tabler-icons-react';
 import { useServerResource } from '../../hooks/useServerResource';
-import { SavedProjectType } from '@qr-game/types';
+import { SavedProject } from '@qrTypes';
 import fuzzysort from 'fuzzysort';
 import useDebouncedState from '../../hooks/useDebouncedState';
 
@@ -16,7 +16,7 @@ export function ProjectsList() {
     isLoading,
     loadError,
     load
-  } = useServerResource<null, SavedProjectType[]>({
+  } = useServerResource<null, SavedProject[]>({
     load: `projects`
   });
   const navigate = useNavigate();
@@ -39,7 +39,7 @@ export function ProjectsList() {
     else setFilteredProjects(projects)
   }, [projects, search])
 
-  const renderProject = (project: SavedProjectType) => (
+  const renderProject = (project: SavedProject) => (
     <UnstyledButton key={project.uuid} component={Link} to={`/projects/${project.uuid}`} sx={{ 
       display: 'block',
       padding: theme.spacing['xs'],

@@ -1,4 +1,4 @@
-import { GamePlayerType, ProjectSettingsType, SavedPlayerType, PlayerClaimedEventPayload, GameEventType } from "@qr-game/types";
+import { GamePlayer, ProjectSettings, SavedPlayer, PlayerClaimedEventPayload, GameEventType } from "../qr-types";
 import { randomUUID } from "crypto";
 import { FastifyPluginCallback } from "fastify";
 import { playerToGame } from "../conversions/toGame";
@@ -11,7 +11,7 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
     Params: {
       playerUuid: string;
     }
-    Reply: GamePlayerType | undefined;
+    Reply: GamePlayer | undefined;
   }>('/player/:playerUuid', (req, reply) => {
     try {
       const { projectUuid } = req.query;
@@ -23,7 +23,7 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
       const player = getPlayer.get({
         projectUuid: projectUuid,
         playerUuid: playerUuid
-      }) as SavedPlayerType | undefined;
+      }) as SavedPlayer | undefined;
 
       if( !player ) {
         reply.status(404).send();
@@ -47,7 +47,7 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
       realName: string;
       //avatar: string;
     }
-    Reply: GamePlayerType | { message: string } | undefined;
+    Reply: GamePlayer | { message: string } | undefined;
   }>('/player/:playerUuid/claim', (req, reply) => {
     try {
       const { playerUuid } = req.params;
@@ -74,7 +74,7 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
         SELECT jsonData FROM project_settings
         WHERE uuid=@projectUuid
       `);
-      const projectSettings = JSON.parse(getProjectSettings.get({ projectUuid }).jsonData) as ProjectSettingsType
+      const projectSettings = JSON.parse(getProjectSettings.get({ projectUuid }).jsonData) as ProjectSettings
       if( !projectSettings ) {
         reply.status(404).send({ message: "Unable to load project settings" });
         return;

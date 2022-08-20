@@ -1,7 +1,7 @@
-import { SavedPlayerType } from "@qr-game/types";
+import { SavedPlayer } from "@qrTypes";
 import { toDataURL } from 'qrcode';
 
-export function playerToQrAsEntity(player: SavedPlayerType) {
+export function playerToQrAsEntity(player: SavedPlayer) {
   return toDataURL(
     JSON.stringify({
       projectUuid: player.projectUuid,
@@ -11,7 +11,7 @@ export function playerToQrAsEntity(player: SavedPlayerType) {
   )
 }
 
-export function playerToQrAsUrl(player: SavedPlayerType, origin: string) {
+export function playerToQrAsUrl(player: SavedPlayer, origin: string) {
   const otherAppOrigin = origin.includes(":8080")
     ? origin.replace(":8080", ":8081")
     : origin.replace(":8081", ":8080")

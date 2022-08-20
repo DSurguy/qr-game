@@ -1,6 +1,6 @@
-import { GamePlayerType, GameProjectType, SavedPlayerType, SavedProjectType } from "@qr-game/types";
+import { GamePlayer, GameProject, SavedPlayer, SavedProject } from "../qr-types";
 
-export function projectToGame(project: SavedProjectType): GameProjectType {
+export function projectToGame(project: SavedProject): GameProject {
   return {
     uuid: project.uuid,
     wordId: project.wordId,
@@ -9,7 +9,7 @@ export function projectToGame(project: SavedProjectType): GameProjectType {
   };
 }
 
-export function playerToGame(player: SavedPlayerType): GamePlayerType {
+export function playerToGame(player: SavedPlayer): GamePlayer {
   return {
     projectUuid: player.projectUuid,
     uuid: player.uuid,

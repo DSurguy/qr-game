@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { FastifyPluginCallback } from "fastify"
-import { SavedActivityType, ActivityCompletedEventPayload, GameEventType } from '@qr-game/types';
+import { SavedActivity, ActivityCompletedEventPayload, GameEventType } from '../qr-types';
 
 // /api/admin/*
 // ----
@@ -84,7 +84,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       const activity = getActivity.get({
         projectUuid: session.projectUuid,
         activityUuid
-      }) as SavedActivityType
+      }) as SavedActivity
     if( !activity ) return reply.status(404).send();
     else if( activity.isDuel ) {
       //Return control to the client to prompt to add this activity to a duel or start a new one

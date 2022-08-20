@@ -16,7 +16,6 @@
     "@mantine/form": "^4.2.12",
     "@mantine/hooks": "^4.2.12",
     "@mantine/notifications": "^4.2.12",
-    "@qr-game/types": "workspace:^1.0.0",
     "formik": "^2.2.9",
     "fuzzysort": "^2.0.1",
     "qrcode": "^1.5.0",

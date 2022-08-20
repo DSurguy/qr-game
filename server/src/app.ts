@@ -5,7 +5,6 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { adminRouter } from './routing/adminRouter';
 import { Database } from 'better-sqlite3';
-import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox'
 import SessionManager from "./sessionManager";
 import { gamePortalRouter } from "./routing/gamePortalRouter";
 import { gameRouter } from "./routing/gameRouter";
@@ -20,7 +19,7 @@ export function start(db: Database) {
   const app = fastify({
     logger: true,
     https: httpsOptions
-  }).withTypeProvider<TypeBoxTypeProvider>()
+  })
 
   app.decorate('db', db);
 

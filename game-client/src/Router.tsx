@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AuthLayout from './components/layout/AuthLayout';
 import PublicLayout from './components/layout/PublicLayout';
-import ActivityRoute from './routes/Activity';
+import ActivityRoute from './routes/Activity/ActivityRoute';
 import EntryPortalRoute from './routes/EntryPortal';
 import LoginRoute from './routes/LoginRoute';
 import ProfileRoute from './routes/ProfileRoute';

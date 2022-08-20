@@ -1,6 +1,6 @@
 import { Box, Button, Grid, Loader, Text, TextInput, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
-import { SavedPlayerType } from '@qr-game/types';
+import { SavedPlayer } from '@qrTypes';
 import fuzzysort from 'fuzzysort';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -16,7 +16,7 @@ export default function PlayerList() {
     isLoading,
     loadError,
     load
-  } = useServerResource<SavedPlayerType[], SavedPlayerType[]>({
+  } = useServerResource<SavedPlayer[], SavedPlayer[]>({
     load: `projects/${projectUuid}/players`
   })
   const theme = useMantineTheme();
@@ -42,7 +42,7 @@ export default function PlayerList() {
     else setFilteredPlayers(players)
   }, [players, search])
 
-  const renderPlayer = (player: SavedPlayerType) => (
+  const renderPlayer = (player: SavedPlayer) => (
     <UnstyledButton sx={{ 
       display: 'block',
       padding: theme.spacing['xs'],

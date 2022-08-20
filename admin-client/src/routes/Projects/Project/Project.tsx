@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Box, Button, Loader, Tabs, Text, Textarea, TextInput, useMantineTheme, } from '@mantine/core';
-import { SavedProjectType } from '@qr-game/types';
+import { SavedProject } from '@qrTypes';
 import { Link, matchPath, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useServerResource } from '../../../hooks/useServerResource';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
@@ -24,7 +24,7 @@ export function ProjectRoute() {
     saveError,
     load,
     update
-  } = useServerResource<SavedProjectType, SavedProjectType>({
+  } = useServerResource<SavedProject, SavedProject>({
     load: `projects/${projectUuid}`,
     update: `projects/${projectUuid}`
   })
@@ -46,7 +46,7 @@ export function ProjectRoute() {
     if( project && activeTab === undefined ) navigate("activities");
   }, [project])
 
-  const handleSubmit = (values: SavedProjectType, helpers: FormikHelpers<SavedProjectType>) => {
+  const handleSubmit = (values: SavedProject, helpers: FormikHelpers<SavedProject>) => {
     if( isSaving ) return;
     update(values, () => {
       helpers.setSubmitting(false)

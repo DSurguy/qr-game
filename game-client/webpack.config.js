@@ -15,14 +15,18 @@ module.exports = {
     rules: [
       {
         test: /\.(js|jsx)$/,
-        include: path.resolve(__dirname, 'src'),
-        exclude: /node_modules/,
+        include: [
+          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, '../new-types')
+        ],
         use: ["babel-loader"],
       },
       {
         test: /\.(ts|tsx)$/,
-        include: path.resolve(__dirname, 'src'),
-        exclude: /node_modules/,
+        include: [
+          path.resolve(__dirname, 'src'),
+          path.resolve(__dirname, '../new-types')
+        ],
         use: ["ts-loader"],
       },
       {
@@ -42,7 +46,6 @@ module.exports = {
     client: {
       overlay: false
     },
-    https: false
   },
   devtool: 'eval-source-map',
   plugins: [

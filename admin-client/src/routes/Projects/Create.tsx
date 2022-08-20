@@ -3,10 +3,10 @@ import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
 import { Box, Button, Checkbox, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import FormikNumberInput from '../../components/inputs/FormikNumberInput';
-import { SavedProjectType, UnsavedProjectType } from '@qr-game/types';
+import { SavedProject, UnsavedProject } from '@qrTypes';
 import { useServerResource } from '../../hooks/useServerResource';
 
-const initialValues: UnsavedProjectType = {
+const initialValues: UnsavedProject = {
   name: "Test Project Name",
   description: "",
   numPlayers: 50,
@@ -27,10 +27,10 @@ export function CreateProjectRoute() {
     create,
     isSaving,
     saveError
-  } = useServerResource<UnsavedProjectType, SavedProjectType>({
+  } = useServerResource<UnsavedProject, SavedProject>({
     create: 'projects'
   });
-  const handleSubmit = (values: UnsavedProjectType, helpers: FormikHelpers<UnsavedProjectType>) => {
+  const handleSubmit = (values: UnsavedProject, helpers: FormikHelpers<UnsavedProject>) => {
     if( isSaving ) return;
     create(values, (wasSuccessful) => {
       if( wasSuccessful ) navigate('/projects')

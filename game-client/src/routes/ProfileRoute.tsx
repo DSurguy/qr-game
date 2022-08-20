@@ -1,5 +1,5 @@
 import { Box, Loader, Text } from '@mantine/core';
-import { GamePlayerType, GameProjectType } from '@qr-game/types';
+import { GamePlayer, GameProject } from '@qrTypes';
 import React, { useEffect } from 'react';
 import { useServerResource } from '../hooks/useServerResource';
 
@@ -9,7 +9,7 @@ export default function ProfileRoute() {
     isLoading: isLoadingProject,
     loadError: loadProjectError,
     load: loadProject
-  } = useServerResource<GameProjectType, GameProjectType>({
+  } = useServerResource<GameProject, GameProject>({
     load: 'game',
   })
 
@@ -18,7 +18,7 @@ export default function ProfileRoute() {
     isLoading: isLoadingPlayer,
     loadError: loadPlayerError,
     load: loadPlayer
-  } = useServerResource<GamePlayerType, GamePlayerType>({
+  } = useServerResource<GamePlayer, GamePlayer>({
     load: 'game/me',
   })
 

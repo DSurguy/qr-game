@@ -2,15 +2,16 @@
   "name": "@qr-game/types",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc --noEmit && ts-node deploy.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sinclair/typebox": "^0.24.17",
+    "@types/node": "^18.0.1",
+    "ts-node": "^10.8.2",
     "typescript": "^4.7.4"
   }
 }

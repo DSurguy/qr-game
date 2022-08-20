@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SavedPlayerType } from '@qr-game/types';
+import { SavedPlayer } from '@qrTypes';
 import { Link, useParams } from 'react-router-dom';
 import { useServerResource } from '../../../../hooks/useServerResource';
 import { Badge, Box, Button, Grid, Loader, Text, useMantineTheme } from '@mantine/core';
@@ -20,7 +20,7 @@ export default function Player() {
     saveError,
     load,
     update
-  } = useServerResource<SavedPlayerType, SavedPlayerType>({
+  } = useServerResource<SavedPlayer, SavedPlayer>({
     load: `projects/${projectUuid}/players/${playerUuid}`,
     update: `projects/${projectUuid}/players/${playerUuid}`
   })

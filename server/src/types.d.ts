@@ -31,7 +31,10 @@ declare module 'fastify' {
      */
     signCookie(value: string): string;
   }
-  
+  //TODO: Somehow scope this
+  export interface FastifyRequest {
+    session?: GameSession;
+  }
 }
 
 export type Player = {

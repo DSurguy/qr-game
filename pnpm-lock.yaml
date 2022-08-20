@@ -12,7 +12,6 @@ importers:
       '@mantine/form': ^4.2.12
       '@mantine/hooks': ^4.2.12
       '@mantine/notifications': ^4.2.12
-      '@qr-game/types': workspace:^1.0.0
       '@types/qrcode': ^1.4.2
       '@types/react': ^18.0.14
       '@types/react-dom': ^18.0.5
@@ -42,7 +41,6 @@ importers:
       '@mantine/form': 4.2.12_react@18.2.0
       '@mantine/hooks': 4.2.12_react@18.2.0
       '@mantine/notifications': 4.2.12_n5fi23fjjzlwcbqhnnpdtjftw4
-      '@qr-game/types': link:../types
       formik: 2.2.9_react@18.2.0
       fuzzysort: 2.0.1
       qrcode: 1.5.0
@@ -82,7 +80,6 @@ importers:
       '@mantine/form': ^5.1.5
       '@mantine/hooks': ^5.1.5
       '@mantine/notifications': ^5.1.5
-      '@qr-game/types': workspace:^1.0.0
       '@types/qrcode': ^1.4.2
       '@types/react': ^18.0.14
       '@types/react-dom': ^18.0.5
@@ -115,7 +112,6 @@ importers:
       '@mantine/form': 5.1.5_react@18.2.0
       '@mantine/hooks': 5.1.5_react@18.2.0
       '@mantine/notifications': 5.1.5_cdq6qxajiyf4hs4dfxwythwami
-      '@qr-game/types': link:../types
       formik: 2.2.9_react@18.2.0
       fuzzysort: 2.0.1
       jsqr: 1.4.0
@@ -152,7 +148,6 @@ importers:
       '@fastify/cors': ^8.0.0
       '@fastify/static': ^6.4.0
       '@fastify/type-provider-typebox': ^2.1.0
-      '@qr-game/types': workspace:^1.0.0
       '@sinclair/typebox': ^0.24.17
       '@types/better-sqlite3': ^7.5.0
       '@types/node': ^18.0.1
@@ -165,13 +160,13 @@ importers:
       project-editor-client: workspace:1.0.0
       qrcode: ^1.5.0
       ts-node: ^10.8.2
+      tsconfig-paths: ^4.1.0
       typescript: ^4.7.4
     dependencies:
       '@fastify/cookie': 7.4.0
       '@fastify/cors': 8.0.0
       '@fastify/static': 6.4.0
       '@fastify/type-provider-typebox': 2.1.0_lcbnz4jr62ixea4jv76n3el26q
-      '@qr-game/types': link:../types
       '@sinclair/typebox': 0.24.17
       better-sqlite3: 7.6.0
       fastify: 4.4.0
@@ -185,14 +180,17 @@ importers:
       '@types/qrcode': 1.4.2
       concurrently: 7.2.2
       nodemon: 2.0.19
+      tsconfig-paths: 4.1.0
       typescript: 4.7.4
 
   types:
     specifiers:
-      '@sinclair/typebox': ^0.24.17
+      '@types/node': ^18.0.1
+      ts-node: ^10.8.2
       typescript: ^4.7.4
     dependencies:
-      '@sinclair/typebox': 0.24.17
+      '@types/node': 18.0.1
+      ts-node: 10.8.2_qqrtuuv3y2pz7xoxv47yka6pmi
       typescript: 4.7.4
 
 packages:
@@ -4269,7 +4267,6 @@ packages:
 
   /minimist/1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
-    dev: false
 
   /mkdirp-classic/0.5.3:
     resolution: {integrity: sha512-gKLcREMhtuZRwRAfqP3RFW+TK4JqApVBtOIftVgjuABpAtpxhPGaDcfvbhNvD0B8iD1oUr/txX35NjcaY6Ns/A==}
@@ -5393,6 +5390,11 @@ packages:
     dependencies:
       ansi-regex: 5.0.1
 
+  /strip-bom/3.0.0:
+    resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
+    engines: {node: '>=4'}
+    dev: true
+
   /strip-final-newline/2.0.0:
     resolution: {integrity: sha512-BrpvfNAE3dcvq7ll3xVumzjKjZQ5tI1sEUIKr3Uoks0XUl45St3FlatVqef9prk4jRDzhW6WZg+3bk93y6pLjA==}
     engines: {node: '>=6'}
@@ -5612,6 +5614,15 @@ packages:
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
     dev: false
+
+  /tsconfig-paths/4.1.0:
+    resolution: {integrity: sha512-AHx4Euop/dXFC+Vx589alFba8QItjF+8hf8LtmuiCwHyI4rHXQtOOENaM8kvYf5fR0dRChy3wzWIZ9WbB7FWow==}
+    engines: {node: '>=6'}
+    dependencies:
+      json5: 2.2.1
+      minimist: 1.2.6
+      strip-bom: 3.0.0
+    dev: true
 
   /tslib/1.14.1:
     resolution: {integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==}

@@ -1,7 +1,7 @@
-import { SavedActivityType } from "@qr-game/types";
+import { SavedActivity } from "@qrTypes";
 import { toDataURL } from 'qrcode';
 
-export function activityToQr(activity: SavedActivityType) {
+export function activityToQr(activity: SavedActivity) {
   return toDataURL(
     JSON.stringify({
       projectUuid: activity.projectUuid,
@@ -11,7 +11,7 @@ export function activityToQr(activity: SavedActivityType) {
   )
 }
 
-export function activityToQrAsUrl(activity: SavedActivityType, origin: string) {
+export function activityToQrAsUrl(activity: SavedActivity, origin: string) {
   const otherAppOrigin = origin.includes(":8080")
     ? origin.replace(":8080", ":8081")
     : origin.replace(":8081", ":8080")

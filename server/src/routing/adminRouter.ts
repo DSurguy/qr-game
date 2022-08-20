@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { UnsavedProjectType, SavedProjectType, UnsavedActivityType, SavedActivityType, ProjectSettingsType, SavedPlayerType, CreatePlayerPayloadType } from '@qr-game/types';
+import { UnsavedProject, SavedProject, UnsavedActivity, SavedActivity, ProjectSettings, SavedPlayer, CreatePlayerPayload } from '../qr-types';
 import { FastifyPluginCallback } from 'fastify/types/plugin'
 import { getRandomInt } from '../utils/random';
 import animals from '../lists/animals.js';
@@ -8,7 +8,7 @@ import adjectives from '../lists/adjectives.js';
 const getRandomListItem = (list: string[]) => list[getRandomInt(0, list.length)];
 
 export const adminRouter: FastifyPluginCallback = (app, options, done) => {
-  const claimNewWordId = (projectUuid): string => {
+  const claimNewWordId = (projectUuid: string): string => {
     let wordId = getRandomListItem(adjectives) + getRandomListItem(adjectives) + getRandomListItem(animals);
     const selectWordId = app.db.prepare(`
       SELECT * FROM project_wordIds
@@ -40,8 +40,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   app.post<{
-    Body: UnsavedProjectType,
-    Reply: SavedProjectType
+    Body: UnsavedProject,
+    Reply: SavedProject
   }>('/projects', (req, reply) => {
     const {
       name,
@@ -103,7 +103,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
 
   //TODO: Paginate
   app.get<{
-    Reply: SavedProjectType[],
+    Reply: SavedProject[],
     Querystring: { deleted?: boolean }
   }>('/projects', (req, reply) => {
     try {
@@ -117,7 +117,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   app.get<{
-    Reply: SavedProjectType,
+    Reply: SavedProject,
     Params: { projectUuid: string }
   }>('/projects/:projectUuid', (req, reply) => {
     try {
@@ -130,8 +130,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   app.put<{
-    Body: SavedProjectType,
-    Reply: SavedProjectType,
+    Body: SavedProject,
+    Reply: SavedProject,
     Params: { projectUuid: string }
   }>('/projects/:projectUuid', {
     preHandler: (req, reply, done) => {
@@ -192,8 +192,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
   
   app.post<{ 
-    Body: UnsavedActivityType,
-    Reply: SavedActivityType,
+    Body: UnsavedActivity,
+    Reply: SavedActivity,
     Params: { projectUuid: string }
   }>('/projects/:projectUuid/activities', (req, reply) => {
     const {
@@ -234,8 +234,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   app.put<{ 
-    Body: SavedActivityType,
-    Reply: SavedActivityType | string,
+    Body: SavedActivity,
+    Reply: SavedActivity | string,
     Params: { projectUuid: string, activityUuid: string }
   }>('/projects/:projectUuid/activities/:activityUuid', (req, reply) => {
     const {
@@ -297,7 +297,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   app.get<{
-    Reply: SavedActivityType[],
+    Reply: SavedActivity[],
     Params: { projectUuid: string }
   }>('/projects/:projectUuid/activities', (req, reply) => {
     try {
@@ -308,7 +308,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
       `)
       const activities = select.all({
         projectUuid
-      }) as SavedActivityType[]
+      }) as SavedActivity[]
       reply.code(200).send(activities.map(activity => ({
         ...activity,
         isRepeatable: !!activity.isRepeatable,
@@ -321,7 +321,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   app.get<{
-    Reply: SavedActivityType,
+    Reply: SavedActivity,
     Params: { projectUuid: string, activityUuid: string }
   }>('/projects/:projectUuid/activities/:activityUuid', (req, reply) => {
     try {
@@ -351,7 +351,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   })
 
   app.put<{ 
-    Body: ProjectSettingsType,
+    Body: ProjectSettings,
     Params: { projectUuid: string }
   }>('/projects/:projectUuid/settings', (req, reply) => {
     const insert = app.db.prepare(`
@@ -401,7 +401,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
   app.get<{
     Params: { projectUuid: string },
     Querystring: { deleted?: boolean },
-    Reply: SavedPlayerType[]
+    Reply: SavedPlayer[]
   }>('/projects/:projectUuid/players', (req, reply) => {
     try {
       const {
@@ -426,7 +426,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
 
   app.get<{
     Params: { projectUuid: string, playerUuid: string },
-    Reply: SavedPlayerType[]
+    Reply: SavedPlayer[]
   }>('/projects/:projectUuid/players/:playerUuid', (req, reply) => {
     try {
       const {
@@ -449,8 +449,8 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
 
   app.put<{
     Params: { projectUuid: string, playerUuid: string },
-    Body: SavedPlayerType,
-    Reply: SavedPlayerType | string
+    Body: SavedPlayer,
+    Reply: SavedPlayer | string
   }>('/projects/:projectUuid/players/:playerUuid', (req, reply) => {
     try {
       const {
@@ -493,7 +493,7 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
 
   app.post<{
     Params: { projectUuid: string },
-    Body: CreatePlayerPayloadType,
+    Body: CreatePlayerPayload,
   }>('/projects/:projectUuid/players', (req, reply) => {
     try {
       const { projectUuid } = req.params;

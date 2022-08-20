@@ -3,7 +3,7 @@ import { Badge, Box, Button, Grid, Loader, Text, TextInput, UnstyledButton, useM
 import { useMediaQuery } from '@mantine/hooks';
 import { SquarePlus } from 'tabler-icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { SavedActivityType } from '@qr-game/types';
+import { SavedActivity } from '@qrTypes';
 import { useServerResource } from '../../../../hooks/useServerResource';
 import useDebouncedState from '../../../../hooks/useDebouncedState';
 import fuzzysort from 'fuzzysort';
@@ -17,7 +17,7 @@ export default function ActivityList () {
     isLoading,
     loadError,
     load
-  } = useServerResource<SavedActivityType[], SavedActivityType[]>({
+  } = useServerResource<SavedActivity[], SavedActivity[]>({
     load: `projects/${projectUuid}/activities`
   })
   const isExtraSmallScreen = useMediaQuery(`(max-width: ${theme.breakpoints.sm}px)`);
@@ -40,7 +40,7 @@ export default function ActivityList () {
     else setFilteredActivities(activities)
   }, [activities, search])
 
-  const renderActivity = (activity: SavedActivityType) => (
+  const renderActivity = (activity: SavedActivity) => (
     <UnstyledButton sx={{ 
       display: 'block',
       padding: theme.spacing['xs'],
@@ -89,7 +89,7 @@ export default function ActivityList () {
     </UnstyledButton>
   )
 
-  const activityContent = () => filteredActivities.map((activity: SavedActivityType) => renderActivity(activity)) 
+  const activityContent = () => filteredActivities.map((activity: SavedActivity) => renderActivity(activity)) 
   if( isLoading ) return <Loader />
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activities"}</Text>
   if( !filteredActivities ) return null;

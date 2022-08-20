@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Modal, Text, TextInput, useMantineTheme } from '@mantine/core';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { GamePlayerType } from '@qr-game/types';
+import { GamePlayer } from '@qrTypes';
 import { useServerResource } from '../../hooks/useServerResource';
 import { showNotification } from '@mantine/notifications';
 import { Check } from 'tabler-icons-react';
@@ -26,7 +26,7 @@ export default function ClaimPlayerModal ({ opened, onClose, playerUuid, project
     isSaving: isClaiming,
     saveError: claimError,
     create: claim
-  } = useServerResource<ClaimPayload, GamePlayerType>({
+  } = useServerResource<ClaimPayload, GamePlayer>({
     create: `public/player/${playerUuid}/claim`,
   })
   const theme = useMantineTheme();

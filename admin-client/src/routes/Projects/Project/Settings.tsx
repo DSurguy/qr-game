@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
 import { Box, Button, Checkbox, Loader, Text } from '@mantine/core';
 import { useParams } from 'react-router-dom';
-import { ProjectSettingsType } from '@qr-game/types';
+import { ProjectSettings } from '@qrTypes';
 import { AutoSave } from '../../../components/forms/AutoSave';
 import { useServerResource } from '../../../hooks/useServerResource';
 import FormikNumberInput from '../../../components/inputs/FormikNumberInput';
@@ -17,7 +17,7 @@ export function Settings() {
     saveError,
     load: loadSettings,
     update: saveSettings
-  } = useServerResource<ProjectSettingsType, ProjectSettingsType>({
+  } = useServerResource<ProjectSettings, ProjectSettings>({
     update: `projects/${projectUuid}/settings`,
     load: `projects/${projectUuid}/settings`
   })
@@ -28,7 +28,7 @@ export function Settings() {
     });
   }, [])
 
-  const handleSubmit = (values: ProjectSettingsType, helpers: FormikHelpers<ProjectSettingsType>) => {
+  const handleSubmit = (values: ProjectSettings, helpers: FormikHelpers<ProjectSettings>) => {
     if( isSaving ) return;
     saveSettings(values, () => helpers.setSubmitting(false));
   }

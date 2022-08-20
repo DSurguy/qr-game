@@ -1,3 +1,5 @@
-This package now has to be built every time it changes.
+This package now has to be built every time it changes. The build copies the index.ts file as `qr-types.ts` into the `/src` folder of every sub-project.
 
-When it just had types consumed, it was totally fine to get inlined. As soon as I added the enum, real constant values were being exported and used, and it now has to be compiled.
+There's some weird issue with enums and symlinks that I'm working through.
+
+Even in game-client, the loaders are still confused.

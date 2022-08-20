@@ -1,5 +1,5 @@
 import { Box, Button, Card, Checkbox, Grid, Loader, Text, Textarea, TextInput, useMantineTheme } from '@mantine/core';
-import { SavedActivityType } from '@qr-game/types';
+import { SavedActivity } from '@qrTypes';
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ChevronLeft, Copy } from 'tabler-icons-react';
@@ -20,7 +20,7 @@ export default function Activity() {
     loadError,
     update,
     load
-  } = useServerResource<SavedActivityType, SavedActivityType>({
+  } = useServerResource<SavedActivity, SavedActivity>({
     load: `projects/${projectUuid}/activities/${activityUuid}`,
     update: `projects/${projectUuid}/activities/${activityUuid}`,
   })
@@ -46,7 +46,7 @@ export default function Activity() {
     })();
   }, [activity])
 
-  const handleSubmit = (values: SavedActivityType, helpers: FormikHelpers<SavedActivityType>) => {
+  const handleSubmit = (values: SavedActivity, helpers: FormikHelpers<SavedActivity>) => {
     if( isSaving ) return;
     update(values, () => {
       helpers.setSubmitting(false)

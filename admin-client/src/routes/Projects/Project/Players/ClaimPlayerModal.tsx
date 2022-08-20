@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box, Button, Modal, Text, TextInput } from '@mantine/core'
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { SavedPlayerType } from '@qr-game/types';
+import { SavedPlayer } from '@qrTypes';
 import { useServerResource } from '../../../../hooks/useServerResource';
 
 type Props = {
   opened: boolean,
   onClose: () => void,
-  player: SavedPlayerType
+  player: SavedPlayer
 }
 
 type FormValues = {
@@ -19,7 +19,7 @@ export default function ClaimPlayerModal({ opened, onClose, player }: Props) {
     isSaving,
     saveError,
     update
-  } = useServerResource<SavedPlayerType, SavedPlayerType>({
+  } = useServerResource<SavedPlayer, SavedPlayer>({
     update: `projects/${player.projectUuid}/players/${player.uuid}`
   })
 
