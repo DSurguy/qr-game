@@ -8,6 +8,7 @@ export default function ActivityRoute () {
   const { activityUuid } = useParams();
   const [searchParams] = useSearchParams();
   const eventThatClaimedActivity = searchParams.get('claimedByEvent');
+  const isDuel = searchParams.get('duel') !== undefined;
 
   const {
     data: activity,
@@ -44,6 +45,7 @@ export default function ActivityRoute () {
   }
 
   const claimEventSection = () => {
+    if( !eventThatClaimedActivity ) return null;
     if( isLoadingClaimEvent ) return <Loader />
     if( loadClaimEventError ) return <Text color="red">Error loading claim event {loadClaimEventError?.message}</Text>
     if( !claimEvent || !activity ) return null;
@@ -57,8 +59,14 @@ export default function ActivityRoute () {
     )
   }
 
+  const duelSection = () => {
+    if( !isDuel ) return null;
+    return <Text>Some Modal For Duel Select Please</Text>
+  }
+
   return <>
     {activitySection()}
     {claimEventSection()}
+    {duelSection()}
   </>
 }

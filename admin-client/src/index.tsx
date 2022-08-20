@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { Router } from './Router';
 import './normalize.css';
 import favicon from './assets/favicon.png';
+import { NotificationsProvider } from "@mantine/notifications";
 
 //<link rel="icon" href="favicon.ico" type="image/x-icon">
 const linkTag = document.createElement('link');
@@ -15,5 +16,7 @@ document.querySelector('head')?.appendChild(linkTag)
 
 const appRoot = createRoot(document.querySelector('#app-container'))
 appRoot.render(<MantineProvider>
-  <Router />
+  <NotificationsProvider>
+    <Router />
+  </NotificationsProvider>
 </MantineProvider>)

@@ -3,9 +3,12 @@ import { SavedPlayerType } from '@qr-game/types';
 import { Link, useParams } from 'react-router-dom';
 import { useServerResource } from '../../../../hooks/useServerResource';
 import { Badge, Box, Button, Grid, Loader, Text, useMantineTheme } from '@mantine/core';
-import { ChevronLeft } from 'tabler-icons-react';
+import { AlertTriangle, Check, ChevronLeft, Copy } from 'tabler-icons-react';
 import { playerToQrAsUrl } from '../../../../conversions/playerToQr';
 import ClaimPlayerModal from './ClaimPlayerModal';
+import { showNotification } from '@mantine/notifications';
+import { replacePort } from '../../../../conversions/domain';
+import copyToClipboardWithNotify from '../../../../utilities/copyToClipboardWithNotify';
 
 export default function Player() {
   const { projectUuid, playerUuid } = useParams();
@@ -44,6 +47,8 @@ export default function Player() {
     })();
   }, [player])
 
+  const portalLink = `${replacePort(window.location.origin)}/portal?projectUuid=${projectUuid}&type=player&uuid=${playerUuid}`;
+
   const unclaimedPlayerButton = <Button onClick={() => setClaimPlayerModalOpen(true)}>Claim Player</Button>
   const claimedPlayerBadge = <Badge color="green" size="md">Claimed</Badge>
 
@@ -51,13 +56,16 @@ export default function Player() {
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activity"}</Text>
   if( !player ) return null;
   return <Box>
-    <Button
-      compact
-      variant="subtle"
-      component={Link}
-      to=".."
-      leftIcon={<ChevronLeft size={16} />}
-    >Back</Button>
+    <Box sx={{ display: 'flex', justifyContent: 'space-between'}}>
+      <Button
+        compact
+        variant="subtle"
+        component={Link}
+        to=".."
+        leftIcon={<ChevronLeft size={16} />}
+      >Back</Button>
+      <Button compact variant="subtle" leftIcon={<Copy />} onClick={() => copyToClipboardWithNotify(portalLink)}>Copy Portal Link</Button>
+    </Box>
     <Grid sx={{ marginTop: '0.5rem'}}>
       <Grid.Col xs={10}>
         <Text component="h3" sx={{ margin: 0, fontSize: '1.4rem' }}>{player.name || 'UNCLAIMED'}</Text>

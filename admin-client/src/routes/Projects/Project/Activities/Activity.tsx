@@ -2,11 +2,13 @@ import { Box, Button, Card, Checkbox, Grid, Loader, Text, Textarea, TextInput, u
 import { SavedActivityType } from '@qr-game/types';
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronLeft } from 'tabler-icons-react';
+import { ChevronLeft, Copy } from 'tabler-icons-react';
 import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
 import { activityToQrAsUrl } from '../../../../conversions/activityToQr';
 import FormikNumberInput from '../../../../components/inputs/FormikNumberInput';
 import { useServerResource } from '../../../../hooks/useServerResource';
+import { replacePort } from '../../../../conversions/domain';
+import copyToClipboardWithNotify from '../../../../utilities/copyToClipboardWithNotify';
 
 export default function Activity() {
   const { projectUuid, activityUuid } = useParams();
@@ -51,17 +53,22 @@ export default function Activity() {
     });
   }
 
+  const portalLink = `${replacePort(window.location.origin)}/portal?projectUuid=${projectUuid}&type=activity&uuid=${activityUuid}`;
+
   if( isLoading ) return <Loader />
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activity"}</Text>
   if( !activity ) return null;
   return <Box>
-    <Button
-      compact
-      variant="subtle"
-      component={Link}
-      to=".."
-      leftIcon={<ChevronLeft size={16} />}
-    >Back</Button>
+    <Box sx={{ display: 'flex', justifyContent: 'space-between'}}>
+      <Button
+        compact
+        variant="subtle"
+        component={Link}
+        to=".."
+        leftIcon={<ChevronLeft size={16} />}
+      >Back</Button>
+      <Button compact variant="subtle" leftIcon={<Copy />} onClick={() => copyToClipboardWithNotify(portalLink)}>Copy Portal Link</Button>
+    </Box>
     <Grid sx={{ marginTop: '0.5rem'}}>
       <Grid.Col xs={12}>
         <Formik initialValues={activity} onSubmit={handleSubmit} enableReinitialize>
