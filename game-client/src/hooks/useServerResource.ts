@@ -63,7 +63,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
    * @param values 
    * @param callback A function that can perform cleanup actions, such as telling Formik submission is complete. It will receive one argument, indicating if the API action was successful or not
    */
-  const update = (values: SavedType, callback?: ApiActionCallback) => {
+  const update = (values: UnsavedType, callback?: ApiActionCallback) => {
     if( typeof endpoints.update !== 'string' ) {
       setSaveError(new Error("No endpoint provided to update resource"));
       if( callback ) callback(false)

@@ -110,7 +110,7 @@ export enum DuelState {
   Complete = "COMPLETE",
 }
 
-export interface Duel {
+export interface UnsavedDuel {
   projectUuid: string;
   uuid: string;
   initiatorUuid: string;
@@ -120,4 +120,6 @@ export interface Duel {
   victorUuid: string;
 }
 
-//v1.0.1
+export interface Duel extends UnsavedDuel, SavedItemBase {}
+
+//v1.0.2

@@ -2,6 +2,7 @@ import { DuelState, Duel, GameEvent, GamePlayer, GameProject, SavedActivity, Sav
 import { FastifyPluginCallback } from "fastify"
 import { playerToGame, projectToGame } from "../conversions/toGame";
 import { ProjectSession } from "../types";
+import { randomUUID } from "node:crypto";
 
 // BASE /api/game/* <authenticated>
 // GET  /api/game - project info
@@ -206,6 +207,76 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       reply.status(500).send();
     }
   })
+
+  app.post<{
+    Header: {
+      authorization: string | undefined;
+    },
+    Body: {
+      recipientUuid?: string;
+      activityUuid?: string;
+    },
+    Reply: Duel | undefined | { message: string };
+  }>('/duels', (req, reply) => {
+    try {
+      if( !req.body.recipientUuid && !req.body.activityUuid ) {
+        reply.status(400).send({ message: "Either recipientUuid or activityUuid is required."});
+        return;
+      }
+      const duelId = randomUUID();
+      const timestamp = Date.now();
+      const createDuel = app.db.prepare(`
+        INSERT INTO project_duels (
+          projectUuid,
+          uuid,
+          initiatorUuid,
+          recipientUuid,
+          activityUuid,
+          state,
+          victorUuid,
+          createdAt,
+          updatedAt,
+          deleted
+        ) VALUES (
+          @projectUuid,
+          @duelUuid,
+          @initiatorUuid,
+          @recipientUuid,
+          @activityUuid,
+          @state,
+          null,
+          @timestamp,
+          @timestamp,
+          0
+        ) 
+      `)
+      createDuel.run({
+        projectUuid: req.session.projectUuid,
+        uuid: duelId,
+        initiatorUuid: req.session.playerUuid,
+        recipientUuid: req.body.recipientUuid || null,
+        activityUuid: req.body.activityUuid || null,
+        state: DuelState.Created,
+        timestamp
+      })
+      const getDuel = app.db.prepare(`SELECT * FROM project_duels WHERE uuid=@uuid AND projectUuid=@projectUuid`)
+      const duel = getDuel.get({
+        projectUuid: req.session.projectUuid,
+        uuid: duelId,
+      })
+      reply.status(201).send(duel);
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send();
+    }
+  })
+
+  // app.put<{}>('/duels/:duelId/activity')
+  // app.put<{}>('/duels/:duelId/recipient')
+
+  
+  // app.put<{}>('/duels/:duelId/confirmed')
+  // app.put<{}>('/duels/:duelId/victor')
 
   done();
 }
