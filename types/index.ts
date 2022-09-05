@@ -101,12 +101,15 @@ export type GameEvent = {
   timestamp: number;
 }
 
-export enum DuelState {
+export const enum DuelState {
   Created = "CREATED",
-  Pending = "PENDING",
+  Pending = "PENDING_RESPONSE",
   Accepted = "ACCEPTED",
   Rejected = "REJECTED",
+  PendingCancel = "PENDING_CANCEL",
   Cancelled = "CANCELLED",
+  PendingRecipientConfirm = "PENDING_RECIPIENT_CONFIRM",
+  PendingInitiatorConfirm = "PENDING_INITIATOR_CONFIRM",
   Complete = "COMPLETE",
 }
 
@@ -116,10 +119,76 @@ export interface UnsavedDuel {
   initiatorUuid: string;
   recipientUuid: string;
   activityUuid: string;
-  state: string;
+  state: DuelState;
   victorUuid: string;
 }
 
 export interface Duel extends UnsavedDuel, SavedItemBase {}
 
-//v1.0.2
+export const enum ChangeType {
+  AddActivity = "ADD_ACTIVITY",
+  AddRecipient = "ADD_RECIPIENT",
+  RecipientConfirm = "RECIPIENT_CONFIRM",
+  Cancel = "CANCEL",
+  CancelConfirm = "CANCEL_CONFIRM",
+  Victor = "VICTOR",
+  VictorConfirm = "VICTOR_CCONFIRM"
+}
+
+export type UpdateDuelAddActivityPayload = {
+  changeType: ChangeType.AddActivity;
+  payload: {
+    activityUuid: string;
+  }
+}
+
+export type UpdateDuelAddRecipientPayload = {
+  changeType: ChangeType.AddRecipient;
+  payload: {
+    recipientUuid: string;
+  }
+}
+
+export type UpdateDuelRecipientConfirmPayload = {
+  changeType: ChangeType.RecipientConfirm;
+  payload: {
+    accepted: boolean;
+  }
+}
+
+export type UpdateDuelCancelPayload = {
+  changeType: ChangeType.Cancel;
+  payload: {}
+}
+
+export type UpdateDuelCancelConfirmPayload = {
+  changeType: ChangeType.CancelConfirm;
+  payload: {
+    accepted: boolean;
+  }
+}
+
+export type UpdateDuelVictorPayload = {
+  changeType: ChangeType.Victor;
+  payload: {
+    initiatorVictory: boolean;
+  }
+}
+
+export type UpdateDuelVictorConfirmPayload = {
+  changeType: ChangeType.VictorConfirm;
+  payload: {
+    accepted: boolean;
+  }
+}
+
+export type UpdateDuelPayload = 
+UpdateDuelAddActivityPayload |
+UpdateDuelAddRecipientPayload |
+UpdateDuelRecipientConfirmPayload |
+UpdateDuelCancelPayload |
+UpdateDuelCancelConfirmPayload |
+UpdateDuelVictorPayload |
+UpdateDuelVictorConfirmPayload;
+
+//v1.0.3

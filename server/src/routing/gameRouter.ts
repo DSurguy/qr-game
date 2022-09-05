@@ -1,4 +1,4 @@
-import { DuelState, Duel, GameEvent, GamePlayer, GameProject, SavedActivity, SavedPlayer, SavedProject } from "../qr-types";
+import { DuelState, Duel, GameEvent, GamePlayer, GameProject, SavedActivity, SavedPlayer, SavedProject, UpdateDuelPayload, ChangeType } from "../qr-types";
 import { FastifyPluginCallback } from "fastify"
 import { playerToGame, projectToGame } from "../conversions/toGame";
 import { ProjectSession } from "../types";
@@ -259,7 +259,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
         state: DuelState.Created,
         timestamp
       })
-      const getDuel = app.db.prepare(`SELECT * FROM project_duels WHERE uuid=@uuid AND projectUuid=@projectUuid`)
+      const getDuel = app.db.prepare(`SELECT * FROM project_duels WHERE uuid=@uuid`)
       const duel = getDuel.get({
         projectUuid: req.session.projectUuid,
         uuid: duelId,
@@ -271,12 +271,278 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
-  // app.put<{}>('/duels/:duelId/activity')
-  // app.put<{}>('/duels/:duelId/recipient')
+  app.put<{
+    Header: {
+      authorization: string | undefined;
+    },
+    Body: UpdateDuelPayload,
+    Params: {
+      duelId: string;
+    },
+    Reply: Duel | { message: string };
+  }>('/duels/:duelId', (req, reply) => {
+    try {
+      const { duelId } = req.params;
+      const timestamp = Date.now();
+      const runTransaction = app.db.transaction(() => {
+        const getDuel = app.db.prepare(`SELECT * FROM project_duels WHERE uuid=@uuid`)
+        let duel = getDuel.get({
+          uuid: duelId,
+        }) as Duel;
 
-  
-  // app.put<{}>('/duels/:duelId/confirmed')
-  // app.put<{}>('/duels/:duelId/victor')
+        //TODO: Add events for every relevant change type
+        switch(req.body.changeType) {
+          case ChangeType.AddActivity: {
+            const allowedStates = [
+              DuelState.Created
+            ]
+            if( allowedStates.includes(duel.state) === false ){
+              reply.status(400).send({ message: `Duel is not in the ${DuelState.Created} state`});
+              return;
+            }
+            const { activityUuid } = req.body.payload;
+            if( !activityUuid ) {
+              reply.status(400).send({ message: "activityUuid is required."});
+              return;
+            }
+            const updateDuelStatementParts = [`
+              UPDATE project_duels SET
+                activityUuid=@activityUuid
+                updatedAt=@timestamp
+            `]
+            const statementPayload: any = {
+              duelId,
+              activityUuid,
+              timestamp
+            }
+            if( duel.recipientUuid ){
+              updateDuelStatementParts.push('state=@state')
+              statementPayload.state = DuelState.Pending;
+              //TODO: insert event
+            }
+            updateDuelStatementParts.push('WHERE uuid=@duelId AND deleted=0')
+            const updateDuel = app.db.prepare(updateDuelStatementParts.join('\n'))
+            updateDuel.run(statementPayload)
+            break;
+          }
+          case ChangeType.AddRecipient: {
+            const allowedStates = [
+              DuelState.Created
+            ]
+            if( allowedStates.includes(duel.state) === false ){
+              reply.status(400).send({ message: `Duel is not in the ${DuelState.Created} state`});
+              return;
+            }
+            const { recipientUuid } = req.body.payload;
+            if( !recipientUuid ) {
+              reply.status(400).send({ message: "recipientUuid is required."});
+              return;
+            }
+            const updateDuelStatementParts = [`
+              UPDATE project_duels SET
+                recipientUuid=@recipientUuid
+                updatedAt=@timestamp
+            `]
+            const statementPayload: any = {
+              duelId,
+              recipientUuid,
+              timestamp
+            }
+            if( duel.activityUuid ){
+              updateDuelStatementParts.push('state=@state')
+              statementPayload.state = DuelState.Pending;
+              //TODO: insert event
+            }
+            updateDuelStatementParts.push('WHERE uuid=@duelId AND deleted=0')
+            const updateDuel = app.db.prepare(updateDuelStatementParts.join('\n'))
+            updateDuel.run(statementPayload)
+            break;
+          }
+          case ChangeType.RecipientConfirm: {
+            const allowedStates = [
+              DuelState.Pending
+            ]
+            if( allowedStates.includes(duel.state) === false ){
+              reply.status(400).send({ message: `Duel is not in the ${DuelState.Pending} state`});
+              return;
+            }
+            const { accepted } = req.body.payload;
+            if( accepted === undefined ) {
+              reply.status(400).send({ message: `accepted is a required property for change type ${req.body.changeType}`})
+              return;
+            }
+            const update = app.db.prepare(`
+              UPDATE project_duels SET
+                state=@state
+                updatedAt=@timestamp
+              WHERE uuid=@duelId AND deleted=0
+            `)
+            update.run({
+              duelId,
+              state: accepted ? DuelState.Accepted : DuelState.Rejected,
+              timestamp
+            })
+            //TODO: insert event
+            break;
+          }
+          case ChangeType.Cancel: {
+            if( duel.initiatorUuid !== req.session.playerUuid ) {
+              reply.status(401).send({
+                message: "Only the duel initiator can cancel duels"
+              })
+              return;
+            }
+            const allowedStates = [
+              DuelState.Created,
+              DuelState.Pending,
+              DuelState.Accepted
+            ]
+            if( allowedStates.includes(duel.state) === false ){
+              reply.status(400).send({ message: `Duel is not in one of the following states: ${allowedStates.join(' ')}`});
+              return;
+            }
+            const update = app.db.prepare(`
+              UPDATE project_duels SET
+                state=@state
+                updatedAt=@timestamp
+              WHERE uuid=@duelId AND deleted=0
+            `)
+            let nextState: DuelState;
+            if( duel.state === DuelState.Accepted ) nextState = DuelState.PendingCancel;
+            else nextState = DuelState.Cancelled
+            update.run({
+              duelId,
+              state: nextState,
+              timestamp
+            })
+            break;
+          }
+          case ChangeType.CancelConfirm: {
+            const { accepted } = req.body.payload;
+            if( accepted === undefined ) {
+              reply.status(400).send({ message: `accepted is a required property for change type ${req.body.changeType}`})
+              return;
+            }
+            if( duel.recipientUuid !== req.session.playerUuid ) {
+              reply.status(401).send({
+                message: "Only the duel recipient can respond to a cancel request"
+              })
+              return;
+            }
+            const update = app.db.prepare(`
+              UPDATE project_duels SET
+                state=@state
+                updatedAt=@timestamp
+              WHERE uuid=@duelId AND deleted=0
+            `)
+            update.run({
+              duelId,
+              state: accepted ? DuelState.Cancelled : DuelState.Accepted,
+              timestamp
+            })
+            //TODO: insert event
+            break;
+          }
+          case ChangeType.Victor: {
+            const allowedStates = [
+              DuelState.Accepted
+            ]
+            if( allowedStates.includes(duel.state) === false ){
+              reply.status(400).send({ message: `Duel is not in the ${DuelState.Accepted} state`});
+              return;
+            }
+            const { initiatorVictory } = req.body.payload;
+            if( initiatorVictory === undefined ) {
+              reply.status(400).send({ message: `initiatorVictory is a required property for change type ${req.body.changeType}`})
+              return;
+            }
+            let nextState: DuelState;
+            if( duel.initiatorUuid !== req.session.playerUuid )
+              nextState = DuelState.PendingRecipientConfirm;
+            else
+              nextState = DuelState.PendingInitiatorConfirm;
+
+            const update = app.db.prepare(`
+              UPDATE project_duels SET
+                state=@state
+                victorUuid=@victorUuid
+                updatedAt=@timestamp
+              WHERE uuid=@duelId AND deleted=0
+            `)
+            update.run({
+              duelId,
+              state: nextState,
+              victorUuid: initiatorVictory ? duel.initiatorUuid : duel.recipientUuid,
+              timestamp
+            })
+            break;
+          }
+          case ChangeType.VictorConfirm: {
+            const allowedStates = [
+              DuelState.PendingInitiatorConfirm,
+              DuelState.PendingRecipientConfirm
+            ]
+            if( allowedStates.includes(duel.state) === false ){
+              reply.status(400).send({ message: `Duel is not in one of the following states: ${allowedStates.join(' ')}`});
+              return;
+            }
+
+            if( duel.state === DuelState.PendingInitiatorConfirm ){
+              if( req.session.playerUuid !== duel.initiatorUuid ){
+                reply.status(401).send({ message: 'Expecting initiator to confirm result'})
+                return;
+              }
+            }
+            else {
+              if( req.session.playerUuid !== duel.recipientUuid ){
+                reply.status(401).send({ message: 'Expecting recipient to confirm result'})
+                return;
+              }
+            }
+
+            const { accepted } = req.body.payload;
+            if( accepted === undefined ) {
+              reply.status(400).send({ message: `accepted is a required property for change type ${req.body.changeType}`})
+              return;
+            }
+
+            const nextState = req.body.payload.accepted ? DuelState.Complete : DuelState.Accepted;
+
+            const update = app.db.prepare(`
+              UPDATE project_duels SET
+                state=@state
+                updatedAt=@timestamp
+              WHERE uuid=@duelId AND deleted=0
+            `)
+            update.run({
+              duelId,
+              state: nextState,
+              timestamp
+            })
+
+            break;
+          }
+          default: {
+            reply.status(400).send({
+              message: `${(req.body as any).changeType} is not a valid change type`
+            })
+            return;
+          }
+        }
+
+        duel = getDuel.get({
+          uuid: duelId,
+        })
+        reply.status(200).send(duel);
+      })
+      runTransaction();
+    } catch (e) {
+      console.error(e);
+      reply.status(500).send({
+        message: e.message
+      })
+    }
+  })
 
   done();
 }
