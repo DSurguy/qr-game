@@ -3,7 +3,7 @@ import { Box, Button, Loader, Text } from '@mantine/core';
 import { ActivityCompletedEventPayload, GameEvent, SavedActivity } from '@qrTypes';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
-import DuelModal from './DuelModal';
+import DuelModal from '../../components/DuelModal';
 
 export default function ActivityRoute () {
   const { activityUuid } = useParams();
@@ -19,7 +19,7 @@ export default function ActivityRoute () {
     loadError: loadActivityError,
     load: loadActivity
   } = useServerResource<null, SavedActivity>({
-    load: `game/activity/${activityUuid}`,
+    load: `game/activities/${activityUuid}`,
   })
 
   const {

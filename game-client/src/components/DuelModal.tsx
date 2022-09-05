@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Box, Button, Loader, Modal, Text } from '@mantine/core';
-import { DuelState, Duel, UnsavedDuel, SavedActivity, GamePlayer, UpdateDuelAddActivityPayload, UpdateDuelAddRecipientPayload, ChangeType } from '../../qr-types';
-import { useServerResource } from '../../hooks/useServerResource';
+import { DuelState, Duel, UnsavedDuel, SavedActivity, GamePlayer, UpdateDuelAddActivityPayload, UpdateDuelAddRecipientPayload, ChangeType } from '../qr-types';
+import { useServerResource } from '../hooks/useServerResource';
 import { showNotification } from '@mantine/notifications';
 
 type Props = {

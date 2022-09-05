@@ -5,6 +5,7 @@ import PublicLayout from './components/layout/PublicLayout';
 import ActivityRoute from './routes/Activity/ActivityRoute';
 import EntryPortalRoute from './routes/EntryPortal';
 import LoginRoute from './routes/LoginRoute';
+import PlayerRoute from './routes/Player/PlayerRoute';
 import ProfileRoute from './routes/ProfileRoute';
 import PublicActivityRoute from './routes/PublicActivity';
 import PublicPlayerRoute from './routes/PublicPlayer/PublicPlayerRoute';
@@ -18,6 +19,10 @@ export function Router(){
         <Route path="activity">
           <Route path="" element={<Navigate to="/game/me" />} />
           <Route path=":activityUuid" element={<ActivityRoute />} />
+        </Route>
+        <Route path="player">
+          <Route path="" element={<Navigate to="/game/me" />} />
+          <Route path=":playerUuid" element={<PlayerRoute />} />
         </Route>
       </Route>
       <Route path="/" element={<PublicLayout />}>
