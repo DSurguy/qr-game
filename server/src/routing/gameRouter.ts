@@ -189,11 +189,13 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
     Reply: Duel[] | undefined;
   }>('/duels', (req, reply) => {
     try {
-      const parts = [
-        `SELECT * FROM project_duels WHERE projectUuid=@projectUuid AND initiatorUuid=@playerUuid`
-      ]
-      if( req.query.state ) parts.push(' AND state=@state')
-      const getDuels = app.db.prepare(parts.join(""))
+      const parts = [`
+        SELECT * FROM project_duels WHERE
+        projectUuid=@projectUuid
+          AND (initiatorUuid=@playerUuid OR recipientUuid=@playerUuid)
+      `]
+      if( req.query.state ) parts.push('  AND state=@state')
+      const getDuels = app.db.prepare(parts.join('\n'))
       const duels = getDuels.all({
         projectUuid: req.session.projectUuid,
         playerUuid: req.session.playerUuid,

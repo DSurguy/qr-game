@@ -18,18 +18,20 @@
 [ ] Expire session manually since cookies don't work
 [x] Abstract portal route parsing, since we want to use an embedded camera modal
   - [x] Also make the embedded camera modal
-[ ] Create game events table
+[x] Create game events table
 [ ] Player profile
   - Display Name
   - Real Name
   - Picture
   - event on change
 [x] Activity Claim
-[ ] Combine activity and duelActivity. Just add a stupid property for isDuel
+[x] Combine activity and duelActivity. Just add a stupid property for isDuel
 [ ] Clean up session stuff. SessionID is golden and gives player + project + session.
   - Add an expiration
 [ ] ? Prompt to claim activity, similar to player
 [ ] ? Add complex markdown-based activity descriptions
+[ ] Block duplicate duels with the same person
+  - Need to use the concept of an "active" duel, being anything Accepted through terminal
 
 ### Notes
 - If settings are changed when a game is running, need to cancel/handle related activities (such as duel allow)
