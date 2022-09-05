@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Box, Button, Loader, Modal, Text } from '@mantine/core';
-import { DuelState, Duel, UnsavedDuel, SavedActivity, GamePlayer } from '../../qr-types';
+import { DuelState, Duel, UnsavedDuel, SavedActivity, GamePlayer, UpdateDuelAddActivityPayload, UpdateDuelAddRecipientPayload, ChangeType } from '../../qr-types';
 import { useServerResource } from '../../hooks/useServerResource';
 import { showNotification } from '@mantine/notifications';
 
@@ -30,20 +30,16 @@ export default function DuelModal({
     isSaving: isSavingAddActivity,
     saveError: addActivityError,
     update: addActivityToDuel
-  } = useServerResource<{
-    activityUuid: string
-  }, Duel>({
-    update: `game/duels/${duels[0]?.uuid}/activity`
+  } = useServerResource<UpdateDuelAddActivityPayload, Duel>({
+    update: `game/duels/${duels && duels[0]?.uuid}`
   })
 
   const {
     isSaving: isSavingAddRecipient,
     saveError: addRecipientError,
     update: addRecipientToDuel
-  } = useServerResource<{
-    recipientUuid: string
-  }, Duel>({
-    update: `game/duels/${duels[0]?.uuid}/recipient`
+  } = useServerResource<UpdateDuelAddRecipientPayload, Duel>({
+    update: `game/duels/${duels && duels[0]?.uuid}`
   })
 
   const {
@@ -79,7 +75,10 @@ export default function DuelModal({
   const onAddRecipientConfirm = () => {
     if( !recipient ) return;
     addRecipientToDuel({
-      recipientUuid: recipient.uuid
+      changeType: ChangeType.AddRecipient,
+      payload: {
+        recipientUuid: recipient.uuid
+      }
     }, (success) => {
       if( success ) {
         showNotification({
@@ -93,7 +92,10 @@ export default function DuelModal({
   const onAddActivityConfirm = () => {
     if( !activity ) return;
     addActivityToDuel({
-      activityUuid: activity.uuid
+      changeType: ChangeType.AddActivity,
+      payload: {
+        activityUuid: activity.uuid
+      }
     }, (success) => {
       if( success ) {
         showNotification({
@@ -108,11 +110,11 @@ export default function DuelModal({
   const createDuelContent = () => {
     const activityContent = activity && <>
       <Text>Duel with this activity?</Text>
-      <div>Activity Here</div>
+      <Text>{activity.name}</Text>
     </>
     const recipientContent = recipient && <>
       <Text>Duel this player?</Text>
-      <div>Recipient Here</div>
+      <div>{recipient.name}</div>
     </>
     return <>
       { createDuelError && <Text color="red">{createDuelError.message}</Text>}

@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Box, Loader, Text } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Loader, Text } from '@mantine/core';
 import { ActivityCompletedEventPayload, GameEvent, SavedActivity } from '@qrTypes';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
@@ -11,6 +11,7 @@ export default function ActivityRoute () {
   const navigate = useNavigate();
   const eventThatClaimedActivity = searchParams.get('claimedByEvent');
   const isDuel = searchParams.get('duel') !== undefined;
+  const [duelModalOpen, setDuelModalOpen] = useState(false);
 
   const {
     data: activity,
@@ -63,7 +64,13 @@ export default function ActivityRoute () {
 
   const duelSection = () => {
     if( !isDuel ) return null;
-    return <DuelModal opened onClose={() => {}} />
+    return <>
+      <Button onClick={() => setDuelModalOpen(true)}>Start Duel</Button>
+      {(duelModalOpen && activity)
+        ? <DuelModal activity={activity} opened={duelModalOpen} onClose={() => setDuelModalOpen(false)} />
+        : null
+      }
+    </>
   }
 
   return <>

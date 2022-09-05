@@ -216,7 +216,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       recipientUuid?: string;
       activityUuid?: string;
     },
-    Reply: Duel | undefined | { message: string };
+    Reply: Duel | { message: string };
   }>('/duels', (req, reply) => {
     try {
       if( !req.body.recipientUuid && !req.body.activityUuid ) {
@@ -239,7 +239,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
           deleted
         ) VALUES (
           @projectUuid,
-          @duelUuid,
+          @uuid,
           @initiatorUuid,
           @recipientUuid,
           @activityUuid,
@@ -267,7 +267,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       reply.status(201).send(duel);
     } catch (e) {
       console.error(e.message);
-      reply.status(500).send();
+      reply.status(500).send({ message: e.message });
     }
   })
 
