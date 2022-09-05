@@ -340,8 +340,8 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
             }
             const updateDuelStatementParts = [`
               UPDATE project_duels SET
-                recipientUuid=@recipientUuid
-                updatedAt=@timestamp
+                recipientUuid=@recipientUuid,
+                updatedAt=@timestamp,
             `]
             const statementPayload: any = {
               duelId,
@@ -373,7 +373,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
             }
             const update = app.db.prepare(`
               UPDATE project_duels SET
-                state=@state
+                state=@state,
                 updatedAt=@timestamp
               WHERE uuid=@duelId AND deleted=0
             `)
@@ -403,7 +403,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
             }
             const update = app.db.prepare(`
               UPDATE project_duels SET
-                state=@state
+                state=@state,
                 updatedAt=@timestamp
               WHERE uuid=@duelId AND deleted=0
             `)
@@ -431,7 +431,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
             }
             const update = app.db.prepare(`
               UPDATE project_duels SET
-                state=@state
+                state=@state,
                 updatedAt=@timestamp
               WHERE uuid=@duelId AND deleted=0
             `)
@@ -464,8 +464,8 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
 
             const update = app.db.prepare(`
               UPDATE project_duels SET
-                state=@state
-                victorUuid=@victorUuid
+                state=@state,
+                victorUuid=@victorUuid,
                 updatedAt=@timestamp
               WHERE uuid=@duelId AND deleted=0
             `)
@@ -510,7 +510,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
 
             const update = app.db.prepare(`
               UPDATE project_duels SET
-                state=@state
+                state=@state,
                 updatedAt=@timestamp
               WHERE uuid=@duelId AND deleted=0
             `)
