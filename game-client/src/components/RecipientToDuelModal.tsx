@@ -58,6 +58,7 @@ export default function RecipientToDuelModal({
     })
   }
 
+  //TODO: Scrollllllllbar
   const duelsContent = () => {
     const duelListItems = duels.map(duel => {
       const isSelected = selectedDuel === duel.uuid;
