@@ -3,7 +3,7 @@ import { Box, Button, Loader, Text } from '@mantine/core';
 import { GamePlayer } from '@qrTypes';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
-import DuelModal from '../../components/DuelModal';
+import RecipientToDuelModal from '../../components/RecipientToDuelModal';
 
 export default function PlayerRoute () {
   const { playerUuid } = useParams();
@@ -40,7 +40,7 @@ export default function PlayerRoute () {
     return <>
       <Button onClick={() => setDuelModalOpen(true)}>Start Duel</Button>
       {(duelModalOpen && player)
-        ? <DuelModal recipient={player} opened={duelModalOpen} onClose={() => setDuelModalOpen(false)} />
+        ? <RecipientToDuelModal recipient={player} opened={duelModalOpen} onClose={() => setDuelModalOpen(false)} />
         : null
       }
     </>

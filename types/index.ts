@@ -191,4 +191,8 @@ UpdateDuelCancelConfirmPayload |
 UpdateDuelVictorPayload |
 UpdateDuelVictorConfirmPayload;
 
-//v1.0.3
+export interface GameDuel extends Duel {
+  activity: ActivityBase;
+}
+
+//v1.0.4
