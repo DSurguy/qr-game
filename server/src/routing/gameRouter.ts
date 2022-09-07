@@ -196,6 +196,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       state?: DuelState;
       active?: boolean;
       activity?: string;
+      recipient?: string;
     },
     Reply: GameDuel[] | { message: string; };
   }>('/duels', (req, reply) => {
@@ -222,12 +223,16 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       if( req.query.activity ) {
         parts.push('AND pd.activityUuid=@activity')
       }
+      if( req.query.recipient ) {
+        parts.push('AND pd.recipientUuid=@recipient')
+      }
       const getDuels = app.db.prepare(parts.join(' '))
       const duels = getDuels.all({
         projectUuid: req.session.projectUuid,
         playerUuid: req.session.playerUuid,
         state: req.query.state,
-        activity: req.query.activity
+        activity: req.query.activity,
+        recipient: req.query.recipient
       });
 
       let gameDuels = duels.map(duel => {
@@ -355,32 +360,6 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
 
         //TODO: Add events for every relevant change type
         switch(req.body.changeType) {
-          case ChangeType.AddActivity: {
-            const allowedStates = [
-              DuelState.Created
-            ]
-            if( allowedStates.includes(duel.state) === false ){
-              reply.status(400).send({ message: `Duel is not in the ${DuelState.Created} state`});
-              return;
-            }
-            const { activityUuid } = req.body.payload;
-            if( !activityUuid ) {
-              reply.status(400).send({ message: "activityUuid is required."});
-              return;
-            }
-            const updateDuel = app.db.prepare(`
-              UPDATE project_duels SET
-                activityUuid=@activityUuid
-                updatedAt=@timestamp
-              WHERE uuid=@duelId AND deleted=0
-            `)
-            updateDuel.run({
-              duelId,
-              activityUuid,
-              timestamp
-            })
-            break;
-          }
           case ChangeType.AddRecipient: {
             const allowedStates = [
               DuelState.Created
@@ -394,6 +373,29 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
               reply.status(400).send({ message: "recipientUuid is required."});
               return;
             }
+
+            //Determine if the session user already has a duel with this player
+            const activeQuery = 'state IN ('
+              + activeDuelStates.map(state => `'${state}'`).join(',')
+              + ')';
+            const getExistingDuel = app.db.prepare(`
+              SELECT * FROM project_duels
+              WHERE
+                initiatorUuid=@initiatorUuid 
+                AND recipientUuid=@recipientUuid
+                AND ${activeQuery}
+            `)
+            const existingDuel = getExistingDuel.get({
+              initiatorUuid: req.session.playerUuid,
+              recipientUuid
+            })
+            if( existingDuel ) {
+              reply.status(400).send({
+                message: 'There is already an active duel for this player'
+              })
+              return;
+            }
+
             const updateDuel = app.db.prepare(`
               UPDATE project_duels SET
                 recipientUuid=@recipientUuid,

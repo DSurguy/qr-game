@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Loader, Text } from '@mantine/core';
-import { GamePlayer } from '@qrTypes';
+import { GameDuel, GamePlayer } from '@qrTypes';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
 import RecipientToDuelModal from '../../components/RecipientToDuelModal';
@@ -20,8 +20,18 @@ export default function PlayerRoute () {
     load: `game/players/${playerUuid}`,
   })
 
+  const {
+    data: duels,
+    isLoading: isLoadingDuels,
+    loadError: loadDuelsError,
+    load: loadDuels
+  } = useServerResource<undefined, GameDuel[]>({
+    load: `game/duels?recipient=${playerUuid}&active`,
+  })
+
   useEffect(() => {
     loadPlayer();
+    loadDuels();
   }, [])
 
   const playerSection = () => {
@@ -36,9 +46,13 @@ export default function PlayerRoute () {
   }
 
   const duelSection = () => {
-    if( !isDuel ) return null;
+    if( isLoadingDuels ) return <Loader />
+    if( loadDuelsError ) return <Text color="red">Error loading duels: {loadDuelsError?.message}</Text>
+    if( !duels ) return null;
+    const setUpDuelButton = (<Button onClick={() => setDuelModalOpen(true)}>Start Duel</Button>);
+    const alreadyDuelingButton = <Button disabled>Duel In Progress</Button>
     return <>
-      <Button onClick={() => setDuelModalOpen(true)}>Start Duel</Button>
+      {duels.length ? alreadyDuelingButton : setUpDuelButton}
       {(duelModalOpen && player)
         ? <RecipientToDuelModal recipient={player} opened={duelModalOpen} onClose={() => setDuelModalOpen(false)} />
         : null

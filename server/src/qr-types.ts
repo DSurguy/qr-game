@@ -126,20 +126,12 @@ export interface UnsavedDuel {
 export interface Duel extends UnsavedDuel, SavedItemBase {}
 
 export const enum ChangeType {
-  AddActivity = "ADD_ACTIVITY",
   AddRecipient = "ADD_RECIPIENT",
   RecipientConfirm = "RECIPIENT_CONFIRM",
   Cancel = "CANCEL",
   CancelConfirm = "CANCEL_CONFIRM",
   Victor = "VICTOR",
   VictorConfirm = "VICTOR_CCONFIRM"
-}
-
-export type UpdateDuelAddActivityPayload = {
-  changeType: ChangeType.AddActivity;
-  payload: {
-    activityUuid: string;
-  }
 }
 
 export type UpdateDuelAddRecipientPayload = {
@@ -183,7 +175,6 @@ export type UpdateDuelVictorConfirmPayload = {
 }
 
 export type UpdateDuelPayload = 
-UpdateDuelAddActivityPayload |
 UpdateDuelAddRecipientPayload |
 UpdateDuelRecipientConfirmPayload |
 UpdateDuelCancelPayload |
@@ -195,4 +186,4 @@ export interface GameDuel extends Duel {
   activity: ActivityBase;
 }
 
-//v1.0.4
+//v1.0.5
