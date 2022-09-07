@@ -1,17 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Button, Loader, Text } from '@mantine/core';
-import { ActivityCompletedEventPayload, GameEvent, SavedActivity } from '@qrTypes';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { ActivityCompletedEventPayload, GameDuel, GameEvent, SavedActivity } from '@qrTypes';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
-import DuelModal from '../../components/DuelModal';
+import { showNotification } from '@mantine/notifications';
 
 export default function ActivityRoute () {
   const { activityUuid } = useParams();
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const eventThatClaimedActivity = searchParams.get('claimedByEvent');
   const isDuel = searchParams.get('duel') !== undefined;
-  const [duelModalOpen, setDuelModalOpen] = useState(false);
 
   const {
     data: activity,
@@ -31,10 +29,43 @@ export default function ActivityRoute () {
     load: `game/event/${eventThatClaimedActivity}`,
   })
 
+  const {
+    data: duels,
+    isLoading: isLoadingDuels,
+    loadError: loadDuelsError,
+    load: loadDuels
+  } = useServerResource<undefined, GameDuel[]>({
+    load: `game/duels?activity=${activityUuid}&active`,
+  })
+
+  const {
+    isSaving: isCreatingDuel,
+    saveError: createDuelError,
+    create: createDuel
+  } = useServerResource<{
+    activityUuid: string;
+  }, GameDuel>({
+    create: `game/duels`,
+  })
+
   useEffect(() => {
     loadActivity();
+    loadDuels();
     if( eventThatClaimedActivity ) loadClaimEvent();
   }, [])
+
+  const onSetUpDuelClick = () => {
+    createDuel({
+      activityUuid: activityUuid
+    }, (success) => {
+      loadDuels();
+      if( success ) showNotification({
+        title: 'Duel Created',
+        message: 'Go find someone to challenge!',
+        autoClose: 5000
+      })
+    })
+  }
 
   const activitySection = () => {
     if( isLoadingActivity ) return <Loader />
@@ -63,14 +94,18 @@ export default function ActivityRoute () {
   }
 
   const duelSection = () => {
-    if( !isDuel ) return null;
-    return <>
-      <Button onClick={() => setDuelModalOpen(true)}>Start Duel</Button>
-      {(duelModalOpen && activity)
-        ? <DuelModal activity={activity} opened={duelModalOpen} onClose={() => setDuelModalOpen(false)} />
-        : null
-      }
-    </>
+    if( isLoadingDuels ) return <Loader />
+    if( loadDuelsError ) return <Text color="red">Error loading duels {loadDuelsError?.message}</Text>
+    if( !isDuel || !duels ) return null;
+    const setUpDuelButton = (<>
+      { createDuelError && <Text color="red">Error starting duel {createDuelError.message}</Text> }
+      <Button 
+        onClick={() => onSetUpDuelClick()}
+        loading={isCreatingDuel}
+      >Set Up Duel</Button>
+    </>);
+    const alreadyDuelingButton = <Button disabled>Duel In Progress</Button>
+    return duels.length ? alreadyDuelingButton : setUpDuelButton;
   }
 
   return <>

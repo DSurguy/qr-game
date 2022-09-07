@@ -178,6 +178,15 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       reply.status(500).send();
     }
   })
+  
+  const activeDuelStates = [
+    DuelState.Created,
+    DuelState.Pending,
+    DuelState.Accepted,
+    DuelState.PendingCancel,
+    DuelState.PendingInitiatorConfirm,
+    DuelState.PendingRecipientConfirm
+  ];
 
   app.get<{
     Header: {
@@ -185,6 +194,8 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
     },
     Querystring: {
       state?: DuelState;
+      active?: boolean;
+      activity?: string;
     },
     Reply: GameDuel[] | { message: string; };
   }>('/duels', (req, reply) => {
@@ -202,11 +213,19 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
           AND (pd.initiatorUuid=@playerUuid OR pd.recipientUuid=@playerUuid)
       `]
       if( req.query.state ) parts.push('AND state=@state')
+      if( req.query.active !== undefined ) {
+        const activeQuery = '('+activeDuelStates.map(state => `'${state}'`).join(',')+')'
+        parts.push(`AND pd.state IN ${activeQuery}`)
+      }
+      if( req.query.activity ) {
+        parts.push('AND pd.activityUuid=@activity')
+      }
       const getDuels = app.db.prepare(parts.join(' '))
       const duels = getDuels.all({
         projectUuid: req.session.projectUuid,
         playerUuid: req.session.playerUuid,
-        state: req.query.state
+        state: req.query.state,
+        activity: req.query.activity
       });
 
       let gameDuels = duels.map(duel => {
