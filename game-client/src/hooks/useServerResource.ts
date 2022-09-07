@@ -81,7 +81,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
-          const message = (result.json() as any)['message'] || 'Internal Server Error'
+          const message = (await result.json() as any)['message'] || 'Internal Server Error'
           throw new Error(message)
         }
         if( result.headers.get('Content-Type')?.includes('application/json') )
@@ -120,7 +120,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
-          const message = (result.json() as any)['message'] || 'Internal Server Error'
+          const message = (await result.json() as any)['message'] || 'Internal Server Error'
           throw new Error(message)
         }
         if( result.headers.get('Content-Type')?.includes('application/json') )

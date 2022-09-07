@@ -214,8 +214,10 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       `]
       if( req.query.state ) parts.push('AND state=@state')
       if( req.query.active !== undefined ) {
-        const activeQuery = '('+activeDuelStates.map(state => `'${state}'`).join(',')+')'
-        parts.push(`AND pd.state IN ${activeQuery}`)
+        const activeQuery = 'AND pd.state IN ('
+          + activeDuelStates.map(state => `'${state}'`).join(',')
+          + ')';
+        parts.push(activeQuery)
       }
       if( req.query.activity ) {
         parts.push('AND pd.activityUuid=@activity')
@@ -262,6 +264,29 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
         reply.status(400).send({ message: "activityUuid is required."});
         return;
       }
+
+      //Reject if the current player has an active duel for this activity already
+      const activeQuery = 'AND state IN ('
+        + activeDuelStates.map(state => `'${state}'`).join(',')
+        + ')';
+      const getAnyActiveMatchingDuel = app.db.prepare(`
+        SELECT * FROM project_duels
+        WHERE
+          activityUuid=@activityUuid 
+          AND initiatorUuid=@initiatorUuid
+          ${activeQuery}
+      `)
+      const activeDuel = getAnyActiveMatchingDuel.get({
+        activityUuid: req.body.activityUuid,
+        initiatorUuid: req.session.playerUuid
+      });
+      if( activeDuel ) {
+        reply.status(400).send({
+          message: 'There is already a duel set up for this activity'
+        })
+        return;
+      }
+
       const duelId = randomUUID();
       const timestamp = Date.now();
       const createDuel = app.db.prepare(`
