@@ -1,9 +1,15 @@
 import React, { useEffect } from 'react';
-import { Box, Loader, Text } from '@mantine/core';
+import { Box, Grid, Loader, Text, TextInput } from '@mantine/core';
 import { useServerResource } from '../../hooks/useServerResource';
-import { GameDuel } from '../../qr-types';
+import { DuelState, GameDuel } from '../../qr-types';
+import useDebouncedState from '../../hooks/useDebouncedState';
+import { useState } from 'react';
+import fuzzysort from 'fuzzysort';
 
 export default function DuelsRoute() {
+  const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
+  const [activeDuels, setActiveDuels] = useState<GameDuel[]>([]);
+  const [completedDuels, setCompletedDuels] = useState<GameDuel[]>([]);
   const {
     data: duels,
     isLoading: isLoadingDuels,
@@ -16,18 +22,92 @@ export default function DuelsRoute() {
   useEffect(() => {
     loadDuels();
   }, [])
+
+  useEffect(() => {
+    if( !duels ) return;
+    let duelsToFilter = duels;
+    if( search ) {
+      duelsToFilter = fuzzysort.go(search, duels, {
+        limit: 50,
+        keys: [
+          'initiator.name',
+          'initiator.realName',
+          'recipient.name',
+          'recipient.realName',
+          'activity.name',
+          'uuid',
+          'initiator.uuid',
+          'recipient.uuid',
+          'activity.uuid',
+          'initiator.wordId',
+          'recipient.wordId'
+        ],
+        threshold: -10000
+      }).map(result => result.obj);
+    }
+    setActiveDuels(duelsToFilter.filter(duel => [
+      DuelState.Accepted,
+      DuelState.Pending,
+      DuelState.PendingCancel,  
+      DuelState.PendingInitiatorConfirm,
+      DuelState.PendingRecipientConfirm
+    ].includes(duel.state)))
+    setCompletedDuels(duelsToFilter.filter(duel => [
+      DuelState.Complete
+    ].includes(duel.state)))
+  }, [duels, search])
+
+  const activeDuelsContent = () => {
+    return <>
+      <Text component='h2'>Active Duels</Text>
+      {activeDuels.map(duel => (
+        <Box key={duel.uuid} sx={{ border: '1px solid gray', margin: '0.5rem 0', padding: '0.5rem' }}>
+          <Box key={duel.uuid} sx={{ display: 'flex' }}>
+            {duel.initiator.name} VS {duel.recipient.name}
+          </Box>
+          <Box>{duel.activity.name}</Box>
+          <Box>{duel.state}</Box>
+        </Box>
+      ))}
+    </>
+  }
+
+  const completedDuelsContent = () => {
+    return <>
+      <Text component='h2'>Completed Duels</Text>
+      {completedDuels.map(duel => (
+        <Box key={duel.uuid} sx={{ border: '1px solid gray', margin: '0.5rem 0', padding: '0.5rem' }}>
+          <Box key={duel.uuid} sx={{ display: 'flex' }}>
+            {duel.initiator.name} VS {duel.recipient.name}
+          </Box>
+          <Box>{duel.activity.name}</Box>
+          <Box>{duel.state}</Box>
+        </Box>
+      ))}
+    </>
+  }
+  
+  const noDuelsContent = () => (
+    <Text>You have no active duels! GO FIGHT SOMEONE.</Text>
+  )
   
   if( isLoadingDuels ) return <Loader />
   if( loadDuelsError ) return <Text color="red">Error loading player {loadDuelsError?.message}</Text>
-  if( !duels ) return null;
+  if( !duels || !activeDuels ) return null;
   return (
-    <Box>
-      {duels.map(duel => (
-        <Box key={duel.uuid} sx={{ display: 'flex' }}>
-          {duel.activity.name}
-          {duel.state}
-        </Box>
-      ))}
-    </Box>
+    <Grid>
+      <Grid.Col sm={6} xs={12}>
+        <TextInput
+          placeholder="Search"
+          onChange={({ currentTarget: { value }}) => setSearch(value)}
+          rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
+        />
+      </Grid.Col>
+      <Grid.Col xs={12}>
+        {!!activeDuels.length && activeDuelsContent()}
+        {!!completedDuels.length && completedDuelsContent()}
+        {!activeDuels.length && !completedDuels.length && noDuelsContent()}
+      </Grid.Col>
+    </Grid>
   )
 }

@@ -52,21 +52,20 @@ export interface SavedActivity extends ActivityBase, SavedItemBase {
   wordId: string;
 }
 
-export interface SavedPlayer extends SavedItemBase {
-  projectUuid: string;
+export interface PlayerBase {
   uuid: string;
   wordId: string;
   name: string;
   realName: string;
+}
+
+export interface SavedPlayer extends PlayerBase, SavedItemBase {
+  projectUuid: string;
   claimed: number;
 }
 
-export interface GamePlayer {
+export interface GamePlayer extends PlayerBase {
   projectUuid: string;
-  uuid: string;
-  wordId: string;
-  name: string;
-  realName: string;
   claimed: number;
 }
 
@@ -184,6 +183,8 @@ UpdateDuelVictorConfirmPayload;
 
 export interface GameDuel extends Duel {
   activity: ActivityBase;
+  initiator: null | PlayerBase;
+  recipient: null | PlayerBase;
 }
 
-//v1.0.5
+//v1.0.6

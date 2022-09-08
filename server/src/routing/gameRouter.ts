@@ -208,8 +208,20 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
           pa.name as 'activity.name',
           pa.value as 'activity.value',
           pa.isRepeatable as 'activity.isRepeatable',
-          pa.repeatValue as 'activity.repeatValue'
-        FROM project_duels pd LEFT JOIN project_activities pa WHERE
+          pa.repeatValue as 'activity.repeatValue',
+          pInit.uuid as 'initiator.uuid',
+          pInit.wordId as 'initiator.wordId',
+          pInit.name as 'initiator.name',
+          pInit.realName as 'initiator.realName',
+          rRecip.uuid as 'recipient.uuid',
+          rRecip.wordId as 'recipient.wordId',
+          rRecip.name as 'recipient.name',
+          rRecip.realName as 'recipient.realName'
+        FROM project_duels pd 
+          LEFT JOIN project_activities pa ON pd.activityUuid = pa.uuid
+          LEFT JOIN project_players pInit ON pd.initiatorUuid = pInit.uuid
+          LEFT JOIN project_players rRecip ON pd.recipientUuid = rRecip.uuid
+        WHERE
         pd.projectUuid=@projectUuid
           AND (pd.initiatorUuid=@playerUuid OR pd.recipientUuid=@playerUuid)
       `]
@@ -237,11 +249,19 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
 
       let gameDuels = duels.map(duel => {
         const transformedDuel = {
-          activity: {}
+          activity: {},
+          initiator: {},
+          recipient: {}
         } as any;
         Object.keys(duel).forEach(key => {
           if( key.startsWith('activity.') ){
             transformedDuel.activity[key.split('.')[1]] = duel[key]
+          }
+          if( key.startsWith('initiator.') ){
+            transformedDuel.initiator[key.split('.')[1]] = duel[key]
+          }
+          if( key.startsWith('recipient.') ){
+            transformedDuel.recipient[key.split('.')[1]] = duel[key]
           }
           else transformedDuel[key] = duel[key]
         })
