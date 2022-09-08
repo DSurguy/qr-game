@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import AuthLayout from './components/layout/AuthLayout';
 import PublicLayout from './components/layout/PublicLayout';
 import ActivityRoute from './routes/Activity/ActivityRoute';
+import DuelsRoute from './routes/Duels/DuelsRoute';
 import EntryPortalRoute from './routes/EntryPortal';
 import LoginRoute from './routes/LoginRoute';
 import PlayerRoute from './routes/Player/PlayerRoute';
@@ -23,6 +24,9 @@ export function Router(){
         <Route path="player">
           <Route path="" element={<Navigate to="/game/me" />} />
           <Route path=":playerUuid" element={<PlayerRoute />} />
+        </Route>
+        <Route path="duels">
+          <Route path="" element={<DuelsRoute />} />
         </Route>
       </Route>
       <Route path="/" element={<PublicLayout />}>

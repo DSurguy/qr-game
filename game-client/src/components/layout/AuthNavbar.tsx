@@ -32,9 +32,8 @@ export default function AuthNavbar({ onClose, opened }: Props) {
         <Burger opened={opened} onClick={onClose}/>
       </Box>
       <nav>
-        <NavLink label="My Profile" />
-        <NavLink label="Game Stats" />
-        <NavLink label="Find Player" />
+        <NavLink label="My Profile" component={Link} to="/game/me" onClick={onClose}/>
+        <NavLink label="Duels" component={Link} to="/game/duels" onClick={onClose}/>
         <NavLink label="Log Out" onClick={logout} sx={{ marginTop: '10px', borderTop: `1px solid ${theme.colors.gray[3]}`}} />
       </nav>
     </Drawer>

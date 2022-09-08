@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Loader, Text } from '@mantine/core';
-import { GameDuel, GamePlayer } from '@qrTypes';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { GameDuel, GamePlayer } from '../../qr-types';
+import { useParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
 import RecipientToDuelModal from '../../components/RecipientToDuelModal';
 
 export default function PlayerRoute () {
   const { playerUuid } = useParams();
-  const [searchParams] = useSearchParams();
-  const isDuel = searchParams.get('duel') !== undefined;
   const [duelModalOpen, setDuelModalOpen] = useState(false);
 
   const {
     data: player,
-    isLoading: isLoadingActivity,
+    isLoading: isLoadingPlayer,
     loadError: loadPlayerError,
     load: loadPlayer
   } = useServerResource<null, GamePlayer>({
@@ -35,7 +33,7 @@ export default function PlayerRoute () {
   }, [])
 
   const playerSection = () => {
-    if( isLoadingActivity ) return <Loader />
+    if( isLoadingPlayer ) return <Loader />
     if( loadPlayerError ) return <Text color="red">Error loading player {loadPlayerError?.message}</Text>
     if( !player ) return null;
     return (

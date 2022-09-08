@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Box, Button, Loader, Text } from '@mantine/core';
-import { ActivityCompletedEventPayload, GameDuel, GameEvent, SavedActivity } from '@qrTypes';
+import { ActivityCompletedEventPayload, GameDuel, GameEvent, SavedActivity } from '../../qr-types';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
 import { showNotification } from '@mantine/notifications';

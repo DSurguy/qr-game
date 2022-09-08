@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Grid, Loader, Modal, Text, useMantineTheme } from '@mantine/core';
-import { DuelState, Duel, UnsavedDuel, SavedActivity, GamePlayer, UpdateDuelAddActivityPayload, UpdateDuelAddRecipientPayload, ChangeType, GameDuel } from '../qr-types';
+import { Box, Button, Loader, Modal, Text, useMantineTheme } from '@mantine/core';
+import { DuelState, Duel, GamePlayer, UpdateDuelAddRecipientPayload, ChangeType, GameDuel } from '../qr-types';
 import { useServerResource } from '../hooks/useServerResource';
 import { showNotification } from '@mantine/notifications';
 import { Circle, CircleCheck } from 'tabler-icons-react';
