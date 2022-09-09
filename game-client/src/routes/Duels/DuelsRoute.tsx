@@ -5,6 +5,7 @@ import { DuelState, GameDuel } from '../../qr-types';
 import useDebouncedState from '../../hooks/useDebouncedState';
 import { useState } from 'react';
 import fuzzysort from 'fuzzysort';
+import PendingDuel from '../../components/duels/PendingDuel';
 
 export default function DuelsRoute() {
   const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
@@ -60,15 +61,12 @@ export default function DuelsRoute() {
   const activeDuelsContent = () => {
     return <>
       <Text component='h2'>Active Duels</Text>
-      {activeDuels.map(duel => (
-        <Box key={duel.uuid} sx={{ border: '1px solid gray', margin: '0.5rem 0', padding: '0.5rem' }}>
-          <Box key={duel.uuid} sx={{ display: 'flex' }}>
-            {duel.initiator.name} VS {duel.recipient.name}
-          </Box>
-          <Box>{duel.activity.name}</Box>
-          <Box>{duel.state}</Box>
-        </Box>
-      ))}
+      {activeDuels.map(duel => {
+        switch(duel.state){
+          case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={() => loadDuels}/>
+          default: return null;
+        }
+      })}
     </>
   }
 
@@ -95,19 +93,23 @@ export default function DuelsRoute() {
   if( loadDuelsError ) return <Text color="red">Error loading player {loadDuelsError?.message}</Text>
   if( !duels || !activeDuels ) return null;
   return (
-    <Grid>
-      <Grid.Col sm={6} xs={12}>
-        <TextInput
-          placeholder="Search"
-          onChange={({ currentTarget: { value }}) => setSearch(value)}
-          rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
-        />
-      </Grid.Col>
-      <Grid.Col xs={12}>
-        {!!activeDuels.length && activeDuelsContent()}
-        {!!completedDuels.length && completedDuelsContent()}
-        {!activeDuels.length && !completedDuels.length && noDuelsContent()}
-      </Grid.Col>
-    </Grid>
+    <Box>
+      <Grid>
+        <Grid.Col sm={6} xs={12}>
+          <TextInput
+            placeholder="Search"
+            onChange={({ currentTarget: { value }}) => setSearch(value)}
+            rightSection={isDebouncingSearch ? <Loader size="xs" /> : null}
+          />
+        </Grid.Col>
+      </Grid>
+      <Grid>
+        <Grid.Col sm={6} xs={12}>
+          {!!activeDuels.length && activeDuelsContent()}
+          {!!completedDuels.length && completedDuelsContent()}
+          {!activeDuels.length && !completedDuels.length && noDuelsContent()}
+        </Grid.Col>
+      </Grid>
+    </Box>
   )
 }
