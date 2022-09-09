@@ -30,8 +30,12 @@
   - Add an expiration
 [ ] ? Prompt to claim activity, similar to player
 [ ] ? Add complex markdown-based activity descriptions
-[ ] Block duplicate duels with the same person
+[x] Block duplicate duels with the same person
   - Need to use the concept of an "active" duel, being anything Accepted through terminal
+[ ] Extract duel item boilerplate
+[ ] Remove actions that don't match the current player as initiator/recipient
+  - This probably requires the current player uuid to be stored somewhere, it's not right now
+  - Could also hit /me before loading the duels page
 
 ### Notes
 - If settings are changed when a game is running, need to cancel/handle related activities (such as duel allow)
