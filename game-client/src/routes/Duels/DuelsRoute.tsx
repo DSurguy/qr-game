@@ -6,6 +6,7 @@ import useDebouncedState from '../../hooks/useDebouncedState';
 import { useState } from 'react';
 import fuzzysort from 'fuzzysort';
 import PendingDuel from '../../components/duels/PendingDuel';
+import AcceptedDuel from '../../components/duels/AcceptedDuel';
 
 export default function DuelsRoute() {
   const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
@@ -64,6 +65,7 @@ export default function DuelsRoute() {
       {activeDuels.map(duel => {
         switch(duel.state){
           case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels}/>
+          case DuelState.Accepted: return <AcceptedDuel key={duel.uuid} duel={duel} onUpdate={loadDuels}/>
           default: return null;
         }
       })}

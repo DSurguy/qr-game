@@ -535,7 +535,7 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
               return;
             }
             let nextState: DuelState;
-            if( duel.initiatorUuid !== req.session.playerUuid )
+            if( duel.initiatorUuid === req.session.playerUuid )
               nextState = DuelState.PendingRecipientConfirm;
             else
               nextState = DuelState.PendingInitiatorConfirm;
