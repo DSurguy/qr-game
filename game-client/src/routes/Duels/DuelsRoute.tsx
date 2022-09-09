@@ -63,7 +63,7 @@ export default function DuelsRoute() {
       <Text component='h2'>Active Duels</Text>
       {activeDuels.map(duel => {
         switch(duel.state){
-          case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={() => loadDuels}/>
+          case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels}/>
           default: return null;
         }
       })}
