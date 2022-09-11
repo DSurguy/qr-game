@@ -37,6 +37,11 @@
   - This probably requires the current player uuid to be stored somewhere, it's not right now
   - Could also hit /me before loading the duels page
 
+- Plugins
+  - Spotify
+  - Kauf Lights
+  - Store
+
 ### Notes
 - If settings are changed when a game is running, need to cancel/handle related activities (such as duel allow)
 

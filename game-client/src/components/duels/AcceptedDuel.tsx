@@ -51,7 +51,7 @@ export default function AcceptedDuel ({ duel, onUpdate }: Props) {
     })
     setReportVictorModalOpen(false)
   };
-  const onCloseReportVictorModal = () => setCancelModalOpen(false);
+  const onCloseReportVictorModal = () => setReportVictorModalOpen(false);
 
   const onCancel = () => {
     cancelDuel({
@@ -68,7 +68,7 @@ export default function AcceptedDuel ({ duel, onUpdate }: Props) {
     })
     setReportVictorModalOpen(false)
   };
-  const onCloseCancelModal = () => setReportVictorModalOpen(false);
+  const onCloseCancelModal = () => setCancelModalOpen(false);
 
   return (
     <Box sx={{
