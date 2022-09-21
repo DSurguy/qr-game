@@ -1,8 +1,9 @@
-import { DuelState, Duel, GameEvent, GamePlayer, GameProject, SavedActivity, SavedPlayer, SavedProject, UpdateDuelPayload, ChangeType, GameDuel } from "../qr-types";
+import { DuelState, Duel, GameEvent, GamePlayer, GameProject, SavedActivity, SavedPlayer, SavedProject, UpdateDuelPayload, ChangeType, GameDuel, GameEventType } from "../qr-types";
 import { FastifyPluginCallback } from "fastify"
 import { playerToGame, projectToGame } from "../conversions/toGame";
 import { ProjectSession } from "../types";
 import { randomUUID } from "node:crypto";
+import { confirmCancel, confirmVictor } from "./gameMethods/completeDuel";
 
 // BASE /api/game/* <authenticated>
 // GET  /api/game - project info
@@ -496,29 +497,13 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
             break;
           }
           case ChangeType.CancelConfirm: {
-            const { accepted } = req.body.payload;
-            if( accepted === undefined ) {
-              reply.status(400).send({ message: `accepted is a required property for change type ${req.body.changeType}`})
-              return;
-            }
-            if( duel.recipientUuid !== req.session.playerUuid ) {
-              reply.status(401).send({
-                message: "Only the duel recipient can respond to a cancel request"
+            const error = confirmCancel(req.session, app.db, duelId, req.body)
+            if( error ) {
+              reply.status(error.statusCode).send({
+                message: error.message
               })
               return;
             }
-            const update = app.db.prepare(`
-              UPDATE project_duels SET
-                state=@state,
-                updatedAt=@timestamp
-              WHERE uuid=@duelId AND deleted=0
-            `)
-            update.run({
-              duelId,
-              state: accepted ? DuelState.Cancelled : DuelState.Accepted,
-              timestamp
-            })
-            //TODO: insert event
             break;
           }
           case ChangeType.Victor: {
@@ -556,48 +541,13 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
             break;
           }
           case ChangeType.VictorConfirm: {
-            const allowedStates = [
-              DuelState.PendingInitiatorConfirm,
-              DuelState.PendingRecipientConfirm
-            ]
-            if( allowedStates.includes(duel.state) === false ){
-              reply.status(400).send({ message: `Duel is not in one of the following states: ${allowedStates.join(' ')}`});
+            const error = confirmVictor(req.session, app.db, duelId, req.body)
+            if( error ) {
+              reply.status(error.statusCode).send({
+                message: error.message
+              })
               return;
             }
-
-            if( duel.state === DuelState.PendingInitiatorConfirm ){
-              if( req.session.playerUuid !== duel.initiatorUuid ){
-                reply.status(401).send({ message: 'Expecting initiator to confirm result'})
-                return;
-              }
-            }
-            else {
-              if( req.session.playerUuid !== duel.recipientUuid ){
-                reply.status(401).send({ message: 'Expecting recipient to confirm result'})
-                return;
-              }
-            }
-
-            const { accepted } = req.body.payload;
-            if( accepted === undefined ) {
-              reply.status(400).send({ message: `accepted is a required property for change type ${req.body.changeType}`})
-              return;
-            }
-
-            const nextState = req.body.payload.accepted ? DuelState.Complete : DuelState.Accepted;
-
-            const update = app.db.prepare(`
-              UPDATE project_duels SET
-                state=@state,
-                updatedAt=@timestamp
-              WHERE uuid=@duelId AND deleted=0
-            `)
-            update.run({
-              duelId,
-              state: nextState,
-              timestamp
-            })
-
             break;
           }
           default: {

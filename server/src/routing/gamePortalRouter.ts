@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { FastifyPluginCallback } from "fastify"
 import { SavedActivity, ActivityCompletedEventPayload, GameEventType } from '../qr-types';
+import { hasCompletedActivityBefore } from './gameMethods/hasCompletedBefore';
 
 // /api/admin/*
 // ----
@@ -113,16 +114,7 @@ export const gamePortalRouter: FastifyPluginCallback = (app, options, done) => {
       });
     }
 
-    const getPreviousActivityEvent = app.db.prepare(`
-      SELECT * FROM project_events WHERE projectUuid=@projectUuid AND type=@type AND primaryUuid=@primaryUuid AND secondaryUuid=@secondaryUuid
-    `)
-    const previousEvent = getPreviousActivityEvent.get({
-      projectUuid: session.projectUuid,
-      type: GameEventType.ActivityCompleted,
-      primaryUuid: activityUuid,
-      secondaryUuid: session.playerUuid
-    })
-    const hasCompletedBefore = !!previousEvent;
+    const hasCompletedBefore = hasCompletedActivityBefore(app.db, session.projectUuid, session.playerUuid, activityUuid);
 
     const timestamp = Date.now();
     const eventPayload: ActivityCompletedEventPayload = {

@@ -75,7 +75,8 @@ export interface CreatePlayerPayload {
 
 export enum GameEventType {
   ActivityCompleted = "ACTIVITY_COMPLETED",
-  PlayerClaimed = "PLAYER_CLAIMED"
+  PlayerClaimed = "PLAYER_CLAIMED",
+  DuelComplete = "DUEL_COMPLETE"
 }
 
 export type PlayerClaimedEventPayload = {
