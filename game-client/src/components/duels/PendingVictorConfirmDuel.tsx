@@ -3,7 +3,7 @@ import { showNotification } from '@mantine/notifications';
 import React from 'react';
 import { useState } from 'react';
 import { useServerResource } from '../../hooks/useServerResource';
-import { ChangeType, GameDuel, UpdateDuelCancelConfirmPayload } from '../../qr-types';
+import { ChangeType, GameDuel, UpdateDuelRecipientConfirmPayload, UpdateDuelVictorConfirmPayload } from '../../qr-types';
 import AcceptRejectModal from '../AcceptRejectModal';
 
 type Props = {
@@ -11,22 +11,22 @@ type Props = {
   onUpdate: () => void;
 }
 
-export default function CancelPendingDuel ({ duel, onUpdate }: Props) {
+export default function PendingVictorConfirmDuel ({ duel, onUpdate }: Props) {
   const [respondModalOpen, setRespondModalOpen] = useState(false);
   const [respondComplete, setRespondComplete] = useState(false);
   const theme = useMantineTheme();
 
   const {
-    isSaving: isRespondingToDuel,
-    saveError: respondToDuelError,
-    update: respondToDuel
-  } = useServerResource<UpdateDuelCancelConfirmPayload, GameDuel>({
+    isSaving: isConfirmingDuel,
+    saveError: confirmVictorError,
+    update: confirmVictor
+  } = useServerResource<UpdateDuelRecipientConfirmPayload | UpdateDuelVictorConfirmPayload, GameDuel>({
     update: `game/duels/${duel.uuid}`
   })
 
-  const onAcceptDuel = () => {
-    respondToDuel({
-      changeType: ChangeType.CancelConfirm,
+  const onAccept = () => {
+    confirmVictor({
+      changeType: ChangeType.VictorConfirm,
       payload: {
         accepted: true
       }
@@ -41,9 +41,9 @@ export default function CancelPendingDuel ({ duel, onUpdate }: Props) {
     })
     setRespondModalOpen(false)
   };
-  const onRejectDuel = () => {
-    respondToDuel({
-      changeType: ChangeType.CancelConfirm,
+  const onReject = () => {
+    confirmVictor({
+      changeType: ChangeType.VictorConfirm,
       payload: {
         accepted: false
       }
@@ -68,7 +68,7 @@ export default function CancelPendingDuel ({ duel, onUpdate }: Props) {
       padding: '0.5rem'
     }}>
       <Grid>
-        { respondToDuelError && <Grid.Col xs={12}><Text color="red">Error responding to duel: {respondToDuelError.message}</Text></Grid.Col> }
+        { confirmVictorError && <Grid.Col xs={12}><Text color="red">Error confirming victor: {confirmVictorError.message}</Text></Grid.Col> }
         <Grid.Col xs={9}>
           <Box sx={{ display: 'flex' }}>
             {duel.initiator.name} VS {duel.recipient.name}
@@ -79,7 +79,7 @@ export default function CancelPendingDuel ({ duel, onUpdate }: Props) {
         <Grid.Col xs={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Button
             onClick={() => setRespondModalOpen(true)}
-            loading={isRespondingToDuel}
+            loading={isConfirmingDuel}
             disabled={respondComplete}
           >Respond</Button>
         </Grid.Col>
@@ -87,11 +87,11 @@ export default function CancelPendingDuel ({ duel, onUpdate }: Props) {
       <AcceptRejectModal
         opened={respondModalOpen}
         onClose={onCloseModal}
-        title="Accept Duel Cancellation?"
-        onAccept={onAcceptDuel}
-        onReject={onRejectDuel}
+        title="Confirm Victor"
+        onAccept={onAccept}
+        onReject={onReject}
       >
-        <Text>Accept cancellation from {duel.initiator.name} for activity {duel.activity.name}?</Text>
+        <Text>Confirm that {duel.victorUuid === duel.initiatorUuid ? duel.initiator.name : duel.recipient.name} has won this duel?</Text>
       </AcceptRejectModal>
     </Box>
   )

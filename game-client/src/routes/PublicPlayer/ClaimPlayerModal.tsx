@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Modal, Text, TextInput, useMantineTheme } from '@mantine/core';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { GamePlayer } from '@qrTypes';
+import { GamePlayer } from '../../qr-types';
 import { useServerResource } from '../../hooks/useServerResource';
 import { showNotification } from '@mantine/notifications';
 import { Check } from 'tabler-icons-react';

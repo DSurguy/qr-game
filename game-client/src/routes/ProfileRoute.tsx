@@ -1,5 +1,5 @@
 import { Box, Loader, Text } from '@mantine/core';
-import { GamePlayer, GameProject } from '@qrTypes';
+import { GamePlayer, GameProject } from '../qr-types';
 import React, { useEffect } from 'react';
 import { useServerResource } from '../hooks/useServerResource';
 

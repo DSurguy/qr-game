@@ -8,6 +8,7 @@ import fuzzysort from 'fuzzysort';
 import PendingDuel from '../../components/duels/PendingDuel';
 import AcceptedDuel from '../../components/duels/AcceptedDuel';
 import CancelPendingDuel from '../../components/duels/CancelPendingDuel';
+import PendingVictorConfirmDuel from '../../components/duels/PendingVictorConfirmDuel';
 
 export default function DuelsRoute() {
   const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
@@ -65,9 +66,12 @@ export default function DuelsRoute() {
       <Text component='h2'>Active Duels</Text>
       {activeDuels.map(duel => {
         switch(duel.state){
-          case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels}/>
-          case DuelState.Accepted: return <AcceptedDuel key={duel.uuid} duel={duel} onUpdate={loadDuels}/>
-          case DuelState.PendingCancel: return <CancelPendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels}/>
+          case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
+          case DuelState.Accepted: return <AcceptedDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
+          case DuelState.PendingCancel: return <CancelPendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
+          case DuelState.PendingInitiatorConfirm:
+          case DuelState.PendingRecipientConfirm:
+            return <PendingVictorConfirmDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
           default: return null;
         }
       })}

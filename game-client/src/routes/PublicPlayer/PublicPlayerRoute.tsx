@@ -1,5 +1,5 @@
 import { Box, Button, Loader, Text } from '@mantine/core';
-import { GamePlayer } from '@qrTypes';
+import { GamePlayer } from '../../qr-types';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
