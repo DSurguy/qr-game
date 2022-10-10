@@ -51,7 +51,7 @@ module.exports = {
   devtool: 'eval-source-map',
   plugins: [
     new DefinePlugin({
-      PROCESS_ENV_API_KEY: process.env.API_KEY
+      PROCESS_ENV_API_KEY: JSON.stringify(process.env.API_KEY)
     }),
     new HtmlWebpackPlugin()
   ]
