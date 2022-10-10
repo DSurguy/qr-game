@@ -7,8 +7,6 @@ import './normalize.css';
 import favicon from './assets/favicon.png';
 import { NotificationsProvider } from "@mantine/notifications";
 
-//Some nonsense comment
-
 //<link rel="icon" href="favicon.ico" type="image/x-icon">
 const linkTag = document.createElement('link');
 linkTag.setAttribute('rel', 'icon')

@@ -34,7 +34,6 @@ export function Router(){
             </Route>
           </Route>
         </Route>
-        <Route path="/test" element={<div>Test</div>} />
       </Route>
     </Routes>
   </BrowserRouter>
