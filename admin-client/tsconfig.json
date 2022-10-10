@@ -8,6 +8,9 @@
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@qrTypes": ["./src/qr-types"]
+    }
   }
 }
