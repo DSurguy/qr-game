@@ -6,3 +6,4 @@ server/certs/*
 !server/certs/readme.md
 !/**/.gitkeep
 **/*.env
+server/conf/nginx-api-key*
