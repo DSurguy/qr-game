@@ -1,53 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Loader, Box, Text, useMantineTheme } from '@mantine/core';
-
-const useApiHealthy = () => {
-  const [checkComplete, setCheckComplete] = useState(false);
-  const [isHealthy, setIsHealthy] = useState(true);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    if( !checkComplete) checkHealth();
-  }, [checkComplete])
-
-  const checkHealth = async () => {
-    setIsLoading(true);
-    try {
-      const { status } = await fetch('http://localhost:8011/api/admin/health', {
-        headers: {
-          'Content-Type': 'application/json',
-          'Api-Key': PROCESS_ENV_API_KEY
-        }
-      })
-      setError("");
-      setIsHealthy(status === 200);
-    } catch (e) {
-      console.log(e);
-      setError(e.message);
-      setIsHealthy(false);
-      setIsLoading(false);
-    }
-    setIsLoading(false);
-    setCheckComplete(true);
-  }
-
-  return [
-    {isHealthy, error, isLoading}, 
-    () => setCheckComplete(false)
-  ] as const;
-}
+import React, { useEffect } from 'react';
+import { Button, Box, Text, useMantineTheme } from '@mantine/core';
+import { useServerResource } from 'src/hooks/useServerResource';
 
 export function ApiHealth () {
-  const [{isHealthy, isLoading, error}, checkHealth] = useApiHealthy();
   const theme = useMantineTheme();
+
+  const {
+    data: healthCheck,
+    isLoading,
+    loadError,
+    load
+  } = useServerResource<null,any>({
+    load: '/api/admin/health'
+  })
+
+  useEffect(() => {
+    load();
+  }, [])
+
   const apiStatus = () => {
     let color, text;
     if( isLoading ) {
       color = "gray"
       text = "LOADING"
     }
-    else if( isHealthy ) {
+    else if( healthCheck ) {
       color = "green"
       text = "HEALTHY"
     }
@@ -60,9 +37,9 @@ export function ApiHealth () {
   return (
     <Box>
       <Text component="span">API is</Text>{apiStatus()}
-      {error && <Text color="red">{error}</Text>}
-      <Button onClick={checkHealth} disabled={isLoading} sx={{ marginLeft: theme.spacing['xs']}}>
-        Check API Health { isLoading && <Loader size="sm" sx={{ marginLeft: theme.spacing['xs']}} />}
+      {loadError && <Text color="red">{loadError?.message || ''}</Text>}
+      <Button onClick={() => load()} loading={isLoading} sx={{ marginLeft: theme.spacing['xs']}}>
+        Check API Health
       </Button>
     </Box>
   );
