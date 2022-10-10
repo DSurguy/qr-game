@@ -17,7 +17,8 @@ import { resolve } from "path";
 
   try {
     await writeFile(resolve(__dirname, '../conf/nginx-api-key.conf'),
-`if ($http_api-key != "${newKey}") {
+`if ($http_api_key != "${newKey}") {
+  add_header bad_api_key $http_api_key
   return 401;
 }
 `)
