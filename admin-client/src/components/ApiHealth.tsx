@@ -1,21 +1,27 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Box, Text, useMantineTheme } from '@mantine/core';
 import { useServerResource } from '../hooks/useServerResource';
 
 export function ApiHealth () {
+  const [isHealthy, setIsHealthy] = useState(true);
   const theme = useMantineTheme();
 
   const {
-    data: healthCheck,
     isLoading,
     loadError,
     load
-  } = useServerResource<null,any>({
+  } = useServerResource<null, null>({
     load: 'health'
   })
 
+  const loadAndUpdateStatus = () => {
+    load(wasSuccessful => {
+      setIsHealthy(wasSuccessful);
+    })
+  }
+
   useEffect(() => {
-    load();
+    loadAndUpdateStatus();
   }, [])
 
   useEffect(() => {
@@ -28,7 +34,7 @@ export function ApiHealth () {
       color = "gray"
       text = "LOADING"
     }
-    else if( healthCheck ) {
+    else if( isHealthy ) {
       color = "green"
       text = "HEALTHY"
     }
@@ -41,7 +47,7 @@ export function ApiHealth () {
   return (
     <Box>
       <Text component="span">API is</Text>{apiStatus()}
-      <Button onClick={() => load()} loading={isLoading} sx={{ marginLeft: theme.spacing['xs']}}>
+      <Button onClick={() => loadAndUpdateStatus()} loading={isLoading} sx={{ marginLeft: theme.spacing['xs']}}>
         Check API Health
       </Button>
     </Box>
