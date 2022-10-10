@@ -33,7 +33,9 @@ export function start(db: Database) {
     const apiKey = request.headers.apiKey;
     if( apiKey !== process.env.API_KEY ) {
       reply.status(403).send();
+      return;
     }
+    done();
   });
   
   //TODO: Store this secret in a file and re-use it
