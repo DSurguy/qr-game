@@ -1,5 +1,5 @@
 {
-  "name": "qr-generator",
+  "name": "qr-game-server",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -32,7 +32,6 @@
     "better-sqlite3": "^7.6.0",
     "fastify": "^4.4.0",
     "jspdf": "^2.5.1",
-    "project-editor-client": "workspace:1.0.0",
     "qrcode": "^1.5.0",
     "ts-node": "^10.8.2"
   }

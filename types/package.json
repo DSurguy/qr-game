@@ -1,5 +1,5 @@
 {
-  "name": "@qr-game/types",
+  "name": "qr-game-types",
   "version": "1.0.0",
   "description": "",
   "main": "index.ts",
