@@ -18,6 +18,11 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
   const [loadError, setLoadError] = useState<null | Error>(null);
   const [removeError, setRemoveError] = useState<null | Error>(null);
 
+  const getHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Api-Key': PROCESS_ENV_API_KEY
+  })
+
   /**
    * Load resource from the server
    * @param callback A function that can perform cleanup actions, such as telling Formik loading is complete. It will receive one argument, indicating if the API action was successful or not
@@ -33,9 +38,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.load}`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          headers: getHeaders()
         })
         if( result.status <= 299 && result.status >= 200 ) {
           if( result.headers.get('Content-Type')?.includes('application/json') )
@@ -72,9 +75,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.update}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: getHeaders(),
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
@@ -110,9 +111,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.create}`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: getHeaders(),
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
@@ -148,9 +147,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.remove}`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: getHeaders(),
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {

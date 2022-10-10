@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { DefinePlugin } = require('webpack');
 
 require('dotenv').config({
-  path: "local.env"
+  path: ".env"
 });
 
 module.exports = {
