@@ -28,6 +28,7 @@ const useMedia = ({ width, height }: UseMediaProps) => {
             }
           }
         });
+        capturedStream.getVideoTracks()[0].enabled = true;
         setStream(capturedStream);
         setError(null);
       } catch (e) {
@@ -121,7 +122,7 @@ export default function QrCapture ({ onQrPayload, captureWidth, captureHeight, c
 
   useEffect(() => {
     if( stream ) {
-      stream.getVideoTracks()[0].stop();
+      stream.getVideoTracks()[0].enabled = false;
     }
     if( videoRef.current ) videoRef.current.srcObject = null;
   }, [])

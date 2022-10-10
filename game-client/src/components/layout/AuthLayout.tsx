@@ -40,11 +40,11 @@ export default function AuthLayout() {
       />}
     >
       { <AuthNavbar opened={navbarOpen} onClose={ () => setNavbarOpen(false) } /> }
-      <CaptureQrModal
+      { captureQrModalOpen && <CaptureQrModal
         opened={captureQrModalOpen}
         onClose={() => setCaptureQrModalOpen(false)}
         onQrPayload={onQrPayload}
-      />
+      />}
       <Outlet />
     </AppShell>
   )
