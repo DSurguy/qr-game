@@ -9,7 +9,8 @@ import { ChevronLeft } from 'tabler-icons-react';
 enum ProjectTab {
   activities = 0,
   players = 1,
-  settings = 2
+  settings = 2,
+  keys = 3
 }
 
 export function ProjectRoute() {
@@ -31,9 +32,10 @@ export function ProjectRoute() {
   const theme = useMantineTheme();
 
   const locationToTab = () => {
-    if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities
-    else if( matchPath({ path: "projects/:id/players", end: false }, location.pathname) ) return ProjectTab.players
-    else if( matchPath({ path: "projects/:id/settings", end: false }, location.pathname) ) return ProjectTab.settings
+    if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities;
+    else if( matchPath({ path: "projects/:id/players", end: false }, location.pathname) ) return ProjectTab.players;
+    else if( matchPath({ path: "projects/:id/settings", end: false }, location.pathname) ) return ProjectTab.settings;
+    else if( matchPath({ path: "projects/:id/keys", end: false }, location.pathname) ) return ProjectTab.keys;
   }
 
   const activeTab = locationToTab();
@@ -58,6 +60,7 @@ export function ProjectRoute() {
       case ProjectTab.activities: navigate("activities"); break;
       case ProjectTab.players: navigate("players"); break;
       case ProjectTab.settings: navigate("settings"); break;
+      case ProjectTab.keys: navigate("keys"); break;
     }
   };
   
@@ -88,6 +91,7 @@ export function ProjectRoute() {
       <Tabs.Tab label="Activities" />
       <Tabs.Tab label="Players" />
       <Tabs.Tab label="Settings" />
+      <Tabs.Tab label="Keys" />
     </Tabs>
     <Outlet />
   </Box>

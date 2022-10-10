@@ -22,6 +22,18 @@ export function bootstrap(path: string = "") {
       stmt.run();
 
       stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_keys (
+          uuid TEXT,
+          projectUuid TEXT REFERENCES projects(uuid),
+          key TEXT,
+          name TEXT,
+          deleted INTEGER,
+          PRIMARY KEY (projectUuid, uuid)
+        )
+      `)
+      stmt.run();
+
+      stmt = db.prepare(`
         CREATE TABLE IF NOT EXISTS project_settings (
           uuid TEXT PRIMARY KEY REFERENCES projects(uuid),
           jsonData TEXT,

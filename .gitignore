@@ -5,3 +5,4 @@ runtime/*
 server/certs/*
 !server/certs/readme.md
 !/**/.gitkeep
+**/*.env

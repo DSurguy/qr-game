@@ -188,4 +188,17 @@ export interface GameDuel extends Duel {
   recipient: null | PlayerBase;
 }
 
-//v1.0.6
+export interface CreateProjectKeyPayload {
+  projectUuid: string;
+  name: string;
+}
+
+export interface ProjectKey extends CreateProjectKeyPayload {
+  uuid: string;
+  projectUuid: string;
+  key: string;
+  name: string;
+  deleted: boolean;
+}
+
+//v1.0.7
