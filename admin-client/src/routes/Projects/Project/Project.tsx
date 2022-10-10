@@ -91,9 +91,11 @@ export function ProjectRoute() {
       )}
     </Formik>
     <Tabs value={activeTab} onTabChange={onTabChange} sx={{ marginBottom: '0.5rem', marginTop: '1rem' }}>
-      <Tabs.Tab value="Activities">Activities</Tabs.Tab>
-      <Tabs.Tab value="Players">Players</Tabs.Tab>
-      <Tabs.Tab value="Settings">Settings</Tabs.Tab>
+      <Tabs.List>
+        <Tabs.Tab value={ProjectTab.activities}>Activities</Tabs.Tab>
+        <Tabs.Tab value={ProjectTab.players}>Players</Tabs.Tab>
+        <Tabs.Tab value={ProjectTab.settings}>Settings</Tabs.Tab>
+      </Tabs.List>
     </Tabs>
     <Outlet />
   </Box>
