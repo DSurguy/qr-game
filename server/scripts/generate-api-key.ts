@@ -22,7 +22,7 @@ import { resolve } from "path";
 }
 `)
   } catch (e) {
-    console.error("Unable to create nginx config block");
+    console.error("Unable to create nginx config block", e.message);
   }
 
   console.log("Done");
