@@ -9,7 +9,7 @@
     "dev": "concurrently \"tsc -w\" \"nodemon -r tsconfig-paths/register dist/index.js\"",
     "start": "tsc && node -r tsconfig-paths/register dist/index.js",
     "generate-lists": "ts-node src/lists/generation/generateLists",
-    "generate-api-key": "ts-node scripts/generate-api-key.ts"
+    "generate-env": "ts-node scripts/generate-env.ts"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +30,7 @@
     "@fastify/type-provider-typebox": "^2.1.0",
     "@sinclair/typebox": "^0.24.17",
     "better-sqlite3": "^7.6.0",
+    "dotenv": "^16.0.3",
     "fastify": "^4.4.0",
     "jspdf": "^2.5.1",
     "qrcode": "^1.5.0",

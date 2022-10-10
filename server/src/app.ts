@@ -25,7 +25,16 @@ export function start(db: Database) {
 
   app.decorate('sessions', new SessionManager(db));
   
+  //Allow all options requests
   app.register(require('@fastify/cors'))
+
+  //Reject all other requests that don't have an API key
+  app.addHook('onRequest', (request, reply, done) => {
+    const apiKey = request.headers.apiKey;
+    if( apiKey !== process.env.API_KEY ) {
+      reply.status(403).send();
+    }
+  });
   
   //TODO: Store this secret in a file and re-use it
   app.register(cookie as any, {

@@ -5,5 +5,5 @@ runtime/*
 server/certs/*
 !server/certs/readme.md
 !/**/.gitkeep
-**/*.env
+**/*.env*
 server/conf/nginx-api-key*
