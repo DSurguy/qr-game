@@ -11,7 +11,7 @@ export function ApiHealth () {
     loadError,
     load
   } = useServerResource<null,any>({
-    load: '/api/admin/health'
+    load: 'health'
   })
 
   useEffect(() => {
