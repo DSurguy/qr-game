@@ -1,7 +1,7 @@
 import { Box, Button, Text, TextInput } from '@mantine/core';
 import { ProjectKey } from '@qrTypes';
 import React, { useEffect, useState } from 'react';
-import { useServerResource } from 'src/hooks/useServerResource';
+import { useServerResource } from '../../../../hooks/useServerResource';
 import { DeviceFloppy, Trash } from 'tabler-icons-react';
 
 type Props = {

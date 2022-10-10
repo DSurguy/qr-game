@@ -3,7 +3,7 @@ import { CreateProjectKeyPayload } from '@qrTypes';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { useServerResource } from 'src/hooks/useServerResource';
+import { useServerResource } from '../../../../hooks/useServerResource';
 
 type Props = {
   opened: boolean;
