@@ -7,16 +7,16 @@ import { resolve } from "path";
 
   //back up the existing file first
   try {
-    await rm(resolve(__dirname, '../conf/nginx-api-key.old'))
+    await rm(resolve(__dirname, '../conf/nginx-api-key.conf.old'))
   } catch {}
   try {
-    await rename(resolve(__dirname, '../conf/nginx-api-key'), resolve(__dirname, '../conf/nginx-api-key.old'))
+    await rename(resolve(__dirname, '../conf/nginx-api-key.conf'), resolve(__dirname, '../conf/nginx-api-key.conf.old'))
   } catch (e) {
     console.warn("Unable to back up existing nginx conf, it may not exist", e.message);
   }
 
   try {
-    await writeFile(resolve(__dirname, '../conf/nginx-api-key'),
+    await writeFile(resolve(__dirname, '../conf/nginx-api-key.conf'),
 `if ($http_api-key != "${newKey}") {
   return 401;
 }
