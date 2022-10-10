@@ -37,7 +37,7 @@ export default function Player() {
     ( async () => {
       try {
         if( player ) {
-          const code = await playerToQrAsUrl(player, window.location.origin);
+          const code = await playerToQrAsUrl(player);
           setQrCode(code);
           setQrCodeError(null);
         }
@@ -47,7 +47,7 @@ export default function Player() {
     })();
   }, [player])
 
-  const portalLink = `${replacePort(window.location.origin)}/portal?projectUuid=${projectUuid}&type=player&uuid=${playerUuid}`;
+  const portalLink = `${PROCESS_ENV_CLIENT_ORIGIN}/portal?projectUuid=${projectUuid}&type=player&uuid=${playerUuid}`;
 
   const unclaimedPlayerButton = <Button onClick={() => setClaimPlayerModalOpen(true)}>Claim Player</Button>
   const claimedPlayerBadge = <Badge color="green" size="md">Claimed</Badge>

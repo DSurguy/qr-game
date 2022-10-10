@@ -11,11 +11,8 @@ export function playerToQrAsEntity(player: SavedPlayer) {
   )
 }
 
-export function playerToQrAsUrl(player: SavedPlayer, origin: string) {
-  const otherAppOrigin = origin.includes(":8080")
-    ? origin.replace(":8080", ":8081")
-    : origin.replace(":8081", ":8080")
+export function playerToQrAsUrl(player: SavedPlayer) {
   return toDataURL(
-    `${otherAppOrigin}/portal?type=player&projectUuid=${player.projectUuid}&uuid=${player.uuid}`
+    `${PROCESS_ENV_CLIENT_ORIGIN}/portal?type=player&projectUuid=${player.projectUuid}&uuid=${player.uuid}`
   )
 }

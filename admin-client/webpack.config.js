@@ -52,7 +52,8 @@ module.exports = {
   plugins: [
     new DefinePlugin({
       PROCESS_ENV_API_KEY: JSON.stringify(process.env.API_KEY),
-      PROCESS_ENV_SERVER_ORIGIN: JSON.stringify(process.env.SERVER_ORIGIN)
+      PROCESS_ENV_SERVER_ORIGIN: JSON.stringify(process.env.SERVER_ORIGIN),
+      PROCESS_ENV_CLIENT_ORIGIN: JSON.stringify(process.env.CLIENT_ORIGIN)
     }),
     new HtmlWebpackPlugin()
   ]

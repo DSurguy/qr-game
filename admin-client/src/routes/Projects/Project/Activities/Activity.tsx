@@ -36,7 +36,7 @@ export default function Activity() {
     ( async () => {
       try {
         if( activity ) {
-          const code = await activityToQrAsUrl(activity, window.location.origin);
+          const code = await activityToQrAsUrl(activity);
           setQrCode(code);
           setQrCodeError(null);
         }
@@ -53,7 +53,7 @@ export default function Activity() {
     });
   }
 
-  const portalLink = `${replacePort(window.location.origin)}/portal?projectUuid=${projectUuid}&type=activity&uuid=${activityUuid}`;
+  const portalLink = `${PROCESS_ENV_CLIENT_ORIGIN}/portal?projectUuid=${projectUuid}&type=activity&uuid=${activityUuid}`;
 
   if( isLoading ) return <Loader />
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading activity"}</Text>

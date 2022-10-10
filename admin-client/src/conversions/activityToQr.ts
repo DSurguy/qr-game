@@ -11,11 +11,8 @@ export function activityToQr(activity: SavedActivity) {
   )
 }
 
-export function activityToQrAsUrl(activity: SavedActivity, origin: string) {
-  const otherAppOrigin = origin.includes(":8080")
-    ? origin.replace(":8080", ":8081")
-    : origin.replace(":8081", ":8080")
+export function activityToQrAsUrl(activity: SavedActivity) {
   return toDataURL(
-    `${otherAppOrigin}/portal?type=activity&projectUuid=${activity.projectUuid}&uuid=${activity.uuid}`
+    `${PROCESS_ENV_CLIENT_ORIGIN}/portal?type=activity&projectUuid=${activity.projectUuid}&uuid=${activity.uuid}`
   )
 }
