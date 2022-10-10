@@ -17,6 +17,7 @@
     "@mantine/form": "^5.1.5",
     "@mantine/hooks": "^5.1.5",
     "@mantine/notifications": "^5.1.5",
+    "dotenv": "^16.0.3",
     "formik": "^2.2.9",
     "fuzzysort": "^2.0.1",
     "jsqr": "^1.4.0",

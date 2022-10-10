@@ -14,7 +14,12 @@ const useApiHealthy = () => {
   const checkHealth = async () => {
     setIsLoading(true);
     try {
-      const { status } = await fetch('http://localhost:8011/api/admin/health')
+      const { status } = await fetch('http://localhost:8011/api/admin/health', {
+        headers: {
+          'Content-Type': 'application/json',
+          'Api-Key': PROCESS_ENV_API_KEY
+        }
+      })
       setError("");
       setIsHealthy(status === 200);
     } catch (e) {

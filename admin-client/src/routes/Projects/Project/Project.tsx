@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Loader, Tabs, Text, Textarea, TextInput, useMantineTheme, } from '@mantine/core';
 import { SavedProject } from '@qrTypes';
 import { Link, matchPath, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -7,15 +7,18 @@ import { Field, Form, Formik, FormikHelpers } from 'formik';
 import { ChevronLeft } from 'tabler-icons-react';
 
 enum ProjectTab {
-  activities = 0,
-  players = 1,
-  settings = 2
+  activities = "activities",
+  players = "players",
+  settings = "settings"
 }
 
 export function ProjectRoute() {
   const { projectUuid } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
+
+  const [activeTab, setActiveTab] = useState<string | null>(null)
+
   const {
     data: project,
     isLoading,
@@ -30,17 +33,20 @@ export function ProjectRoute() {
   })
   const theme = useMantineTheme();
 
-  const locationToTab = () => {
-    if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities
-    else if( matchPath({ path: "projects/:id/players", end: false }, location.pathname) ) return ProjectTab.players
-    else if( matchPath({ path: "projects/:id/settings", end: false }, location.pathname) ) return ProjectTab.settings
-  }
-
-  const activeTab = locationToTab();
-
   useEffect(() => {
     load();
   }, [])
+
+  useEffect(() => {
+    const locationToTab = () => {
+      if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities;
+      else if( matchPath({ path: "projects/:id/players", end: false }, location.pathname) ) return ProjectTab.players;
+      else if( matchPath({ path: "projects/:id/settings", end: false }, location.pathname) ) return ProjectTab.settings;
+    }
+
+    setActiveTab(locationToTab());
+
+  }, [location])
 
   useEffect(() => {
     if( project && activeTab === undefined ) navigate("activities");
@@ -53,7 +59,7 @@ export function ProjectRoute() {
     });
   }
 
-  const onTabChange = (tab: number) => {
+  const onTabChange = (tab: ProjectTab) => {
     switch(tab){
       case ProjectTab.activities: navigate("activities"); break;
       case ProjectTab.players: navigate("players"); break;
@@ -84,10 +90,10 @@ export function ProjectRoute() {
         </Form>
       )}
     </Formik>
-    <Tabs active={activeTab} onTabChange={onTabChange} sx={{ marginBottom: '0.5rem', marginTop: '1rem' }}>
-      <Tabs.Tab label="Activities" />
-      <Tabs.Tab label="Players" />
-      <Tabs.Tab label="Settings" />
+    <Tabs value={activeTab} onTabChange={onTabChange} sx={{ marginBottom: '0.5rem', marginTop: '1rem' }}>
+      <Tabs.Tab value="Activities" />
+      <Tabs.Tab value="Players" />
+      <Tabs.Tab value="Settings" />
     </Tabs>
     <Outlet />
   </Box>

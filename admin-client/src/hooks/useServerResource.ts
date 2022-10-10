@@ -6,16 +6,22 @@ type ResourceEndpoints = {
   create?: string,
   update?: string,
   load?: string,
-  // delete?: string,
-  // restore?: string
+  remove?: string
 }
 
 export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEndpoints) {
   const [data, setData] = useState<null | SavedType>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRemoving, setIsRemoving] = useState(false);
   const [saveError, setSaveError] = useState<null | Error>(null);
   const [loadError, setLoadError] = useState<null | Error>(null);
+  const [removeError, setRemoveError] = useState<null | Error>(null);
+
+  const getHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Api-Key': PROCESS_ENV_API_KEY
+  })
 
   /**
    * Load resource from the server
@@ -32,9 +38,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.load}`, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
+          headers: getHeaders()
         })
         if( result.status <= 299 && result.status >= 200 ) {
           if( result.headers.get('Content-Type')?.includes('application/json') )
@@ -71,9 +75,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.update}`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: getHeaders(),
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
@@ -109,9 +111,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.create}`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: getHeaders(),
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
@@ -131,14 +131,51 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
     })()
   }
 
+  /**
+   * Save a new resource to the server
+   * @param values 
+   * @param callback A function that can perform cleanup actions, such as telling Formik submission is complete. It will receive one argument, indicating if the API action was successful or not
+   */
+   const remove = (values: UnsavedType, callback?: ApiActionCallback) => {
+    if( !endpoints.remove ) {
+      setRemoveError(new Error("No endpoint provided to remove resource"));
+      if( callback ) callback(false)
+      return;
+    }
+    setIsRemoving(true);
+    (async () => {
+      try {
+        const result = await fetch(`${ADMIN_API_BASE}/${endpoints.remove}`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(values)
+        })
+        if( result.status > 299 || result.status < 200 ) {
+          const message = (result.json() as any)['message'] || 'Internal Server Error'
+          throw new Error(message)
+        }
+        setRemoveError(null);
+        callback(true);
+      } catch (e) {
+        setRemoveError(e);
+        callback(false)
+      } finally {
+        setIsRemoving(false);
+      }
+    })()
+  }
+
   return {
     data,
     isSaving,
     isLoading,
+    isRemoving,
     loadError,
     saveError,
+    removeError,
     load,
     update,
-    create
+    create,
+    remove
   } as const
 }

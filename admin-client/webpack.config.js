@@ -1,5 +1,10 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { DefinePlugin } = require('webpack');
+
+require('dotenv').config({
+  path: ".env"
+});
 
 module.exports = {
   entry: './src/index.tsx',
@@ -45,6 +50,9 @@ module.exports = {
   },
   devtool: 'eval-source-map',
   plugins: [
+    new DefinePlugin({
+      PROCESS_ENV_API_KEY: JSON.stringify(process.env.API_KEY)
+    }),
     new HtmlWebpackPlugin()
   ]
 }
