@@ -18,6 +18,10 @@ export function ApiHealth () {
     load();
   }, [])
 
+  useEffect(() => {
+    if( loadError ) console.error(loadError);
+  }, [loadError])
+
   const apiStatus = () => {
     let color, text;
     if( isLoading ) {
@@ -37,7 +41,6 @@ export function ApiHealth () {
   return (
     <Box>
       <Text component="span">API is</Text>{apiStatus()}
-      {loadError && <Text color="red">{loadError?.message || ''}</Text>}
       <Button onClick={() => load()} loading={isLoading} sx={{ marginLeft: theme.spacing['xs']}}>
         Check API Health
       </Button>
