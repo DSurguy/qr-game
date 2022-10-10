@@ -119,6 +119,13 @@ export default function QrCapture ({ onQrPayload, captureWidth, captureHeight, c
     }
   }, [stream])
 
+  useEffect(() => {
+    if( stream ) {
+      stream.getVideoTracks()[0].stop();
+    }
+    if( videoRef.current ) videoRef.current.srcObject = null;
+  }, [])
+
   if( isLoading ) return <Loader />
   else if( error ) return <Text color="red">{error.name} {error.message}</Text>
   else if( !stream ) return <Text color="red">Stream not loaded</Text>
