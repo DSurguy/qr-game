@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button, Box, Text, useMantineTheme } from '@mantine/core';
-import { useServerResource } from 'src/hooks/useServerResource';
+import { useServerResource } from '../hooks/useServerResource';
 
 export function ApiHealth () {
   const theme = useMantineTheme();
