@@ -37,6 +37,10 @@ export function start(db: Database) {
     }
     done();
   });
+
+  app.addHook('onRoute', (routeOptions) => {
+    console.log(routeOptions.routePath);
+  });
   
   //TODO: Store this secret in a file and re-use it
   app.register(cookie as any, {
