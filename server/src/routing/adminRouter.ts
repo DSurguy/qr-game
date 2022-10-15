@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { UnsavedProject, SavedProject, UnsavedActivity, SavedActivity, ProjectSettings, SavedPlayer, CreatePlayerPayload } from '../qr-types';
+import { UnsavedProject, SavedProject, UnsavedActivity, SavedActivity, ProjectSettings, SavedPlayer, CreatePlayerPayload, ProjectItem, CreateProjectItemPayload } from '../qr-types';
 import { FastifyPluginCallback } from 'fastify/types/plugin'
 import { getRandomInt } from '../utils/random';
 import animals from '../lists/animals.js';
@@ -520,6 +520,225 @@ export const adminRouter: FastifyPluginCallback = (app, options, done) => {
     } catch (e) {
       console.error(e);
       reply.code(500).send()
+    }
+  })
+
+  app.get<{
+    Params: { projectUuid: string },
+    Querystring: { deleted?: boolean },
+    Reply: ProjectItem[] | { message: string }
+  }>('/projects/:projectUuid/items', (req, reply) => {
+    try {
+      const {
+        deleted
+      } = req.query;
+      const {
+        projectUuid
+      } = req.params;
+      const select = app.db.prepare(`
+        SELECT * FROM project_store_items WHERE projectUuid=@projectUuid AND deleted=@deleted
+      `)
+      const items = select.all({
+        deleted: deleted ? 1 : 0,
+        projectUuid
+      })
+      reply.code(200).send((items || []).map(item => ({
+        ...item,
+        availableForPurchase: !!item.availableForPurchase,
+        canPurchaseMultiple: !!item.canPurchaseMultiple,
+        deleted: !!item.deleted
+      })))
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
+    }
+  })
+
+  app.get<{
+    Params: { projectUuid: string },
+    Reply: ProjectItem | { message: string } | undefined
+  }>('/projects/:projectUuid/items/:itemUuid', (req, reply) => {
+    try {
+      const {
+        projectUuid
+      } = req.params;
+      const select = app.db.prepare(`
+        SELECT * FROM project_store_items WHERE projectUuid=@projectUuid
+      `)
+      const item = select.get({
+        projectUuid
+      })
+      if( !item ) reply.code(404).send()
+      else reply.code(200).send({
+        ...item,
+        availableForPurchase: !!item.availableForPurchase,
+        canPurchaseMultiple: !!item.canPurchaseMultiple,
+        deleted: !!item.deleted
+      } as ProjectItem)
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
+    }
+  })
+
+  app.post<{
+    Params: { projectUuid: string },
+    Body: CreateProjectItemPayload,
+    Reply: ProjectItem | { message: string }
+  }>('/projects/:projectUuid/items', ( req, reply ) => {
+    const {
+      name,
+      description,
+      cost,
+      imageBase64,
+      availableForPurchase,
+      canPurchaseMultiple,
+      redemptionChallenge
+    } = req.body;
+    const uuid = randomUUID();
+    const { projectUuid } = req.params;
+    const timestamp = Date.now();
+    const insert = app.db.prepare(`
+      INSERT INTO project_store_items (
+        projectUuid,
+        uuid,
+        name,
+        description,
+        cost,
+        imageBase64,
+        availableForPurchase,
+        canPurchaseMultiple,
+        redemptionChallenge,
+        deleted,
+        createdAt,
+        updatedAt
+      ) VALUES (
+        @projectUuid,
+        @uuid,
+        @name,
+        @description,
+        @cost,
+        @imageBase64,
+        @availableForPurchase,
+        @canPurchaseMultiple,
+        @redemptionChallenge,
+        0,
+        @timestamp,
+        @timestamp
+      )`)
+    try {
+      insert.run({
+        projectUuid,
+        uuid,
+        name,
+        description,
+        cost,
+        imageBase64,
+        availableForPurchase: availableForPurchase ? 1 : 0,
+        canPurchaseMultiple: canPurchaseMultiple ? 1 : 0,
+        redemptionChallenge,
+        timestamp
+      })
+      reply.code(201).send({
+        projectUuid,
+        uuid,
+        name,
+        description,
+        cost,
+        imageBase64,
+        availableForPurchase,
+        canPurchaseMultiple,
+        redemptionChallenge,
+        deleted: false,
+        updatedAt: timestamp,
+        createdAt: timestamp
+      } as ProjectItem);
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
+    }
+  })
+
+  app.put<{
+    Params: { projectUuid: string, itemUuid: string },
+    Body: ProjectItem,
+    Reply: ProjectItem | { message: string } | undefined
+  }>('/projects/:projectUuid/items/:itemUuid', ( req, reply ) => {
+    const {
+      name,
+      description,
+      cost,
+      imageBase64,
+      availableForPurchase,
+      canPurchaseMultiple,
+      redemptionChallenge
+    } = req.body;
+    const { projectUuid, itemUuid } = req.params;
+    const timestamp = Date.now();
+    const update = app.db.prepare(`
+      UPDATE project_store_items SET
+        name=@name,
+        description=@description,
+        cost=@cost,
+        imageBase64=@imageBase64,
+        availableForPurchase=@availableForPurchase,
+        canPurchaseMultiple=@canPurchaseMultiple,
+        redemptionChallenge=@redemptionChallenge,
+        updatedAt=@timestamp
+      WHERE projectUuid=@projectUuid AND uuid=@itemUuid`
+    )
+    try {
+      update.run({
+        projectUuid,
+        itemUuid,
+        name,
+        description,
+        cost,
+        imageBase64,
+        availableForPurchase: availableForPurchase ? 1 : 0,
+        canPurchaseMultiple: canPurchaseMultiple ? 1 : 0,
+        redemptionChallenge,
+        timestamp
+      })
+      const select = app.db.prepare(`SELECT * FROM project_store_items WHERE projectUuid=@projectUuid AND uuid=@itemUuid`)
+      const item = select.get({
+        projectUuid,
+        itemUuid
+      })
+      reply.code(200).send({
+        ...item,
+        availableForPurchase: !!item.availableForPurchase,
+        canPurchaseMultiple: !!item.canPurchaseMultiple,
+        deleted: !!item.deleted
+      } as ProjectItem);
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
+    }
+  })
+
+  app.delete<{
+    Params: { projectUuid: string, itemUuid: string },
+    Reply: { message: string } | undefined
+  }>('/projects/:projectUuid/items/:itemUuid', ( req, reply ) => {
+    const { projectUuid, itemUuid } = req.params;
+    const timestamp = Date.now();
+    const update = app.db.prepare(`
+      update project_store_items SET
+        deleted=1,
+        updatedAt=@timestamp
+      WHERE projectUuid=@projectUuid AND uuid=@itemUuid`
+    )
+    try {
+      update.run({
+        projectUuid,
+        itemUuid,
+        timestamp
+      })
+      reply.code(200).send();
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
     }
   })
 

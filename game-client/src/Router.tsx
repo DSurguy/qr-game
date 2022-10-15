@@ -5,12 +5,16 @@ import PublicLayout from './components/layout/PublicLayout';
 import ActivityRoute from './routes/Activity/ActivityRoute';
 import DuelsRoute from './routes/Duels/DuelsRoute';
 import EntryPortalRoute from './routes/EntryPortal';
+import { InventoryDirectory } from './routes/Inventory/Directory';
+import { InventoryItem } from './routes/Inventory/Item';
 import LoginRoute from './routes/LoginRoute';
 import PlayerRoute from './routes/Player/PlayerRoute';
 import ProfileRoute from './routes/ProfileRoute';
 import PublicActivityRoute from './routes/PublicActivity';
 import PublicPlayerRoute from './routes/PublicPlayer/PublicPlayerRoute';
 import RedirectRoute from './routes/RedirectRoute';
+import { StoreDirectory } from './routes/Store/Directory';
+import { StoreItem } from './routes/Store/Item';
 
 export function Router(){
   return <BrowserRouter>
@@ -27,6 +31,14 @@ export function Router(){
         </Route>
         <Route path="duels">
           <Route path="" element={<DuelsRoute />} />
+        </Route>
+        <Route path="store">
+          <Route path="" element={<StoreDirectory />} />
+          <Route path=":itemUuid" element={<StoreItem />} />
+        </Route>
+        <Route path="inventory">
+          <Route path="" element={<InventoryDirectory />} />
+          <Route path=":itemUuid" element={<InventoryItem />} />
         </Route>
       </Route>
       <Route path="/" element={<PublicLayout />}>

@@ -1,4 +1,4 @@
-import { DuelState, Duel, GameEvent, GamePlayer, GameProject, SavedActivity, SavedPlayer, SavedProject, UpdateDuelPayload, ChangeType, GameDuel, GameEventType } from "../qr-types";
+import { DuelState, Duel, GameEvent, GamePlayer, GameProject, SavedActivity, SavedPlayer, SavedProject, UpdateDuelPayload, ChangeType, GameDuel, GameEventType, ProjectItem, PurchaseItemPayload, InventoryItem, StoreItem, RedeemItemPayload } from "../qr-types";
 import { FastifyPluginCallback } from "fastify"
 import { playerToGame, projectToGame } from "../conversions/toGame";
 import { ProjectSession } from "../types";
@@ -97,6 +97,19 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
+  const getPlayerBalance = (projectUuid: string, playerUuid: string): number => {
+    const select = app.db.prepare(`
+      SELECT SUM(amount) as playerBalance FROM project_transactions
+      WHERE projectUuid=@projectUuid AND playerUuid=@playerUuid
+    `)
+    let { playerBalance } = select.get({
+      projectUuid,
+      playerUuid
+    }) as { playerBalance: number } | undefined
+    if( !playerBalance ) playerBalance = 0;
+    return playerBalance;
+  }
+
   app.get<{
     Header: {
       authorization: string | undefined;
@@ -104,17 +117,8 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
     Reply: number | undefined;
   }>('/me/balance', (req, reply) => {
     try {
-      const getPlayerBalance = app.db.prepare(`
-        SELECT SUM(amount) as playerBalance FROM project_transactions
-        WHERE projectUuid=@projectUuid AND playerUuid=@playerUuid
-      `)
-      let { playerBalance } = getPlayerBalance.get({
-        projectUuid: req.session.projectUuid,
-        playerUuid: req.session.playerUuid
-      }) as { playerBalance: number } | undefined
-      if( !playerBalance ) playerBalance = 0;
-
-      reply.status(200).send(playerBalance);
+      const balance = getPlayerBalance(req.session.projectUuid, req.session.playerUuid);
+      reply.status(200).send(balance);
     } catch (e) {
       console.error(e.message);
       reply.status(500).send();
@@ -602,6 +606,407 @@ export const gameRouter: FastifyPluginCallback = (app, options, done) => {
       reply.status(200).send(playerToGame(player))
     } catch (e) {
       console.error(e.message);
+      reply.status(500).send({ message: e.message })
+    }
+  })
+
+  app.get<{
+    Header: {
+      authorization: string | undefined;
+    },
+    Reply: StoreItem[] | { message: string };
+  }>('/store/items', (req, reply) => {
+    try {
+      const getItems = app.db.prepare(`
+        SELECT * FROM project_store_items
+        WHERE projectUuid=@projectUuid AND deleted=0 AND availableForPurchase=1
+      `)
+      const items = getItems.all({
+        projectUuid: req.session.projectUuid
+      })
+      reply.status(200).send(items.map(item => ({
+        projectUuid: item.projectUuid,
+        uuid: item.uuid,
+        name: item.name,
+        description: item.description,
+        cost: item.cost,
+        imageBase64: item.imageBase64,
+        canPurchaseMultiple: !!item.canPurchaseMultiple,
+        hasRedemptionChallenge: !!(item.redemptionChallenge?.length)
+      } as StoreItem)))
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send({ message: e.message })
+    }
+  })
+
+  app.get<{
+    Header: {
+      authorization: string | undefined;
+    },
+    Params: {
+      itemUuid: string;
+    },
+    Reply: StoreItem | undefined | { message: string };
+  }>('/store/items/:itemUuid', (req, reply) => {
+    const { itemUuid } = req.params;
+    try {
+      const select = app.db.prepare(`
+        SELECT * FROM project_store_items
+        WHERE projectUuid=@projectUuid AND uuid=@itemUuid AND deleted=0 AND availableForPurchase=1
+      `)
+      const item = select.get({
+        projectUuid: req.session.projectUuid,
+        itemUuid
+      })
+      if( !item ) reply.status(404).send()
+      else reply.status(200).send({
+        projectUuid: item.projectUuid,
+        uuid: item.uuid,
+        name: item.name,
+        description: item.description,
+        cost: item.cost,
+        imageBase64: item.imageBase64,
+        canPurchaseMultiple: !!item.canPurchaseMultiple,
+        hasRedemptionChallenge: !!(item.redemptionChallenge?.length)
+      } as StoreItem)
+    } catch (e) {
+      console.error(e.message);
+      reply.status(500).send({ message: e.message })
+    }
+  })
+
+  app.post<{
+    Header: {
+      authorization: string | undefined;
+    };
+    Body: PurchaseItemPayload;
+    Reply: undefined | { message: string };
+  }>('/store/purchase', (req, reply) => {
+    const { itemUuid } = req.body;
+    const { projectUuid, playerUuid } = req.session;
+    try {
+      const dbTransaction = app.db.transaction(() => {
+        const timestamp = Date.now();
+
+        //How much does this item cost
+        const selectItem = app.db.prepare(`
+          SELECT * FROM project_store_items
+          WHERE projectUuid=@projectUuid AND uuid=@itemUuid AND deleted=0 AND availableForPurchase=1
+        `)
+        const item = selectItem.get({
+          projectUuid,
+          itemUuid
+        })
+        if( !item ) {
+          reply.status(404).send()
+          return;
+        }
+
+        //Does the player have enough currency to complete this purchase?
+        const balance = getPlayerBalance(req.session.projectUuid, req.session.playerUuid);
+        if( item.cost > balance ){
+          reply.status(400).send({
+            message:'Player balance too low'
+          })
+          return;
+        }
+
+        //TODO: Has the player purchased this before, and can they purchase multiple?
+
+        //Create an event
+        const insert = app.db.prepare(`
+          INSERT INTO project_events (projectUuid, uuid, type, payload, primaryUuid, secondaryUuid, timestamp)
+          VALUES(
+            @projectUuid,
+            @uuid,
+            @type,
+            @payload,
+            @primaryUuid,
+            @secondaryUuid,
+            @timestamp
+          )
+        `)
+
+        const eventUuid = randomUUID();
+
+        insert.run({
+          projectUuid,
+          uuid: eventUuid,
+          type: GameEventType.ItemPurchased,
+          payload: JSON.stringify({}),
+          primaryUuid: playerUuid,
+          secondaryUuid: itemUuid,
+          timestamp
+        })
+
+        //Add a transaction and add an item to their inventory (increment if exists)
+        const insertTransaction = app.db.prepare(`
+          INSERT INTO project_transactions (projectUuid, playerUuid, eventUuid, amount, timestamp)
+          VALUES (
+            @projectUuid,
+            @playerUuid,
+            @eventUuid,
+            @amount,
+            @timestamp
+          )
+        `)
+
+        insertTransaction.run({
+          projectUuid,
+          playerUuid,
+          eventUuid,
+          amount: -item.cost,
+          timestamp
+        })
+
+        const insertInventory = app.db.prepare(`
+          INSERT INTO project_player_inventory (
+            projectUuid,
+            playerUuid,
+            itemUuid,
+            quantity,
+            quantityRedeemed  
+          ) VALUES (
+            @projectUuid,
+            @playerUuid,
+            @itemUuid,
+            1,
+            0
+          )
+          ON CONFLICT (projectUuid, playerUuid, itemUuid) DO UPDATE SET quantity = quantity + 1
+        `)
+
+        insertInventory.run({
+          projectUuid,
+          playerUuid,
+          itemUuid
+        })
+
+        reply.status(200).send();
+      });
+
+      dbTransaction();
+    } catch (e) {
+      console.error(e.message, e.stack);
+      reply.status(500).send({ message: e.message })
+    }
+  })
+
+  app.get<{
+    Header: {
+      authorization: string | undefined;
+    };
+    Reply: InventoryItem[] | undefined | { message: string };
+  }>('/inventory', (req, reply) => {
+    try {
+      const { projectUuid, playerUuid } = req.session;
+
+      const select = app.db.prepare(`
+        SELECT
+          ppi.*,
+          psi.name as 'item.name',
+          psi.description as 'item.description',
+          psi.imageBase64 as 'item.imageBase64',
+          psi.redemptionChallenge as 'item.redemptionChallenge'
+        FROM project_player_inventory ppi
+        LEFT JOIN project_store_items psi
+        ON ppi.projectUuid = psi.projectUuid AND ppi.itemUuid = psi.uuid
+        WHERE ppi.projectUuid = @projectUuid AND ppi.playerUuid = @playerUuid
+      `)
+      const results = select.all({
+        projectUuid,
+        playerUuid
+      });
+
+      const items = results.map(result => {
+        const item: any = {};
+        const inventoryRecord: any = {};
+        Object.entries(result).forEach(([key, value]) => {
+          if( key.startsWith('item.') ){
+            const itemKey = key.replace('item.', '');
+            if( itemKey === 'redemptionChallenge' )
+              item['hasRedemptionChallenge'] = !!((value as string)?.length)
+            else item[itemKey] = value;
+          }
+          else inventoryRecord[key] = value;
+        })
+        return {
+          ...inventoryRecord,
+          item
+        }
+      }) as InventoryItem[];
+
+      reply.status(200).send(items);
+    } catch(e) {
+      console.error(e.message, e.stack);
+      reply.status(500).send({ message: e.message })
+    }
+  })
+
+  app.get<{
+    Header: {
+      authorization: string | undefined;
+    };
+    Params: {
+      itemUuid: string;
+    };
+    Reply: InventoryItem | undefined | { message: string };
+  }>('/inventory/:itemUuid', (req, reply) => {
+    try {
+      const { projectUuid, playerUuid } = req.session;
+      const { itemUuid } = req.params;
+      
+      const select = app.db.prepare(`
+        SELECT
+          ppi.*,
+          psi.name as 'item.name',
+          psi.description as 'item.description',
+          psi.imageBase64 as 'item.imageBase64',
+          psi.redemptionChallenge as 'item.redemptionChallenge'
+        FROM project_player_inventory ppi
+        LEFT JOIN project_store_items psi
+        ON ppi.projectUuid = psi.projectUuid AND ppi.itemUuid = psi.uuid
+        WHERE ppi.projectUuid = @projectUuid AND ppi.playerUuid = @playerUuid AND ppi.itemUuid = @itemUuid
+      `)
+      const result = select.get({
+        projectUuid,
+        playerUuid,
+        itemUuid
+      });
+
+      const item: any = {};
+      const inventoryRecord: any = {};
+      Object.entries(result).forEach(([key, value]) => {
+        if( key.startsWith('item.') ){
+          const itemKey = key.replace('item.', '');
+          if( itemKey === 'redemptionChallenge' )
+            item['hasRedemptionChallenge'] = !!((value as string)?.length)
+          else item[itemKey] = value;
+        }
+        else inventoryRecord[key] = value;
+      })
+      inventoryRecord.item = item;
+
+      reply.status(200).send(inventoryRecord as InventoryItem);
+    } catch(e) {
+      console.error(e.message, e.stack);
+      reply.status(500).send({ message: e.message })
+    }
+  })
+
+  app.post<{
+    Header: {
+      authorization: string | undefined;
+    };
+    Body: RedeemItemPayload;
+    Reply: undefined | { message: string }
+  }>('/inventory/redeem', (req, reply) => {
+    const { projectUuid, playerUuid } = req.session;
+    const { itemUuid, challenge } = req.body;
+
+    try {
+      //TRANSACT
+      const dbTransaction = app.db.transaction(() => {
+        //Can the user redeem more of this item?
+        const selectUserInventoryForItem = app.db.prepare(`
+          SELECT *
+          FROM project_player_inventory
+          WHERE
+            projectUuid=@projectUuid AND
+            playerUuid=@playerUuid AND
+            itemUuid=@itemUuid
+        `)
+        const inventoryRecord = selectUserInventoryForItem.get({
+          projectUuid,
+          playerUuid,
+          itemUuid
+        }) as InventoryItem;
+        if( !inventoryRecord ) {
+          reply.status(404).send();
+          return;
+        }
+
+        if( inventoryRecord.quantityRedeemed >= inventoryRecord.quantity ) {
+          reply.status(400).send({
+            message: "No remaining quantity to redeem"
+          })
+          return;
+        }
+        
+        //Does this item require a redemption challenge?
+        //Did the user pass redemption challenge?
+        const selectStoreItem = app.db.prepare(`
+          SELECT *
+          FROM project_store_items
+          WHERE
+            projectUuid=@projectUuid AND
+            uuid=@itemUuid
+        `)
+        const storeItem = selectStoreItem.get({
+          projectUuid,
+          itemUuid
+        })
+
+        if( storeItem.redemptionChallenge && challenge != storeItem.redemptionChallenge) {
+          reply.status(400).send({
+            message: "Challenge response incorrect"
+          })
+          return;
+        }
+
+        //Add an event
+        const eventUuid = randomUUID();
+        const timestamp = Date.now();
+
+        const insert = app.db.prepare(`
+          INSERT INTO project_events (projectUuid, uuid, type, payload, primaryUuid, secondaryUuid, timestamp)
+          VALUES(
+            @projectUuid,
+            @uuid,
+            @type,
+            @payload,
+            @primaryUuid,
+            @secondaryUuid,
+            @timestamp
+          )
+        `)
+
+        insert.run({
+          projectUuid,
+          uuid: eventUuid,
+          type: GameEventType.ItemRedeemed,
+          payload: JSON.stringify({
+            challenge
+          }),
+          primaryUuid: playerUuid,
+          secondaryUuid: itemUuid,
+          timestamp
+        })
+
+        //Redeem the item
+        const updateRedeem = app.db.prepare(`
+          UPDATE project_player_inventory
+          SET quantityRedeemed = quantityRedeemed + 1
+          WHERE
+            projectUuid=@projectUuid AND
+            playerUuid=@playerUuid AND
+            itemUuid=@itemUuid
+        `)
+        updateRedeem.run({
+          projectUuid,
+          playerUuid,
+          itemUuid
+        })
+
+        reply.status(200).send();
+        
+        //TODO: Perform redemption side effects
+      });
+
+      dbTransaction();
+    } catch (e) {
+      console.error(e.message, e.stack);
       reply.status(500).send({ message: e.message })
     }
   })

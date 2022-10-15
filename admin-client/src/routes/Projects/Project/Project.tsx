@@ -9,7 +9,8 @@ import { ChevronLeft } from 'tabler-icons-react';
 enum ProjectTab {
   activities = "activities",
   players = "players",
-  settings = "settings"
+  settings = "settings",
+  items = "items"
 }
 
 export function ProjectRoute() {
@@ -42,6 +43,7 @@ export function ProjectRoute() {
       if( matchPath({ path: "projects/:id/activities", end: false }, location.pathname) ) return ProjectTab.activities;
       else if( matchPath({ path: "projects/:id/players", end: false }, location.pathname) ) return ProjectTab.players;
       else if( matchPath({ path: "projects/:id/settings", end: false }, location.pathname) ) return ProjectTab.settings;
+      else if( matchPath({ path: "projects/:id/items", end: false }, location.pathname) ) return ProjectTab.items;
     }
 
     setActiveTab(locationToTab());
@@ -64,6 +66,7 @@ export function ProjectRoute() {
       case ProjectTab.activities: navigate("activities"); break;
       case ProjectTab.players: navigate("players"); break;
       case ProjectTab.settings: navigate("settings"); break;
+      case ProjectTab.items: navigate("items"); break;
     }
   };
   
@@ -95,6 +98,7 @@ export function ProjectRoute() {
         <Tabs.Tab value={ProjectTab.activities}>Activities</Tabs.Tab>
         <Tabs.Tab value={ProjectTab.players}>Players</Tabs.Tab>
         <Tabs.Tab value={ProjectTab.settings}>Settings</Tabs.Tab>
+        <Tabs.Tab value={ProjectTab.items}>Items</Tabs.Tab>
       </Tabs.List>
     </Tabs>
     <Outlet />

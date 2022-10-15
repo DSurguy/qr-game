@@ -34,6 +34,8 @@ export default function AuthNavbar({ onClose, opened }: Props) {
       <nav>
         <NavLink label="My Profile" component={Link} to="/game/me" onClick={onClose}/>
         <NavLink label="Duels" component={Link} to="/game/duels" onClick={onClose}/>
+        <NavLink label="Inventory" component={Link} to="/game/inventory" onClick={onClose}/>
+        <NavLink label="Store" component={Link} to="/game/store" onClick={onClose}/>
         <NavLink label="Log Out" onClick={logout} sx={{ marginTop: '10px', borderTop: `1px solid ${theme.colors.gray[3]}`}} />
       </nav>
     </Drawer>

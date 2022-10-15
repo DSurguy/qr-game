@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev:ssl": "concurrently \"tsc -w\" \"nodemon -r tsconfig-paths/register dist/indexHttps.js\"",
-    "dev": "concurrently \"tsc -w\" \"nodemon -r tsconfig-paths/register dist/index.js\"",
+    "dev": "nodemon --watch \"src/**\" --ext \"ts,json,js\" --exec \"ts-node src/index.ts\"",
     "start": "tsc && node -r tsconfig-paths/register dist/index.js",
     "generate-lists": "ts-node src/lists/generation/generateLists",
     "generate-env": "ts-node scripts/generate-env.ts"
@@ -19,7 +19,7 @@
     "@types/node": "^18.0.1",
     "@types/qrcode": "^1.4.2",
     "concurrently": "^7.2.2",
-    "nodemon": "^2.0.19",
+    "nodemon": "^2.0.20",
     "tsconfig-paths": "^4.1.0",
     "typescript": "^4.7.4"
   },

@@ -60,7 +60,7 @@ export function bootstrap(path: string = "") {
           claimed INTEGER,
           createdAt INTEGER,
           updatedAt INTEGER,
-          UNIQUE (projectUuid, uuid)
+          PRIMARY KEY (projectUuid, uuid)
         )
       `)
       stmt.run();
@@ -132,6 +132,41 @@ export function bootstrap(path: string = "") {
           FOREIGN KEY ( projectUuid, activityUuid ) REFERENCES project_activities ( projectUuid, uuid )
         )
       `)
+      stmt.run();
+
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_store_items (
+          projectUuid TEXT,
+          uuid TEXT,
+          name TEXT,
+          description TEXT,
+          cost INTEGER,
+          imageBase64 TEXT,
+          availableForPurchase INTEGER,
+          canPurchaseMultiple INTEGER,
+          redemptionChallenge TEXT,
+          createdAt INTEGER,
+          updatedAt INTEGER,
+          deleted INTEGER,
+          PRIMARY KEY (projectUuid, uuid)
+        )
+      `)
+
+      stmt.run();
+
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS project_player_inventory (
+          projectUuid TEXT,
+          playerUuid TEXT,
+          itemUuid TEXT,
+          quantity INTEGER,
+          quantityRedeemed INTEGER,
+          FOREIGN KEY ( projectUuid, itemUuid ) REFERENCES project_store_items (projectUuid, uuid ),
+          FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players (projectUuid, uuid ),
+          PRIMARY KEY ( projectUuid, playerUuid, itemUuid )
+        )
+      `)
+
       stmt.run();
     })
     bootstrapTransaction();

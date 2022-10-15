@@ -7,7 +7,8 @@ import { AlertTriangle, Check } from 'tabler-icons-react';
 
 enum EntityType {
   player = 'player',
-  activity = 'activity'
+  activity = 'activity',
+  item = 'item'
 }
 
 export function usePortalHandler() {
@@ -38,16 +39,20 @@ export function usePortalHandler() {
       message: 'Hang tight...',
       loading: true
     });
+    const getHeaders = () => {
+      return {
+        'Accept': 'application/json',
+        'Authorization': sessionId,
+        'Api-Key': PROCESS_ENV_API_KEY
+      }
+    }
     ( async () => {
       try {
         switch(type) {
           case EntityType.player: {
             const response = await fetch(`${ADMIN_API_BASE}/game/portal/player?projectUuid=${projectUuid}&playerUuid=${uuid}`, {
               method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Authorization': sessionId
-              },
+              headers: getHeaders(),
             })
             const { target, setAuth } = await response.json();
             if( setAuth ) setSessionId(setAuth);
@@ -59,10 +64,19 @@ export function usePortalHandler() {
           case EntityType.activity: {
             const response = await fetch(`${ADMIN_API_BASE}/game/portal/activity?projectUuid=${projectUuid}&activityUuid=${uuid}`, {
               method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Authorization': sessionId
-              },
+              headers: getHeaders(),
+            })
+            const { target, setAuth } = await response.json();
+            if( setAuth ) setSessionId(setAuth);
+            navigate(target, {
+              replace: true
+            });
+            break;
+          }
+          case EntityType.item: {
+            const response = await fetch(`${ADMIN_API_BASE}/game/portal/item?projectUuid=${projectUuid}&itemUuid=${uuid}`, {
+              method: 'POST',
+              headers: getHeaders(),
             })
             const { target, setAuth } = await response.json();
             if( setAuth ) setSessionId(setAuth);

@@ -131,7 +131,7 @@ export default function Activity() {
                   </Field>
                 </Box>
               </Card>
-              {dirty && <Button type="submit" disabled={isSaving} sx={{
+              {dirty && <Button type="submit" loading={isSaving} sx={{
                 marginTop: theme.spacing['xs']
               }}>Save Activity</Button>}
             </Form>

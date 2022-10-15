@@ -13,6 +13,10 @@ import { Settings } from './routes/Projects/Project/Settings';
 import Player from './routes/Projects/Project/Players/Player';
 import PlayerList from './routes/Projects/Project/Players/PlayerList';
 import { ProjectsList } from './routes/Projects/ProjectList';
+import { Items } from './routes/Projects/Project/Items/Items';
+import { ItemListRoute } from './routes/Projects/Project/Items/ItemList';
+import { ItemRoute } from './routes/Projects/Project/Items/Item';
+import CreateItem from './routes/Projects/Project/Items/CreateItem';
 
 export function Router(){
   return <BrowserRouter>
@@ -31,6 +35,11 @@ export function Router(){
             <Route path="players" element={<Players />}>
               <Route path="" element={<PlayerList />} />
               <Route path=":playerUuid" element={<Player />} />
+            </Route>
+            <Route path="items" element={<Items />}>
+              <Route path="" element={<ItemListRoute />} />
+              <Route path="create" element={<CreateItem />} />
+              <Route path=":itemUuid" element={<ItemRoute />} />
             </Route>
           </Route>
         </Route>

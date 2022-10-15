@@ -76,7 +76,9 @@ export interface CreatePlayerPayload {
 export enum GameEventType {
   ActivityCompleted = "ACTIVITY_COMPLETED",
   PlayerClaimed = "PLAYER_CLAIMED",
-  DuelComplete = "DUEL_COMPLETE"
+  DuelComplete = "DUEL_COMPLETE",
+  ItemPurchased = "ITEM_PURCHASED",
+  ItemRedeemed = "ITEM_REDEEMED"
 }
 
 export type PlayerClaimedEventPayload = {
@@ -201,4 +203,54 @@ export interface ProjectKey extends CreateProjectKeyPayload {
   deleted: boolean;
 }
 
-//v1.0.7
+export interface CreateProjectItemPayload {
+  name: string,
+  description: string,
+  cost: number,
+  imageBase64: string | null,
+  availableForPurchase: boolean,
+  canPurchaseMultiple: boolean,
+  redemptionChallenge: string | null
+}
+
+export interface ProjectItem extends CreateProjectItemPayload {
+  projectUuid: string,
+  uuid: string,
+  createdAt: number,
+  updatedAt: number,
+  deleted: boolean
+}
+
+export interface StoreItem {
+  name: string;
+  description: string;
+  cost: number;
+  imageBase64: string | null;
+  canPurchaseMultiple: boolean;
+  hasRedemptionChallenge: boolean;
+}
+
+export interface PurchaseItemPayload {
+  itemUuid: string;
+}
+
+export interface RedeemItemPayload {
+  itemUuid: string;
+  challenge?: string;
+}
+
+export interface InventoryItem {
+  projectUuid: string,
+  playerUuid: string,
+  itemUuid: string,
+  quantity: number,
+  quantityRedeemed: number,
+  item: {
+    name: string;
+    description: string;
+    imageBase64: string;
+    hasRedemptionChallenge: boolean;
+  }
+}
+
+//v1.0.8

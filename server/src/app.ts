@@ -30,7 +30,7 @@ export function start(db: Database) {
 
   //Reject all other requests that don't have an API key
   app.addHook('onRequest', (request, reply, done) => {
-    const apiKey = request.headers.apiKey;
+    const apiKey = request.headers['api-key'];
     if( apiKey !== process.env.API_KEY ) {
       reply.status(403).send();
       return;

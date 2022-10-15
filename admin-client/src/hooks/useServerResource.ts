@@ -23,6 +23,10 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
     'Api-Key': PROCESS_ENV_API_KEY
   })
 
+  const getEmptyBodyHeaders = () => ({
+    'Api-Key': PROCESS_ENV_API_KEY
+  })
+
   /**
    * Load resource from the server
    * @param callback A function that can perform cleanup actions, such as telling Formik loading is complete. It will receive one argument, indicating if the API action was successful or not
@@ -136,7 +140,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
    * @param values 
    * @param callback A function that can perform cleanup actions, such as telling Formik submission is complete. It will receive one argument, indicating if the API action was successful or not
    */
-   const remove = (values: UnsavedType, callback?: ApiActionCallback) => {
+   const remove = (callback?: ApiActionCallback) => {
     if( !endpoints.remove ) {
       setRemoveError(new Error("No endpoint provided to remove resource"));
       if( callback ) callback(false)
@@ -146,9 +150,8 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
     (async () => {
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.remove}`, {
-          method: 'POST',
-          headers: getHeaders(),
-          body: JSON.stringify(values)
+          method: 'DELETE',
+          headers: getEmptyBodyHeaders()
         })
         if( result.status > 299 || result.status < 200 ) {
           const message = (result.json() as any)['message'] || 'Internal Server Error'

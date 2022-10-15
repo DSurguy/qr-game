@@ -1,6 +1,5 @@
 [x] Load settings from server
 [x] Create settings with project
-[ ] Clean up auto-save, it's a little janky
 [x] Use react-router for sub-routes on project
 [x] Add projectUuid to all child objects? It could be needed for QR code validation
 [x] Extract save/load hooks, they're largely the same
@@ -28,32 +27,24 @@
 [x] Combine activity and duelActivity. Just add a stupid property for isDuel
 [ ] Clean up session stuff. SessionID is golden and gives player + project + session.
   - Add an expiration
-[ ] ? Prompt to claim activity, similar to player
-[ ] ? Add complex markdown-based activity descriptions
+[ ] Prompt to claim activity, similar to player
+[ ] Add complex markdown-based activity descriptions
 [x] Block duplicate duels with the same person
   - Need to use the concept of an "active" duel, being anything Accepted through terminal
 [ ] Extract duel item boilerplate
+[ ] Page Titles
+[ ] Pretty Store
+[ ] Pretty Inventory
+[ ] Pretty Profile
+[ ] Pretty Activity
+[ ] Pretty Duels
+[ ] Redemption Challenge
+[ ] Store Item Tags
+[ ] Fae Queen Item Tag Side Effect
+[ ] Password protect admin app
+
+# BUGS
+[ ] All activities show "Set Up Duel"
 [ ] Remove actions that don't match the current player as initiator/recipient
   - This probably requires the current player uuid to be stored somewhere, it's not right now
   - Could also hit /me before loading the duels page
-
-- Plugins
-  - Spotify
-  - Kauf Lights
-  - Store
-
-### Notes
-- If settings are changed when a game is running, need to cancel/handle related activities (such as duel allow)
-
-Game Events
-- projectUuid
-- uuid
-- type TEXT
-  - Activity
-  - Duel
-    - Started
-    - Cancelled
-    - Complete
-  - Profile Change
-- payload JSON
-- timestamp
