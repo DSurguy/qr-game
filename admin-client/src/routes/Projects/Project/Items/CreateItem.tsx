@@ -25,7 +25,7 @@ export default function CreateItem() {
   }
 
   const initialValues: CreateProjectItemPayload = {
-    name: "New Activity",
+    name: "New Item",
     description: "",
     cost: 10,
     imageBase64: "",
@@ -83,7 +83,7 @@ export default function CreateItem() {
         <Field name="redemptionChallenge" as={TextInput} label="Redemption Challenge" />
         <Button type="submit" disabled={isSaving} sx={{
           marginTop: theme.spacing['xs']
-        }}>Save Activity</Button>
+        }}>Save Item</Button>
       </Form>
     </Formik>
   </Box>)
