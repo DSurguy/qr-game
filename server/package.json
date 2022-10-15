@@ -8,6 +8,7 @@
     "dev:ssl": "concurrently \"tsc -w\" \"nodemon -r tsconfig-paths/register dist/indexHttps.js\"",
     "dev": "nodemon --watch \"src/**\" --ext \"ts,json,js\" --exec \"ts-node src/index.ts\"",
     "start": "tsc && node -r tsconfig-paths/register dist/index.js",
+    "start:ts": "ts-node src/index.ts",
     "generate-lists": "ts-node src/lists/generation/generateLists",
     "generate-env": "ts-node scripts/generate-env.ts"
   },
