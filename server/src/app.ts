@@ -3,18 +3,24 @@ import type { FastifyCookieOptions } from '@fastify/cookie'
 import fastify from "fastify";
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { adminRouter } from './routing/adminRouter';
+import { adminRouter } from './routing/adminRouter/adminRouter';
 import { Database } from 'better-sqlite3';
 import SessionManager from "./sessionManager";
 import { gamePortalRouter } from "./routing/gamePortalRouter";
-import { gameRouter } from "./routing/gameRouter";
+import { gameRouter } from "./routing/gameRouter/gameRouter";
 import { publicRouter } from './routing/publicRouter';
+import { createPluginManager } from './plugins/pluginManager';
+import { createRedemptionPointsPlugin } from './plugins/redemptionPoints';
 
 export function start(db: Database) {
   const httpsOptions = process.env.HTTPS ? {
     key: readFileSync(resolve(__dirname, '../certs/server.key')),
     cert: readFileSync(resolve(__dirname, '../certs/server.cert'))
   } : undefined;
+
+  const redemptionPointsPlugin = createRedemptionPointsPlugin();
+  const pluginManager = createPluginManager();
+  pluginManager.applyPlugin(redemptionPointsPlugin);
 
   const app = fastify({
     logger: true,
@@ -24,6 +30,8 @@ export function start(db: Database) {
   app.decorate('db', db);
 
   app.decorate('sessions', new SessionManager(db));
+
+  app.decorate('plugins', pluginManager);
   
   //Allow all options requests
   app.register(require('@fastify/cors'))

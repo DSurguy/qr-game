@@ -38,8 +38,12 @@
 [ ] Pretty Profile
 [ ] Pretty Activity
 [ ] Pretty Duels
-[ ] Redemption Challenge
-[ ] Store Item Tags
+[x] Redemption Challenge
+[x] Store Item Tags
+[x] Item Redemption Points Side Effect
+[ ] Notifications About Side Effects
+  - How do we communicate that a side effect was run?
+    - Plugins should modify response
 [ ] Fae Queen Item Tag Side Effect
 [ ] Password protect admin app
 

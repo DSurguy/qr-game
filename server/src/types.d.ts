@@ -1,11 +1,13 @@
 import { Database } from 'better-sqlite3';
 import fastify from 'fastify';
+import { PluginManager } from './plugins/pluginManager';
 import SessionManager from './sessionManager';
 
 declare module 'fastify' {
   export interface FastifyInstance{
     db: Database;
     sessions: SessionManager;
+    plugins: PluginManager;
     //FIXME: Find out why the types aren't loading from the plugin
     /**
      * Unsigns the specified cookie using the secret provided.

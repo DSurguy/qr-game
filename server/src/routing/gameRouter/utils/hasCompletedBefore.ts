@@ -1,5 +1,5 @@
 import { Database } from "better-sqlite3";
-import { GameEventType } from "../../qr-types";
+import { GameEventType } from "../../../qr-types";
 
 export function hasCompletedActivityBefore(db: Database, projectUuid: string, playerUuid: string, activityUuid: string): boolean {
   const getPreviousActivityEvent = db.prepare(`

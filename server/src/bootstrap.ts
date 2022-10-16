@@ -168,6 +168,45 @@ export function bootstrap(path: string = "") {
       `)
 
       stmt.run();
+
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS store_item_tags (
+          projectUuid TEXT,
+          itemUuid TEXT,
+          tag TEXT,
+          value TEXT,
+          FOREIGN KEY ( projectUuid, itemUuid ) REFERENCES project_store_items ( projectUuid, uuid ),
+          PRIMARY KEY ( projectUuid, itemUuid, tag )
+        )
+      `)
+
+      stmt.run();
+
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS duel_tags (
+          projectUuid TEXT,
+          duelUuid TEXT,
+          tag TEXT,
+          value TEXT,
+          FOREIGN KEY ( projectUuid, duelUuid ) REFERENCES project_duels ( projectUuid, uuid ),
+          PRIMARY KEY ( projectUuid, duelUuid, tag )
+        )
+      `)
+
+      stmt.run();
+
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS player_tags (
+          projectUuid TEXT,
+          playerUuid TEXT,
+          tag TEXT,
+          value TEXT,
+          FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_playrs ( projectUuid, uuid ),
+          PRIMARY KEY ( projectUuid, playerUuid, tag )
+        )
+      `)
+
+      stmt.run();
     })
     bootstrapTransaction();
 

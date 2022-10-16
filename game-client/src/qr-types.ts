@@ -253,4 +253,9 @@ export interface InventoryItem {
   }
 }
 
+export interface Tag {
+  tag: string;
+  value: string;
+}
+
 //v1.0.8

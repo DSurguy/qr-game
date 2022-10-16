@@ -9,6 +9,7 @@ import { useServerResource } from '../../../../hooks/useServerResource';
 import { ProjectItem } from '../../../../qr-types';
 import copyToClipboardWithNotify from '../../../../utilities/copyToClipboardWithNotify';
 import { DeleteItemModal } from './DeleteItemModal';
+import { Tags } from './Tags';
 
 export function ItemRoute() {
   const { projectUuid, itemUuid } = useParams();
@@ -133,6 +134,9 @@ export function ItemRoute() {
       <Box>
         { qrCodeError && qrCodeError.message }
         { qrCode && <img src={qrCode} /> }
+      </Box>
+      <Box>
+        <Tags />
       </Box>
       <DeleteItemModal opened={deleteModalOpen} onClose={onDeleteModalClose} item={item} />
     </Box>

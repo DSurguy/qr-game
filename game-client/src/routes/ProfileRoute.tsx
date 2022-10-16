@@ -10,7 +10,7 @@ export default function ProfileRoute() {
     loadError: loadProjectError,
     load: loadProject
   } = useServerResource<GameProject, GameProject>({
-    load: 'game',
+    load: 'game/project',
   })
 
   const {

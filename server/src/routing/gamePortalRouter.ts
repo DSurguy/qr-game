@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { FastifyPluginCallback } from "fastify"
 import { SavedActivity, ActivityCompletedEventPayload, GameEventType } from '../qr-types';
-import { hasCompletedActivityBefore } from './gameMethods/hasCompletedBefore';
+import { hasCompletedActivityBefore } from './gameRouter/utils/hasCompletedBefore';
 
 // /api/admin/*
 // ----

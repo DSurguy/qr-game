@@ -1,7 +1,7 @@
 import { Database } from "better-sqlite3";
 import { randomUUID } from "crypto";
-import { ChangeType, Duel, DuelState, GameEventType, SavedActivity, UpdateDuelCancelConfirmPayload, UpdateDuelVictorConfirmPayload } from "../../qr-types";
-import { GameSession } from "../../types";
+import { ChangeType, Duel, DuelState, GameEventType, SavedActivity, UpdateDuelCancelConfirmPayload, UpdateDuelVictorConfirmPayload } from "../../../qr-types";
+import { GameSession } from "../../../types";
 import { hasCompletedDuelActivityBefore } from "./hasCompletedBefore";
 
 class ErrorWithStatusCode extends Error {
