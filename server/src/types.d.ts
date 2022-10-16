@@ -83,14 +83,3 @@ export type GameSession = {
   playerUuid: string;
   sessionId: string;
 }
-
-export type PluginHookResponse = {
-  message?: string;
-  icon?: string; //TODO: Standardize icons that can be displayed to avoid fighting react
-}
-
-export interface PluginModifiedPayloadResponse {
-  hooks: {
-    itemRedemption?: PluginHookResponse[]
-  }
-}

@@ -1,5 +1,6 @@
 import { Database } from "better-sqlite3";
 import { randomUUID } from "crypto";
+import { FastifyInstance } from "fastify";
 import { ChangeType, Duel, DuelState, GameEventType, SavedActivity, UpdateDuelCancelConfirmPayload, UpdateDuelVictorConfirmPayload } from "../../../qr-types";
 import { GameSession } from "../../../types";
 import { hasCompletedDuelActivityBefore } from "./hasCompletedBefore";
@@ -13,11 +14,11 @@ type RouteMethodResponse = {
   message: string;
 }
 
-export function confirmCancel(session: GameSession, db: Database, duelId: string, payload: UpdateDuelCancelConfirmPayload): RouteMethodResponse | void {
+export function confirmCancel(session: GameSession, db: Database, duelUuid: string, payload: UpdateDuelCancelConfirmPayload): RouteMethodResponse | void {
   const transaction = db.transaction(() => {
     const getDuel = db.prepare(`SELECT * FROM project_duels WHERE uuid=@uuid`)
     let duel = getDuel.get({
-      uuid: duelId,
+      uuid: duelUuid,
     }) as Duel;
 
     const { accepted } = payload.payload;
@@ -35,11 +36,11 @@ export function confirmCancel(session: GameSession, db: Database, duelId: string
       UPDATE project_duels SET
         state=@state,
         updatedAt=@timestamp
-      WHERE uuid=@duelId AND deleted=0
+      WHERE uuid=@duelUuid AND deleted=0
     `)
 
     update.run({
-      duelId,
+      duelUuid,
       state: accepted ? DuelState.Cancelled : DuelState.Accepted,
       timestamp
     })
@@ -65,10 +66,10 @@ export function confirmCancel(session: GameSession, db: Database, duelId: string
       uuid: initiatorEventUuid,
       type: GameEventType.DuelComplete,
       payload: JSON.stringify({
-        cancelled: true
+        cancelled: true,
       }),
       primaryUuid: duel.initiatorUuid,
-      secondaryUuid: duel.activityUuid,
+      secondaryUuid: duel.uuid,
       timestamp
     })
 
@@ -80,7 +81,7 @@ export function confirmCancel(session: GameSession, db: Database, duelId: string
         cancelled: true
       }),
       primaryUuid: duel.recipientUuid,
-      secondaryUuid: duel.activityUuid,
+      secondaryUuid: duel.uuid,
       timestamp
     })
 
@@ -97,11 +98,11 @@ export function confirmCancel(session: GameSession, db: Database, duelId: string
   }
 }
 
-export function confirmVictor(session: GameSession, db: Database, duelId: string, payload: UpdateDuelVictorConfirmPayload): RouteMethodResponse | void {
-  const transaction = db.transaction(() => {
-    const getDuel = db.prepare(`SELECT * FROM project_duels WHERE uuid=@uuid`)
+export function confirmVictor(session: GameSession, app: FastifyInstance, duelUuid: string, payload: UpdateDuelVictorConfirmPayload): RouteMethodResponse | void {
+  const transaction = app.db.transaction(() => {
+    const getDuel = app.db.prepare(`SELECT * FROM project_duels WHERE uuid=@duelUuid`)
     let duel = getDuel.get({
-      uuid: duelId,
+      duelUuid,
     }) as Duel;
 
     const allowedStates = [
@@ -133,27 +134,33 @@ export function confirmVictor(session: GameSession, db: Database, duelId: string
 
     const timestamp = Date.now();
 
-    const update = db.prepare(`
+    const update = app.db.prepare(`
       UPDATE project_duels SET
         state=@state,
         updatedAt=@timestamp
-      WHERE uuid=@duelId AND deleted=0
+      WHERE uuid=@duelUuid AND projectUuid=@projectUuid
     `)
     update.run({
-      duelId,
+      projectUuid: session.projectUuid,
+      duelUuid,
       state: nextState,
       timestamp
     })
 
-    const getActivity = db.prepare(`SELECT * FROM project_activities WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0`)
+    duel = getDuel.get({
+      projectUuid: session.projectUuid,
+      duelUuid,
+    }) as Duel;
+
+    const getActivity = app.db.prepare(`SELECT * FROM project_activities WHERE projectUuid=@projectUuid AND uuid=@activityUuid AND deleted=0`)
     const activity = getActivity.get({
       projectUuid: session.projectUuid,
       activityUuid: duel.activityUuid
     }) as SavedActivity
 
-    const hasCompletedBefore = hasCompletedDuelActivityBefore(db, session.projectUuid, duel.victorUuid, duel.activityUuid)
+    const hasCompletedBefore = hasCompletedDuelActivityBefore(app.db, session.projectUuid, duel.victorUuid, duel.activityUuid)
 
-    const insert = db.prepare(`
+    const insert = app.db.prepare(`
       INSERT INTO project_events (projectUuid, uuid, type, payload, primaryUuid, secondaryUuid, timestamp)
       VALUES(
         @projectUuid,
@@ -174,7 +181,8 @@ export function confirmVictor(session: GameSession, db: Database, duelId: string
       uuid: initiatorEventUuid,
       type: GameEventType.DuelComplete,
       payload: JSON.stringify({
-        victor: duel.victorUuid
+        victor: duel.victorUuid,
+        duel: duel.uuid
       }),
       primaryUuid: duel.initiatorUuid,
       secondaryUuid: duel.activityUuid,
@@ -186,14 +194,15 @@ export function confirmVictor(session: GameSession, db: Database, duelId: string
       uuid: recipientEventUuid,
       type: GameEventType.DuelComplete,
       payload: JSON.stringify({
-        victor: duel.victorUuid
+        victor: duel.victorUuid,
+        duel: duel.uuid
       }),
       primaryUuid: duel.recipientUuid,
       secondaryUuid: duel.activityUuid,
       timestamp
     })
 
-    const insertTransaction = db.prepare(`
+    const insertTransaction = app.db.prepare(`
       INSERT INTO project_transactions (projectUuid, playerUuid, eventUuid, amount, timestamp)
       VALUES (
         @projectUuid,
@@ -218,6 +227,7 @@ export function confirmVictor(session: GameSession, db: Database, duelId: string
     transaction();
   } catch (e: unknown) {
     let error = e as ErrorWithStatusCode;
+    console.error(e);
     return {
       statusCode: error.statusCode || 500,
       message: error.message

@@ -11,6 +11,7 @@ import { gameRouter } from "./routing/gameRouter/gameRouter";
 import { publicRouter } from './routing/publicRouter';
 import { createPluginManager } from './plugins/pluginManager';
 import { createRedemptionPointsPlugin } from './plugins/redemptionPoints';
+import { createQueenPlugin } from './plugins/queenDuel';
 
 export function start(db: Database) {
   const httpsOptions = process.env.HTTPS ? {
@@ -19,8 +20,10 @@ export function start(db: Database) {
   } : undefined;
 
   const redemptionPointsPlugin = createRedemptionPointsPlugin();
+  const queenPlugin = createQueenPlugin();
   const pluginManager = createPluginManager();
   pluginManager.applyPlugin(redemptionPointsPlugin);
+  pluginManager.applyPlugin(queenPlugin);
 
   const app = fastify({
     logger: true,

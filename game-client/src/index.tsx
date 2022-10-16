@@ -5,6 +5,8 @@ import { MantineProvider } from "@mantine/core";
 import { NotificationsProvider } from '@mantine/notifications';
 import { Router } from './Router';
 import favicon from './assets/favicon.png';
+import { HookResponseHandler } from './components/HookResponseHandler';
+
 import './normalize.css';
 
 //<link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -19,7 +21,9 @@ if( appContainer ) {
   const appRoot = createRoot(appContainer)
   appRoot.render(<MantineProvider>
     <NotificationsProvider>
-      <Router />
+      <HookResponseHandler>
+        <Router />
+      </HookResponseHandler>
     </NotificationsProvider>
   </MantineProvider>)
 }

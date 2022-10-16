@@ -3,7 +3,7 @@ import { showNotification } from '@mantine/notifications';
 import React from 'react';
 import { useState } from 'react';
 import { useServerResource } from '../../hooks/useServerResource';
-import { ChangeType, GameDuel, UpdateDuelCancelPayload, UpdateDuelRecipientConfirmPayload, UpdateDuelVictorPayload } from '../../qr-types';
+import { ChangeType, GameDuel, PluginModifiedPayloadResponse, UpdateDuelCancelPayload, UpdateDuelVictorPayload } from '../../qr-types';
 import ConfirmModal from '../ConfirmModal';
 import ReportVictorModal from './ReportVictorModal';
 
@@ -18,19 +18,21 @@ export default function AcceptedDuel ({ duel, onUpdate }: Props) {
   const [actionComplete, setActionComplete] = useState(false);
   const theme = useMantineTheme();
 
+  type UpdateResponse = { duel: GameDuel } & PluginModifiedPayloadResponse;
   const {
     isSaving: isReportingVictor,
     saveError: reportVictorError,
     update: reportVictor
-  } = useServerResource<UpdateDuelVictorPayload, GameDuel>({
+  } = useServerResource<UpdateDuelVictorPayload, UpdateResponse>({
     update: `game/duels/${duel.uuid}`
   })
 
+  type CancelResponse = { duel: GameDuel } & PluginModifiedPayloadResponse;
   const {
     isSaving: isCancellingDuel,
     saveError: cancelDuelError,
     update: cancelDuel
-  } = useServerResource<UpdateDuelCancelPayload, GameDuel>({
+  } = useServerResource<UpdateDuelCancelPayload, CancelResponse>({
     update: `game/duels/${duel.uuid}`
   })
 

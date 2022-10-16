@@ -1,15 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Button, Loader, Text } from '@mantine/core';
 import { ActivityCompletedEventPayload, GameDuel, GameEvent, SavedActivity } from '../../qr-types';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
 import { showNotification } from '@mantine/notifications';
+import { AddActivityToDuelModal } from './AddActivityToDuelModal';
 
 export default function ActivityRoute () {
   const { activityUuid } = useParams();
   const [searchParams] = useSearchParams();
   const eventThatClaimedActivity = searchParams.get('claimedByEvent');
   const isDuel = searchParams.get('duel') !== undefined;
+
+  const [addToDuelModalOpen, setAddToDuelModalOpen] = useState(false);
 
   const {
     data: activity,
@@ -97,13 +100,25 @@ export default function ActivityRoute () {
     if( isLoadingDuels ) return <Loader />
     if( loadDuelsError ) return <Text color="red">Error loading duels: {loadDuelsError?.message}</Text>
     if( !isDuel || !duels ) return null;
-    const setUpDuelButton = (<>
+    const setUpDuelButton = (<Box>
       { createDuelError && <Text color="red">Error starting duel: {createDuelError.message}</Text> }
-      <Button 
-        onClick={() => onSetUpDuelClick()}
-        loading={isCreatingDuel}
-      >Set Up Duel</Button>
-    </>);
+      <Box>
+        <Button 
+          type="button"
+          onClick={() => onSetUpDuelClick()}
+          loading={isCreatingDuel}
+        >Create Duel</Button>
+        <Button 
+          type="button"
+          onClick={() => setAddToDuelModalOpen(true)}
+        >Add To Existing Duel</Button>
+      </Box>
+      <AddActivityToDuelModal
+        opened={addToDuelModalOpen}
+        onClose={() => setAddToDuelModalOpen(false)}
+        activity={activity}
+      />
+    </Box>);
     const alreadyDuelingButton = <Button disabled>Duel In Progress</Button>
     return duels.length ? alreadyDuelingButton : setUpDuelButton;
   }

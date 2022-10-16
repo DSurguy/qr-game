@@ -3,23 +3,24 @@ import { Field, Form, Formik, FormikHelpers } from 'formik';
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { DeviceFloppy, Loader, Plus, Trash } from 'tabler-icons-react';
-import { useServerResource } from '../../../../hooks/useServerResource';
-import { Tag } from '../../../../qr-types';
+import { useServerResource } from '../hooks/useServerResource';
+import { Tag } from '../qr-types';
 
 type NewTagItemsProps = {
   projectUuid: string;
-  itemUuid: string;
+  resourceType: string;
+  resourceUuid: string;
   onSave: () => void;
 }
 
-export function NewTagItem({ projectUuid, itemUuid, onSave }: NewTagItemsProps) {
+export function NewTagItem({ projectUuid, resourceType, resourceUuid, onSave }: NewTagItemsProps) {
 
   const {
     isSaving,
     saveError,
     create,
   } = useServerResource<Tag, void>({
-    create: `projects/${projectUuid}/items/${itemUuid}/tags`
+    create: `projects/${projectUuid}/${resourceType}/${resourceUuid}/tags`
   })
 
   const onSubmit = (values: Tag, helpers: FormikHelpers<Tag>) => {
@@ -71,12 +72,13 @@ export function NewTagItem({ projectUuid, itemUuid, onSave }: NewTagItemsProps) 
 type TagListItemProps = {
   tag: Tag;
   projectUuid: string;
-  itemUuid: string;
+  resourceType: string;
+  resourceUuid: string;
   onSave: () => void;
   onRemove: () => void;
 }
 
-export function TagListItem({ tag, projectUuid, itemUuid, onSave, onRemove }: TagListItemProps) {
+export function TagListItem({ tag, projectUuid, resourceType, resourceUuid, onSave, onRemove }: TagListItemProps) {
   const [initialValues, setInitialValues] = useState(tag);
 
   const {
@@ -84,7 +86,7 @@ export function TagListItem({ tag, projectUuid, itemUuid, onSave, onRemove }: Ta
     saveError,
     update,
   } = useServerResource<Tag, Tag>({
-    update: `projects/${projectUuid}/items/${itemUuid}/tags/${tag.tag}`
+    update: `projects/${projectUuid}/${resourceType}/${resourceUuid}/tags/${tag.tag}`
   })
 
   const {
@@ -92,7 +94,7 @@ export function TagListItem({ tag, projectUuid, itemUuid, onSave, onRemove }: Ta
     removeError,
     remove
   } = useServerResource<Tag, void>({
-    remove: `projects/${projectUuid}/items/${itemUuid}/tags/${tag.tag}`
+    remove: `projects/${projectUuid}/${resourceType}/${resourceUuid}/tags/${tag.tag}`
   })
 
   useEffect(() => {
@@ -160,8 +162,13 @@ export function TagListItem({ tag, projectUuid, itemUuid, onSave, onRemove }: Ta
   </Formik>
 }
 
-export function Tags() {
-  const { projectUuid, itemUuid } = useParams();
+type TagsProps = {
+  resourceType: string;
+  resourceUuid: string;
+}
+
+export function Tags({ resourceType, resourceUuid }: TagsProps) {
+  const { projectUuid } = useParams();
 
   const {
     data: tags,
@@ -169,7 +176,7 @@ export function Tags() {
     loadError,
     load,
   } = useServerResource<Tag, Tag[]>({
-    load: `projects/${projectUuid}/items/${itemUuid}/tags`
+    load: `projects/${projectUuid}/${resourceType}/${resourceUuid}/tags`
   })
 
   useEffect(() => {
@@ -188,14 +195,16 @@ export function Tags() {
     {tags.map(tag => <TagListItem
       tag={tag}
       projectUuid={projectUuid}
-      itemUuid={itemUuid}
+      resourceType={resourceType}
+      resourceUuid={resourceUuid}
       key={tag.tag}
       onSave={() => load()}
       onRemove={() => load()}
     />)}
     <NewTagItem
       projectUuid={projectUuid}
-      itemUuid={itemUuid}
+      resourceType={resourceType}
+      resourceUuid={resourceUuid}
       onSave={() => load()}
     />
   </Box>

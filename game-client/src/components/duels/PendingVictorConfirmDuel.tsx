@@ -1,9 +1,9 @@
 import { Box, Button, Grid, Text, useMantineTheme } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import React from 'react';
-import { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { HookResponseContext } from '../../context/hookResponse';
 import { useServerResource } from '../../hooks/useServerResource';
-import { ChangeType, GameDuel, UpdateDuelRecipientConfirmPayload, UpdateDuelVictorConfirmPayload } from '../../qr-types';
+import { ChangeType, GameDuel, PluginModifiedPayloadResponse, UpdateDuelRecipientConfirmPayload, UpdateDuelVictorConfirmPayload } from '../../qr-types';
 import AcceptRejectModal from '../AcceptRejectModal';
 
 type Props = {
@@ -14,13 +14,15 @@ type Props = {
 export default function PendingVictorConfirmDuel ({ duel, onUpdate }: Props) {
   const [respondModalOpen, setRespondModalOpen] = useState(false);
   const [respondComplete, setRespondComplete] = useState(false);
+  const { addResponses } = useContext(HookResponseContext)
   const theme = useMantineTheme();
-
+  
+  type ConfirmVictorResponse = { duel: GameDuel } & PluginModifiedPayloadResponse;
   const {
     isSaving: isConfirmingDuel,
     saveError: confirmVictorError,
     update: confirmVictor
-  } = useServerResource<UpdateDuelRecipientConfirmPayload | UpdateDuelVictorConfirmPayload, GameDuel>({
+  } = useServerResource<UpdateDuelRecipientConfirmPayload | UpdateDuelVictorConfirmPayload, ConfirmVictorResponse>({
     update: `game/duels/${duel.uuid}`
   })
 
@@ -30,8 +32,9 @@ export default function PendingVictorConfirmDuel ({ duel, onUpdate }: Props) {
       payload: {
         accepted: true
       }
-    }, success => {
+    }, (success, data) => {
       if( success ){
+        if( data?.hooks?.duelComplete ) addResponses(data.hooks.duelComplete);
         showNotification({
           message: 'Duel Accepted'
         })
@@ -41,6 +44,7 @@ export default function PendingVictorConfirmDuel ({ duel, onUpdate }: Props) {
     })
     setRespondModalOpen(false)
   };
+
   const onReject = () => {
     confirmVictor({
       changeType: ChangeType.VictorConfirm,

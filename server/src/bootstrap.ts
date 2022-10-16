@@ -126,6 +126,7 @@ export function bootstrap(path: string = "") {
           createdAt INTEGER,
           updatedAt INTEGER,
           deleted INTEGER,
+          PRIMARY KEY ( projectUuid, uuid ),
           FOREIGN KEY ( projectUuid, initiatorUuid ) REFERENCES project_players ( projectUuid, uuid ),
           FOREIGN KEY ( projectUuid, recipientUuid ) REFERENCES project_players ( projectUuid, uuid ),
           FOREIGN KEY ( projectUuid, victorUuid ) REFERENCES project_players ( projectUuid, uuid ),
@@ -201,7 +202,7 @@ export function bootstrap(path: string = "") {
           playerUuid TEXT,
           tag TEXT,
           value TEXT,
-          FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_playrs ( projectUuid, uuid ),
+          FOREIGN KEY ( projectUuid, playerUuid ) REFERENCES project_players ( projectUuid, uuid ),
           PRIMARY KEY ( projectUuid, playerUuid, tag )
         )
       `)

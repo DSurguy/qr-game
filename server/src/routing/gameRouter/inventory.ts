@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { FastifyInstance } from "fastify";
-import { GameEventType, InventoryItem, RedeemItemPayload } from "../../qr-types";
-import { PluginModifiedPayloadResponse } from "../../types";
+import { GameEventType, InventoryItem, PluginModifiedPayloadResponse, RedeemItemPayload } from "../../qr-types";
 
 export function applyInventoryRoutes(app: FastifyInstance) {
   app.get<{
@@ -166,6 +165,28 @@ export function applyInventoryRoutes(app: FastifyInstance) {
           return;
         }
 
+        const selectTags = app.db.prepare(`
+          SELECT * FROM store_item_tags
+          WHERE itemUuid = @itemUuid
+        `)
+        const tags = selectTags.all({ itemUuid })
+
+        const preHookResponses = app.plugins.runItemPreRedemptionHook({
+          db: app.db,
+          session: req.session,
+          item: storeItem,
+          tags,
+        })
+
+        if( preHookResponses.some(response => response.failure) ) {
+          reply.status(400).send({
+            hooks: {
+              preItemRedemption: preHookResponses.filter(response => response.failure)
+            }
+          })
+          return;
+        }
+
         //Add an event
         const eventUuid = randomUUID();
         const timestamp = Date.now();
@@ -211,11 +232,6 @@ export function applyInventoryRoutes(app: FastifyInstance) {
         })
 
         //Run hooks
-        const selectTags = app.db.prepare(`
-          SELECT * FROM store_item_tags
-          WHERE itemUuid = @itemUuid
-        `)
-        const tags = selectTags.all({ itemUuid })
 
         const hookResponses = app.plugins.runItemRedemptionHook({
           db: app.db,

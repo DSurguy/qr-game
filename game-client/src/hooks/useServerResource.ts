@@ -29,7 +29,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
    * Load resource from the server
    * @param callback A function that can perform cleanup actions, such as telling Formik loading is complete. It will receive one argument, indicating if the API action was successful or not
    */
-  const load = (callback?: ApiActionCallback) => {
+  const load = (callback?: ApiActionCallback<SavedType>) => {
     if( typeof endpoints.load !== 'string' ) {
       setLoadError(new Error("No endpoint provided to load resource"));
       if( callback ) callback(false)
@@ -43,10 +43,13 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           headers: getHeaders()
         })
         if( result.status <= 299 && result.status >= 200 ) {
-          if( result.headers.get('Content-Type')?.includes('application/json') )
-            setData(await result.json());
+          let data: SavedType;
+          if( result.headers.get('Content-Type')?.includes('application/json') ) {
+            data = await result.json();
+            setData(data);
+          }
           setLoadError(null);
-          if( callback ) callback(true);
+          if( callback ) callback(true, data);
         }
         else {
           const message = (result.json() as any)['message'] || 'Internal Server Error'
@@ -66,7 +69,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
    * @param values 
    * @param callback A function that can perform cleanup actions, such as telling Formik submission is complete. It will receive one argument, indicating if the API action was successful or not
    */
-  const update = (values: UnsavedType, callback?: ApiActionCallback) => {
+  const update = (values: UnsavedType, callback?: ApiActionCallback<SavedType>) => {
     if( typeof endpoints.update !== 'string' ) {
       setSaveError(new Error("No endpoint provided to update resource"));
       if( callback ) callback(false)
@@ -84,10 +87,13 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           const message = (await result.json() as any)['message'] || 'Internal Server Error'
           throw new Error(message)
         }
-        if( result.headers.get('Content-Type')?.includes('application/json') )
-          setData(await result.json());
+        let data: SavedType;
+        if( result.headers.get('Content-Type')?.includes('application/json') ) {
+          data = await result.json();
+          setData(data);
+        }
         setSaveError(null);
-        if( callback ) callback(true);
+        if( callback ) callback(true, data);
       } catch (e) {
         setSaveError(e);
         if( callback ) callback(false)
@@ -102,7 +108,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
    * @param values 
    * @param callback A function that can perform cleanup actions, such as telling Formik submission is complete. It will receive one argument, indicating if the API action was successful or not
    */
-  const create = (values: UnsavedType, callback?: ApiActionCallback) => {
+  const create = (values: UnsavedType, callback?: ApiActionCallback<SavedType>) => {
     if( typeof endpoints.create !== 'string' ) {
       setSaveError(new Error("No endpoint provided to create resource"));
       if( callback ) callback(false)
@@ -120,10 +126,13 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           const message = (await result.json() as any)['message'] || 'Internal Server Error'
           throw new Error(message)
         }
-        if( result.headers.get('Content-Type')?.includes('application/json') )
-          setData(await result.json());
+        let data: SavedType;
+        if( result.headers.get('Content-Type')?.includes('application/json') ) {
+          data = await result.json();
+          setData(data);
+        }
         setSaveError(null);
-        if( callback ) callback(true);
+        if( callback ) callback(true, data);
       } catch (e) {
         setSaveError(e);
         if( callback ) callback(false)

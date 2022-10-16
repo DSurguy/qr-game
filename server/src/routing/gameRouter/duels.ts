@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { FastifyInstance } from "fastify";
-import { ChangeType, Duel, DuelState, GameDuel, UpdateDuelPayload } from "../../qr-types";
+import { ChangeType, Duel, DuelState, GameDuel, PluginModifiedPayloadResponse, UpdateDuelPayload } from "../../qr-types";
 import { confirmCancel, confirmVictor } from "./utils/completeDuel";
 
 export function applyDuelRoutes(app: FastifyInstance) {
@@ -23,6 +23,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
       active?: boolean;
       activity?: string;
       recipient?: string;
+      missingActivity?: boolean;
     },
     Reply: GameDuel[] | { message: string; };
   }>('/duels', (req, reply) => {
@@ -64,6 +65,9 @@ export function applyDuelRoutes(app: FastifyInstance) {
       if( req.query.recipient ) {
         parts.push('AND pd.recipientUuid=@recipient')
       }
+      if( req.query.missingActivity ) {
+        parts.push('AND pd.activityUuid IS NULL')
+      }
       const getDuels = app.db.prepare(parts.join(' '))
       const duels = getDuels.all({
         projectUuid: req.session.projectUuid,
@@ -92,6 +96,31 @@ export function applyDuelRoutes(app: FastifyInstance) {
           else transformedDuel[key] = duel[key]
         })
         return transformedDuel;
+      })
+
+      const selectTags = app.db.prepare(`
+        SELECT * FROM duel_tags
+        WHERE projectUuid=@projectUuid AND duelUuid IN (${
+          gameDuels.map((duel, index) => `@${index}`).join(',')
+        })
+      `)
+      const tags = selectTags.all({
+        projectUuid: req.session.projectUuid,
+        ...gameDuels.reduce((aggregate, duel, index) => {
+          aggregate[index] = duel.uuid;
+          return aggregate;
+        }, {})
+      })
+      const tagsByDuelUuid = tags.reduce((aggregate, tag) => {
+        if( !aggregate[tag.duelUuid] ) aggregate[tag.duelUuid] = [];
+        aggregate[tag.duelUuid].push({
+          tag: tag.tag,
+          value: tag.value
+        })
+        return aggregate;
+      }, {})
+      gameDuels.forEach(duel => {
+        duel.tags = tagsByDuelUuid[duel.uuid] || [];
       })
 
       reply.status(200).send(gameDuels);
@@ -184,7 +213,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
       reply.status(500).send({ message: e.message });
     }
   })
-
+  
   app.put<{
     Header: {
       authorization: string | undefined;
@@ -193,7 +222,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
     Params: {
       duelId: string;
     },
-    Reply: Duel | { message: string };
+    Reply: { duel: Duel } & PluginModifiedPayloadResponse | { message: string };
   }>('/duels/:duelId', (req, reply) => {
     try {
       const { duelId } = req.params;
@@ -263,6 +292,29 @@ export function applyDuelRoutes(app: FastifyInstance) {
             })
             break;
           }
+          case ChangeType.AddActivity: {
+            //TODO: Change duels to have "accepted" as a standalone prop
+            const { activityUuid } = req.body.payload;
+            if( !activityUuid ) {
+              reply.status(400).send({ message: "activityUuid is required."});
+              return;
+            }
+            const updateDuel = app.db.prepare(`
+              UPDATE project_duels SET
+                activityUuid=@activityUuid,
+                updatedAt=@timestamp,
+                state=@state
+              WHERE projectUuid=@projectUuid AND uuid=@duelUuid
+            `)
+            updateDuel.run({
+              projectUuid: req.session.projectUuid,
+              duelUuid: duelId,
+              activityUuid,
+              state: DuelState.Accepted,
+              timestamp
+            })
+            break;
+          }
           case ChangeType.RecipientConfirm: {
             const allowedStates = [
               DuelState.Pending
@@ -327,9 +379,25 @@ export function applyDuelRoutes(app: FastifyInstance) {
               reply.status(error.statusCode).send({
                 message: error.message
               })
-              return;
             }
-            break;
+            else {
+              duel = getDuel.get({
+                uuid: duelId,
+              })
+              const hookResponses = app.plugins.runDuelCancelledHook({
+                session: req.session,
+                db: app.db,
+                duel
+              })
+
+              reply.status(200).send({
+                duel,
+                hooks: {
+                  duelCancelled: hookResponses
+                }
+              });
+            }
+            return;
           }
           case ChangeType.Victor: {
             const allowedStates = [
@@ -366,14 +434,29 @@ export function applyDuelRoutes(app: FastifyInstance) {
             break;
           }
           case ChangeType.VictorConfirm: {
-            const error = confirmVictor(req.session, app.db, duelId, req.body)
+            const error = confirmVictor(req.session, app, duelId, req.body)
             if( error ) {
               reply.status(error.statusCode).send({
                 message: error.message
               })
-              return;
             }
-            break;
+            else {
+              duel = getDuel.get({
+                uuid: duelId,
+              })
+              const hookResponses = app.plugins.runDuelCompleteHook({
+                session: req.session,
+                db: app.db,
+                duel
+              })
+
+              reply.status(200).send({
+                duel,
+                hooks: {
+                  duelComplete: hookResponses
+                }
+              });
+            }
           }
           default: {
             reply.status(400).send({
@@ -386,7 +469,10 @@ export function applyDuelRoutes(app: FastifyInstance) {
         duel = getDuel.get({
           uuid: duelId,
         })
-        reply.status(200).send(duel);
+        reply.status(200).send({
+          duel,
+          hooks: {}
+        });
       })
       runTransaction();
     } catch (e) {

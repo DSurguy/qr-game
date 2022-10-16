@@ -1,9 +1,10 @@
 import { Box, Button, Grid, Text, useMantineTheme } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useState } from 'react';
+import { HookResponseContext } from '../../context/hookResponse';
 import { useServerResource } from '../../hooks/useServerResource';
-import { ChangeType, GameDuel, UpdateDuelCancelConfirmPayload } from '../../qr-types';
+import { ChangeType, GameDuel, PluginModifiedPayloadResponse, UpdateDuelCancelConfirmPayload } from '../../qr-types';
 import AcceptRejectModal from '../AcceptRejectModal';
 
 type Props = {
@@ -14,13 +15,15 @@ type Props = {
 export default function CancelPendingDuel ({ duel, onUpdate }: Props) {
   const [respondModalOpen, setRespondModalOpen] = useState(false);
   const [respondComplete, setRespondComplete] = useState(false);
+  const { addResponses } = useContext(HookResponseContext);
   const theme = useMantineTheme();
 
+  type CancelDuelResponse = { duel: GameDuel } & PluginModifiedPayloadResponse;
   const {
     isSaving: isRespondingToDuel,
     saveError: respondToDuelError,
     update: respondToDuel
-  } = useServerResource<UpdateDuelCancelConfirmPayload, GameDuel>({
+  } = useServerResource<UpdateDuelCancelConfirmPayload, CancelDuelResponse>({
     update: `game/duels/${duel.uuid}`
   })
 
@@ -30,8 +33,9 @@ export default function CancelPendingDuel ({ duel, onUpdate }: Props) {
       payload: {
         accepted: true
       }
-    }, success => {
+    }, (success, data) => {
       if( success ){
+        if( data?.hooks?.duelCancelled ) addResponses(data.hooks.duelCancelled);
         showNotification({
           message: 'Duel Accepted'
         })

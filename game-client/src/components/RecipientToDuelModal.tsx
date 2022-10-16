@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Loader, Modal, Text, useMantineTheme } from '@mantine/core';
-import { DuelState, Duel, GamePlayer, UpdateDuelAddRecipientPayload, ChangeType, GameDuel } from '../qr-types';
+import { DuelState, GamePlayer, UpdateDuelAddRecipientPayload, ChangeType, GameDuel } from '../qr-types';
 import { useServerResource } from '../hooks/useServerResource';
 import { showNotification } from '@mantine/notifications';
 import { Circle, CircleCheck } from 'tabler-icons-react';
@@ -32,7 +32,7 @@ export default function RecipientToDuelModal({
     isSaving: isSavingAddRecipient,
     saveError: addRecipientError,
     update: addRecipientToDuel
-  } = useServerResource<UpdateDuelAddRecipientPayload, Duel>({
+  } = useServerResource<UpdateDuelAddRecipientPayload, {duel: GameDuel }>({
     update: `game/duels/${selectedDuel}`
   })
 

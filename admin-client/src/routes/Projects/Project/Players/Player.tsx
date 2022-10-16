@@ -3,12 +3,11 @@ import { SavedPlayer } from '@qrTypes';
 import { Link, useParams } from 'react-router-dom';
 import { useServerResource } from '../../../../hooks/useServerResource';
 import { Badge, Box, Button, Grid, Loader, Text, useMantineTheme } from '@mantine/core';
-import { AlertTriangle, Check, ChevronLeft, Copy } from 'tabler-icons-react';
+import { ChevronLeft, Copy } from 'tabler-icons-react';
 import { playerToQrAsUrl } from '../../../../conversions/playerToQr';
 import ClaimPlayerModal from './ClaimPlayerModal';
-import { showNotification } from '@mantine/notifications';
-import { replacePort } from '../../../../conversions/domain';
 import copyToClipboardWithNotify from '../../../../utilities/copyToClipboardWithNotify';
+import { Tags } from '../../../../components/Tags';
 
 export default function Player() {
   const { projectUuid, playerUuid } = useParams();
@@ -79,6 +78,9 @@ export default function Player() {
     <Box>
       { qrCodeError && qrCodeError.message }
       { qrCode && <img src={qrCode} /> }
+    </Box>
+    <Box>
+      <Tags resourceType="players" resourceUuid={playerUuid} />
     </Box>
     <ClaimPlayerModal
       opened={claimPlayerModalOpen}

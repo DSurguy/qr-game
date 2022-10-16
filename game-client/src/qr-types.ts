@@ -106,6 +106,7 @@ export type GameEvent = {
 export const enum DuelState {
   Created = "CREATED",
   Pending = "PENDING_RESPONSE",
+  PendingActivity = "PENDING_ACTIVITY", //used for queen duels
   Accepted = "ACCEPTED",
   Rejected = "REJECTED",
   PendingCancel = "PENDING_CANCEL",
@@ -129,6 +130,7 @@ export interface Duel extends UnsavedDuel, SavedItemBase {}
 
 export const enum ChangeType {
   AddRecipient = "ADD_RECIPIENT",
+  AddActivity = "ADD_ACTIVITY",
   RecipientConfirm = "RECIPIENT_CONFIRM",
   Cancel = "CANCEL",
   CancelConfirm = "CANCEL_CONFIRM",
@@ -140,6 +142,13 @@ export type UpdateDuelAddRecipientPayload = {
   changeType: ChangeType.AddRecipient;
   payload: {
     recipientUuid: string;
+  }
+}
+
+export type UpdateDuelAddActivityPayload = {
+  changeType: ChangeType.AddActivity;
+  payload: {
+    activityUuid: string;
   }
 }
 
@@ -178,6 +187,7 @@ export type UpdateDuelVictorConfirmPayload = {
 
 export type UpdateDuelPayload = 
 UpdateDuelAddRecipientPayload |
+UpdateDuelAddActivityPayload |
 UpdateDuelRecipientConfirmPayload |
 UpdateDuelCancelPayload |
 UpdateDuelCancelConfirmPayload |
@@ -188,6 +198,7 @@ export interface GameDuel extends Duel {
   activity: ActivityBase;
   initiator: null | PlayerBase;
   recipient: null | PlayerBase;
+  tags: Tag[];
 }
 
 export interface CreateProjectKeyPayload {
@@ -258,4 +269,23 @@ export interface Tag {
   value: string;
 }
 
-//v1.0.8
+export type PluginPreHookResponse = {
+  failure?: boolean;
+  failureReason?: string;
+}
+
+export type PluginHookResponse = {
+  message: string;
+  icon?: string; //TODO: Standardize icons that can be displayed to avoid fighting react
+}
+
+export interface PluginModifiedPayloadResponse {
+  hooks: {
+    itemRedemption?: PluginHookResponse[];
+    preItemRedemption?: PluginPreHookResponse[];
+    duelComplete?: PluginHookResponse[];
+    duelCancelled?: PluginHookResponse[];
+  }
+}
+
+//v1.0.9

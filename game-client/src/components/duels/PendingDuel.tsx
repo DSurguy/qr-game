@@ -20,7 +20,7 @@ export default function PendingDuel ({ duel, onUpdate }: Props) {
     isSaving: isRespondingToDuel,
     saveError: respondToDuelError,
     update: respondToDuel
-  } = useServerResource<UpdateDuelRecipientConfirmPayload, GameDuel>({
+  } = useServerResource<UpdateDuelRecipientConfirmPayload, { duel: GameDuel }>({
     update: `game/duels/${duel.uuid}`
   })
 

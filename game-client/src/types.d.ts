@@ -1,4 +1,4 @@
-export type ApiActionCallback = (actionWasSuccessful: boolean) => void;
+export type ApiActionCallback<T> = (actionWasSuccessful: boolean, data?: T) => void;
 
 declare global {
   const PROCESS_ENV_API_KEY: string;
