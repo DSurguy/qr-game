@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { FastifyInstance } from "fastify";
 import { GameEventType, InventoryItem, RedeemItemPayload } from "../../qr-types";
+import { PluginModifiedPayloadResponse } from "../../types";
 
 export function applyInventoryRoutes(app: FastifyInstance) {
   app.get<{
@@ -110,7 +111,7 @@ export function applyInventoryRoutes(app: FastifyInstance) {
       authorization: string | undefined;
     };
     Body: RedeemItemPayload;
-    Reply: undefined | { message: string }
+    Reply: undefined | { message: string } | PluginModifiedPayloadResponse
   }>('/inventory/redeem', (req, reply) => {
     const { projectUuid, playerUuid } = req.session;
     const { itemUuid, challenge } = req.body;
@@ -216,7 +217,7 @@ export function applyInventoryRoutes(app: FastifyInstance) {
         `)
         const tags = selectTags.all({ itemUuid })
 
-        app.plugins.runItemRedemptionHook({
+        const hookResponses = app.plugins.runItemRedemptionHook({
           db: app.db,
           redemptionEventUuid: eventUuid,
           session: req.session,
@@ -224,7 +225,11 @@ export function applyInventoryRoutes(app: FastifyInstance) {
           tags,
         })
 
-        reply.status(200).send();
+        reply.status(200).send({
+          hooks: {
+            itemRedemption: hookResponses
+          }
+        });
       });
 
       dbTransaction();

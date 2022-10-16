@@ -29,19 +29,25 @@ const createPointTransaction = (db: Database, projectUuid: string, playerUuid: s
 }
 
 const givePointsOnRedeem = ({ db, session, redemptionEventUuid, tags}: ItemRedemptionHookPayload) => {
-  const amount = parseInt(tags.find(tag => tag.tag === TAG_NAME)?.value);
+  let amount = parseInt(tags.find(tag => tag.tag === TAG_NAME)?.value);
+  if( isNaN(amount) ) amount = 0;
   createPointTransaction(
     db,
     session.projectUuid,
     session.playerUuid,
     redemptionEventUuid,
-    isNaN(amount) ? 0 : amount
+    amount
   )
+  return amount;
 }
 
 const handleIfTagPresent: ItemRedemptionHookHandler = (payload) => {
   if( payload.tags.some(tag => tag.tag === TAG_NAME) ){
-    givePointsOnRedeem(payload);
+    const amount = givePointsOnRedeem(payload);
+    return {
+      message: `You received ${amount} points for redeeming ${payload.item.name}!`,
+      icon: 'award'
+    }
   }
 }
 
