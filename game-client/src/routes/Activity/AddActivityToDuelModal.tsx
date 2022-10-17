@@ -66,6 +66,7 @@ type Props = {
 
 export function AddActivityToDuelModal({ opened, onClose, activity }: Props) {
   const [selectedDuel, setSelectedDuel] = useState<null | string>(null);
+  const theme = useMantineTheme();
 
   const {
     data: duels,
@@ -108,7 +109,7 @@ export function AddActivityToDuelModal({ opened, onClose, activity }: Props) {
   }
 
   if( isLoading ) return <Loader />
-  if( loadError ) return <Text color="red">Error loading duels: {loadError?.message}</Text>
+  if( loadError ) return <Text color={theme.colors['errorColor'][7]}>Error loading duels: {loadError?.message}</Text>
   if( !duels ) return null;
 
   return <Modal opened={opened} onClose={onClose} title="Add Activity To Duel">
@@ -122,10 +123,10 @@ export function AddActivityToDuelModal({ opened, onClose, activity }: Props) {
         isSelected={duel.uuid === selectedDuel}
       />
     ))}
-    { saveError && <Box><Text color="red">{saveError.message}</Text></Box> }
+    { saveError && <Box><Text color={theme.colors['errorColor'][7]}>{saveError.message}</Text></Box> }
     <Box sx={{display: 'flex', marginTop: '2rem', justifyContent: 'space-between'}}>
       <Button loading={isSaving} disabled={!selectedDuel} onClick={onConfirmClick}>Confirm</Button>
-      <Button disabled={isSaving} color="gray" onClick={onClose}>Cancel</Button>
+      <Button disabled={isSaving} color="errorColor" onClick={onClose}>Cancel</Button>
     </Box>
   </Modal>
 }

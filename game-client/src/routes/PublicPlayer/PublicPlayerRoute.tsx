@@ -1,4 +1,4 @@
-import { Box, Button, Loader, Text } from '@mantine/core';
+import { Box, Button, Loader, Text, useMantineTheme } from '@mantine/core';
 import { GamePlayer } from '../../qr-types';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -8,6 +8,7 @@ import ClaimPlayerModal from './ClaimPlayerModal';
 export default function PublicPlayerRoute() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const theme = useMantineTheme();
   const projectUuid = searchParams.get('game')
   const playerUuid = searchParams.get('player')
   
@@ -31,7 +32,7 @@ export default function PublicPlayerRoute() {
   }, [])
 
   if( isLoadingPlayer ) return <Loader />
-  if( loadPlayerError ) return <Text color="red">Error loading player {loadPlayerError?.message}</Text>
+  if( loadPlayerError ) return <Text color={theme.colors['errorColor'][7]}>Error loading player {loadPlayerError?.message}</Text>
   if( !player ) return null;
   return (
     <Box>

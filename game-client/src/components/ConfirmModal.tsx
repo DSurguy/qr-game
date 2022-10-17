@@ -13,7 +13,7 @@ export default function ConfirmModal ({ opened, onClose, onConfirm, children, ti
   return <Modal opened={opened} onClose={onClose} title={title}>
     {children}
     <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-      <Button color="green" onClick={onConfirm}>Confirm</Button>
+      <Button onClick={onConfirm}>Confirm</Button>
     </Box>
   </Modal>
 }

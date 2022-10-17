@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Loader, Text } from '@mantine/core';
+import { Box, Button, Loader, Text, useMantineTheme } from '@mantine/core';
 import { GameDuel, GamePlayer } from '../../qr-types';
 import { useParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
@@ -8,6 +8,7 @@ import RecipientToDuelModal from '../../components/RecipientToDuelModal';
 export default function PlayerRoute () {
   const { playerUuid } = useParams();
   const [duelModalOpen, setDuelModalOpen] = useState(false);
+  const theme = useMantineTheme();
 
   const {
     data: player,
@@ -34,7 +35,7 @@ export default function PlayerRoute () {
 
   const playerSection = () => {
     if( isLoadingPlayer ) return <Loader />
-    if( loadPlayerError ) return <Text color="red">Error loading player {loadPlayerError?.message}</Text>
+    if( loadPlayerError ) return <Text color={theme.colors['errorColor'][7]}>Error loading player {loadPlayerError?.message}</Text>
     if( !player ) return null;
     return (
       <Box>
@@ -45,7 +46,7 @@ export default function PlayerRoute () {
 
   const duelSection = () => {
     if( isLoadingDuels ) return <Loader />
-    if( loadDuelsError ) return <Text color="red">Error loading duels: {loadDuelsError?.message}</Text>
+    if( loadDuelsError ) return <Text color={theme.colors['errorColor'][7]}>Error loading duels: {loadDuelsError?.message}</Text>
     if( !duels ) return null;
     const setUpDuelButton = (<Button onClick={() => setDuelModalOpen(true)}>Start Duel</Button>);
     const alreadyDuelingButton = <Button disabled>Duel In Progress</Button>

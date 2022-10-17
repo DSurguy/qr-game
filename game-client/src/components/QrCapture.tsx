@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Loader, Text } from '@mantine/core';
+import { Box, Loader, Text, useMantineTheme } from '@mantine/core';
 import jsQR from 'jsqr';
 import { useViewportSize } from '@mantine/hooks';
 
@@ -70,6 +70,7 @@ type Props = {
 }
 
 export default function QrCapture ({ onQrPayload, captureWidth, captureHeight, captureOnce = true }: Props) {
+  const theme = useMantineTheme();
   const {
     stream,
     error,
@@ -128,8 +129,8 @@ export default function QrCapture ({ onQrPayload, captureWidth, captureHeight, c
   }, [])
 
   if( isLoading ) return <Loader />
-  else if( error ) return <Text color="red">{error.name} {error.message}</Text>
-  else if( !stream ) return <Text color="red">Stream not loaded</Text>
+  else if( error ) return <Text color={theme.colors['errorColor'][7]}>{error.name} {error.message}</Text>
+  else if( !stream ) return <Text color={theme.colors['errorColor'][7]}>Stream not loaded</Text>
   return (
     <Box sx={{ position: 'relative', display: 'block', width: `${captureWidth}px`, height: `${captureHeight}px`, padding: 0, margin: 'auto' }}>
       <video

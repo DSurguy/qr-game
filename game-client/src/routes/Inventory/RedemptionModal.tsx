@@ -1,4 +1,4 @@
-import { Box, Button, Modal, Text, TextInput } from '@mantine/core';
+import { Box, Button, Modal, Text, TextInput, useMantineTheme } from '@mantine/core';
 import React, { useState } from 'react';
 import { useServerResource } from '../../hooks/useServerResource';
 import { RedeemItemPayload } from '../../qr-types';
@@ -11,6 +11,7 @@ type Props = {
 
 export function RedemptionModal({ opened, onClose, itemUuid }: Props) {
   const [challengeInput, setChallengeInput] = useState("");
+  const theme = useMantineTheme();
   const {
     isSaving: isRedeeming,
     saveError: redeemError,
@@ -27,12 +28,12 @@ export function RedemptionModal({ opened, onClose, itemUuid }: Props) {
 
   return <Modal opened={opened} onClose={() => onClose(false)} title="Challenge">
     <Box>
-      { redeemError && <Text color="red">{redeemError.message}</Text>}
+      { redeemError && <Text color={theme.colors['errorColor'][7]}>{redeemError.message}</Text>}
       <TextInput value={challengeInput} onChange={e => setChallengeInput(e.target.value)} label="Challenge Input" />
     </Box>
     <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-      <Button color="primary" onClick={onSubmitChallenge} loading={isRedeeming}>Submit Challenge</Button>
-      <Button color="gray" onClick={() => onClose(false)}>Cancel</Button>
+      <Button onClick={onSubmitChallenge} loading={isRedeeming}>Submit Challenge</Button>
+      <Button color="errorColor" onClick={() => onClose(false)}>Cancel</Button>
     </Box>
   </Modal>
 }

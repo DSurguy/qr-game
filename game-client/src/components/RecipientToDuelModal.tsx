@@ -62,7 +62,7 @@ export default function RecipientToDuelModal({
   const duelsContent = () => {
     const duelListItems = duels.map(duel => {
       const isSelected = selectedDuel === duel.uuid;
-      const lightBlue = theme.colors[theme.primaryColor][1];
+      const lightBlue = theme.colors.dark[3];
       const fullBlue = theme.colors[theme.primaryColor][5];
       const darkBlue = theme.colors[theme.primaryColor][9];
       return (
@@ -119,7 +119,7 @@ export default function RecipientToDuelModal({
 
   const modalContent = () => {
     return <Box>
-      { addRecipientError && <Text color="red">{addRecipientError.message}</Text>}
+      { addRecipientError && <Text color={theme.colors['errorColor'][7]}>{addRecipientError.message}</Text>}
       {duelsContent()}
       <Button
         sx={{ marginTop: '1rem'}}
@@ -131,9 +131,9 @@ export default function RecipientToDuelModal({
 
   const content = () => {
     if( isLoading ) return <Loader />
-    if( loadError ) return <Text color="red">{loadError?.message}</Text>
+    if( loadError ) return <Text color={theme.colors['errorColor'][7]}>{loadError?.message}</Text>
     if( !duels ) return null;
-    else if( !duels.length ) return <Text color="red">You have no duels set up, go scan an activity first!</Text>
+    else if( !duels.length ) return <Text color={theme.colors['errorColor'][7]}>You have no duels set up, go scan an activity first!</Text>
     return modalContent()
   }
 

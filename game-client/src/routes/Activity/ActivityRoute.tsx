@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Button, Loader, Text } from '@mantine/core';
+import { Box, Button, Loader, Text, useMantineTheme } from '@mantine/core';
 import { ActivityCompletedEventPayload, GameDuel, GameEvent, SavedActivity } from '../../qr-types';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
@@ -7,6 +7,7 @@ import { showNotification } from '@mantine/notifications';
 import { AddActivityToDuelModal } from './AddActivityToDuelModal';
 
 export default function ActivityRoute () {
+  const theme = useMantineTheme();
   const { activityUuid } = useParams();
   const [searchParams] = useSearchParams();
   const eventThatClaimedActivity = searchParams.get('claimedByEvent');
@@ -72,7 +73,7 @@ export default function ActivityRoute () {
 
   const activitySection = () => {
     if( isLoadingActivity ) return <Loader />
-    if( loadActivityError ) return <Text color="red">Error loading activity: {loadActivityError?.message}</Text>
+    if( loadActivityError ) return <Text color={theme.colors['errorColor'][7]}>Error loading activity: {loadActivityError?.message}</Text>
     if( !activity ) return null;
     return (
       <Box>
@@ -84,7 +85,7 @@ export default function ActivityRoute () {
   const claimEventSection = () => {
     if( !eventThatClaimedActivity ) return null;
     if( isLoadingClaimEvent ) return <Loader />
-    if( loadClaimEventError ) return <Text color="red">Error loading claim event: {loadClaimEventError?.message}</Text>
+    if( loadClaimEventError ) return <Text color={theme.colors['errorColor'][7]}>Error loading claim event: {loadClaimEventError?.message}</Text>
     if( !claimEvent || !activity ) return null;
     const isRepeat = (claimEvent.payload as ActivityCompletedEventPayload).isRepeat;
     return (
@@ -98,10 +99,10 @@ export default function ActivityRoute () {
 
   const duelSection = () => {
     if( isLoadingDuels ) return <Loader />
-    if( loadDuelsError ) return <Text color="red">Error loading duels: {loadDuelsError?.message}</Text>
+    if( loadDuelsError ) return <Text color={theme.colors['errorColor'][7]}>Error loading duels: {loadDuelsError?.message}</Text>
     if( !isDuel || !duels ) return null;
     const setUpDuelButton = (<Box>
-      { createDuelError && <Text color="red">Error starting duel: {createDuelError.message}</Text> }
+      { createDuelError && <Text color={theme.colors['errorColor'][7]}>Error starting duel: {createDuelError.message}</Text> }
       <Box>
         <Button 
           type="button"

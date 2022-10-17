@@ -8,6 +8,7 @@ import { InventoryItem, RedeemItemPayload } from '../../qr-types';
 import { RedemptionModal } from './RedemptionModal';
 
 export function InventoryItem() {
+  const theme = useMantineTheme();
   const { itemUuid } = useParams();
   const [redemptionModalOpen, setRedemptionModalOpen] = useState(false);
 
@@ -60,7 +61,7 @@ export function InventoryItem() {
 
   const itemContent = () => {
     if( isLoadingItem ) return <Loader />
-    if( loadItemError ) return <Text color="red">Error loading item {loadItemError?.message}</Text>
+    if( loadItemError ) return <Text color={theme.colors['errorColor'][7]}>Error loading item {loadItemError?.message}</Text>
     if( !item ) return null;
 
     const quantityAvailable = item.quantity - item.quantityRedeemed;
@@ -71,7 +72,7 @@ export function InventoryItem() {
       <Text>Has Redemption Challenge?: {item.item.hasRedemptionChallenge.toString()}</Text>
       <Text>Quantity Available: {quantityAvailable}</Text>
       <Text>Quantity Redeemed: {item.quantityRedeemed}</Text>
-      { redeemError && <Text color="red">{redeemError.message}</Text>}
+      { redeemError && <Text color={theme.colors['errorColor'][7]}>{redeemError.message}</Text>}
       <Button onClick={onRedeem} disabled={!quantityAvailable} loading={isRedeeming}>Redeem</Button>
       <RedemptionModal opened={redemptionModalOpen} onClose={onRedemptionModalClose} itemUuid={itemUuid} />
     </Box>

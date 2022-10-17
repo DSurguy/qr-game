@@ -66,13 +66,13 @@ export default function CancelPendingDuel ({ duel, onUpdate }: Props) {
 
   return (
     <Box sx={{
-      backgroundColor: theme.colors.gray[1],
+      backgroundColor: theme.colors.dark[4],
       borderRadius: theme.radius.sm,
       margin: '0.25rem 0',
       padding: '0.5rem'
     }}>
       <Grid>
-        { respondToDuelError && <Grid.Col xs={12}><Text color="red">Error responding to duel: {respondToDuelError.message}</Text></Grid.Col> }
+        { respondToDuelError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][7]}>Error responding to duel: {respondToDuelError.message}</Text></Grid.Col> }
         <Grid.Col xs={9}>
           <Box sx={{ display: 'flex' }}>
             {duel.initiator.name} VS {duel.recipient.name}

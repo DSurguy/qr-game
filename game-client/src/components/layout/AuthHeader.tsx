@@ -17,7 +17,8 @@ export default function AuthHeader({ openCaptureQrModal, openNavbar, closeNavbar
       display: 'flex',
       alignItems: 'flex-start',
       justifyContent: 'center',
-      padding: theme.spacing['xs']
+      padding: theme.spacing['xs'],
+      backgroundColor: theme.colors.dark[8]
     }}>
       <Burger opened={navbarOpen} onClick={() => navbarOpen ? closeNavbar() : openNavbar() } />
       <Text component="h1" sx={{ fontSize: '1.5rem', margin: 0, marginLeft: '10px', padding: 0 }}>QR Game</Text>

@@ -14,8 +14,8 @@ export default function AcceptRejectModal ({ opened, onClose, onAccept, onReject
   return <Modal opened={opened} onClose={onClose} title={title}>
     {children}
     <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
-      <Button color="green" onClick={onAccept}>Accept</Button>
-      <Button color="red" onClick={onReject}>Reject</Button>
+      <Button onClick={onAccept}>Accept</Button>
+      <Button color="errorColor" onClick={onReject}>Reject</Button>
     </Box>
   </Modal>
 }

@@ -16,7 +16,7 @@ export default function ReportVictorModal ({ opened, onClose, onConfirm, duel }:
       value={selectedVictor}
       onChange={setSelectedVictor}
       orientation="vertical"
-      label="Which participant won?"
+      label="Who won?"
       spacing="sm"
     >
       <Radio value={duel.initiator.uuid} label={`${duel.initiator.name} (Challenger)`} styles={{
@@ -26,8 +26,8 @@ export default function ReportVictorModal ({ opened, onClose, onConfirm, duel }:
         'label': { padding: '0.5em', flexGrow: 1 }
       }} />
     </Radio.Group>
-    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-      <Button color="green" onClick={() => onConfirm(selectedVictor)} disabled={!selectedVictor}>Confirm</Button>
+    <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+      <Button onClick={() => onConfirm(selectedVictor)} disabled={!selectedVictor}>Confirm</Button>
     </Box>
   </Modal>
 }

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box, Grid, Loader, Text, TextInput } from '@mantine/core';
+import { Box, Grid, Loader, Text, TextInput, useMantineTheme } from '@mantine/core';
 import { useServerResource } from '../../hooks/useServerResource';
 import { DuelState, GameDuel } from '../../qr-types';
 import useDebouncedState from '../../hooks/useDebouncedState';
@@ -11,6 +11,7 @@ import CancelPendingDuel from '../../components/duels/CancelPendingDuel';
 import PendingVictorConfirmDuel from '../../components/duels/PendingVictorConfirmDuel';
 
 export default function DuelsRoute() {
+  const theme = useMantineTheme();
   const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
   const [activeDuels, setActiveDuels] = useState<GameDuel[]>([]);
   const [completedDuels, setCompletedDuels] = useState<GameDuel[]>([]);
@@ -98,7 +99,7 @@ export default function DuelsRoute() {
   )
   
   if( isLoadingDuels ) return <Loader />
-  if( loadDuelsError ) return <Text color="red">Error loading player {loadDuelsError?.message}</Text>
+  if( loadDuelsError ) return <Text color={theme.colors['errorColor'][7]}>Error loading player {loadDuelsError?.message}</Text>
   if( !duels || !activeDuels ) return null;
   return (
     <Box>

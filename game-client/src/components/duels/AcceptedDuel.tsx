@@ -74,14 +74,14 @@ export default function AcceptedDuel ({ duel, onUpdate }: Props) {
 
   return (
     <Box sx={{
-      backgroundColor: theme.colors.gray[1],
+      backgroundColor: theme.colors.dark[4],
       borderRadius: theme.radius.sm,
       margin: '0.25rem 0',
       padding: '0.5rem'
     }}>
       <Grid>
         <Grid.Col xs={12}>{duel.state}</Grid.Col>
-        { reportVictorError && <Grid.Col xs={12}><Text color="red">Error reporting victor: {reportVictorError.message}</Text></Grid.Col> }
+        { reportVictorError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][7]}>Error reporting victor: {reportVictorError.message}</Text></Grid.Col> }
         <Grid.Col xs={12}>
           <Box sx={{ display: 'flex' }}>
             {duel.initiator.name} VS {duel.recipient.name}

@@ -1,4 +1,4 @@
-import { Box, Grid, Loader, Text, TextInput } from '@mantine/core';
+import { Box, Grid, Loader, Text, TextInput, useMantineTheme } from '@mantine/core';
 import fuzzysort from 'fuzzysort';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { ProjectItem } from '../../qr-types';
 
 export function StoreDirectory() {
   const navigate = useNavigate();
+  const theme = useMantineTheme();
   const {
     data: items,
     isLoading,
@@ -37,7 +38,7 @@ export function StoreDirectory() {
   }, [items, search])
 
   if( isLoading ) return <Loader />
-  if( loadError ) return <Text color="red">Error loading store items {loadError?.message}</Text>
+  if( loadError ) return <Text color={theme.colors['errorColor'][7]}>Error loading store items {loadError?.message}</Text>
   if( !filteredItems ) return null;
 
   return (<Box>

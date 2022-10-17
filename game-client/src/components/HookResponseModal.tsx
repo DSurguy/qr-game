@@ -29,7 +29,7 @@ export function HookResponseModal({ opened, onClose, response }: Props) {
       <Text sx={{ fontSize: '1.25rem'}}>{ response.message }</Text>
     </Box>
     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-      <Button color="green" onClick={onClose}>OK</Button>
+      <Button onClick={onClose}>OK</Button>
     </Box>
   </Modal>
 }

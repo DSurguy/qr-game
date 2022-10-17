@@ -57,7 +57,7 @@ export default function ClaimPlayerModal ({ opened, onClose, playerUuid, project
     }} onSubmit={handleSubmit} enableReinitialize>
       {({ dirty }) => (
         <Form>
-          {claimError && <Text color="red">{claimError.message}</Text>}
+          {claimError && <Text color={theme.colors['errorColor'][7]}>{claimError.message}</Text>}
           <Field name="displayName" as={TextInput} label="Display Name" />
           <Field name="realName" as={TextInput} label="Your Real Name" />
           {<Button type="submit" disabled={!dirty || isClaiming} sx={{

@@ -1,18 +1,10 @@
-import { Box, Loader, Text } from '@mantine/core';
+import { Box, Loader, Text, useMantineTheme } from '@mantine/core';
 import { GamePlayer, GameProject } from '../qr-types';
 import React, { useEffect } from 'react';
 import { useServerResource } from '../hooks/useServerResource';
 
 export default function ProfileRoute() {
-  const {
-    data: project,
-    isLoading: isLoadingProject,
-    loadError: loadProjectError,
-    load: loadProject
-  } = useServerResource<GameProject, GameProject>({
-    load: 'game/project',
-  })
-
+  const theme = useMantineTheme();
   const {
     data: player,
     isLoading: isLoadingPlayer,
@@ -32,46 +24,33 @@ export default function ProfileRoute() {
   })
 
   useEffect(() => {
-    loadProject();
     loadPlayer();
     loadPlayerBalance();
   }, [])
 
-  const projectChunk = () => {
-    if( isLoadingProject ) return <Loader />
-    if( loadProjectError ) return <Text color="red">Error loading project {loadProjectError?.message}</Text>
-    if( !project ) return null;
-    return (
-      <Box>
-        You are playing <Text component="span" sx={{ color: "#fff", backgroundColor: "green", borderRadius: '4px', padding: '0 4px' }}>{project.name}</Text>
-      </Box>
-    )
-  }
-
   const playerChunk = () => {
     if( isLoadingPlayer ) return <Loader />
-    if( loadPlayerError ) return <Text color="red">Error loading player {loadPlayerError?.message}</Text>
+    if( loadPlayerError ) return <Text color={theme.colors['errorColor'][7]}>Error loading player {loadPlayerError?.message}</Text>
     if( !player ) return null;
     return (
-      <Box>
-        As <Text component="span" sx={{ color: "#fff", backgroundColor: "blue", borderRadius: '4px', padding: '0 4px' }}>{player.name}</Text>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Text sx={{ fontSize: '2.5rem'}}>{player.name}</Text>
       </Box>
     )
   }
 
   const balanceChunk = () => {
     if( isLoadingPlayerBalance ) return <Loader />
-    if( loadPlayerBalanceError ) return <Text color="red">Error loading balance {loadPlayerError?.message}</Text>
+    if( loadPlayerBalanceError ) return <Text color={theme.colors['errorColor'][7]}>Error loading balance {loadPlayerError?.message}</Text>
     if( typeof playerBalance !== "number" ) return null;
     return (
-      <Box>
-        Your balance is <Text component="span" sx={{ color: "#fff", backgroundColor: "red", borderRadius: '4px', padding: '0 4px' }}>{playerBalance}</Text> points
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Text>{playerBalance}</Text><Text>Points</Text>
       </Box>
     )
   }
 
   return <Box>
-    {projectChunk()}
     {playerChunk()}
     {balanceChunk()}
   </Box>
