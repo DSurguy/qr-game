@@ -78,7 +78,7 @@ const addQueenTag = (db: Database, projectUuid: string, playerUuid: string, quee
       @projectUuid,
       @playerUuid,
       @tag,
-      v@alue
+      @value
     )
   `)
   insertTag.run({
