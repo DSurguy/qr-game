@@ -1,16 +1,18 @@
 import { Box, Button, Loader, Text, useMantineTheme } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Check } from 'tabler-icons-react';
+import { HookResponseContext } from '../../context/hookResponse';
 import { useServerResource } from '../../hooks/useServerResource';
-import { InventoryItem, RedeemItemPayload } from '../../qr-types';
+import { InventoryItem, PluginModifiedPayloadResponse, RedeemItemPayload } from '../../qr-types';
 import { RedemptionModal } from './RedemptionModal';
 
 export function InventoryItem() {
   const theme = useMantineTheme();
   const { itemUuid } = useParams();
   const [redemptionModalOpen, setRedemptionModalOpen] = useState(false);
+  const { addResponses } = useContext(HookResponseContext);
 
   const {
     data: item,
@@ -25,7 +27,7 @@ export function InventoryItem() {
     isSaving: isRedeeming,
     saveError: redeemError,
     create: redeem,
-  } = useServerResource<RedeemItemPayload, void>({
+  } = useServerResource<RedeemItemPayload, PluginModifiedPayloadResponse>({
     create: `game/inventory/redeem`
   })
 
@@ -38,13 +40,14 @@ export function InventoryItem() {
       setRedemptionModalOpen(true);
     }
     else {
-      redeem({ itemUuid }, wasSuccessful => {
-        if( wasSuccessful ) onRedeemSuccess();
+      redeem({ itemUuid }, (wasSuccessful, data) => {
+        if( wasSuccessful ) onRedeemSuccess(data);
       })
     }
   }
 
-  const onRedeemSuccess = () => {
+  const onRedeemSuccess = (data?: PluginModifiedPayloadResponse) => {
+    if( data?.hooks?.itemRedemption ) addResponses(data.hooks.itemRedemption);
     loadItem();
     showNotification({
       message: 'Item Redeemed!',
@@ -54,8 +57,8 @@ export function InventoryItem() {
     })
   }
 
-  const onRedemptionModalClose = (wasSuccessful: boolean) => {
-    if( wasSuccessful ) onRedeemSuccess();
+  const onRedemptionModalClose = (wasSuccessful: boolean, data?: PluginModifiedPayloadResponse) => {
+    if( wasSuccessful ) onRedeemSuccess(data);
     setRedemptionModalOpen(false)
   }
 

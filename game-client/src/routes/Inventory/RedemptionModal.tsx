@@ -1,11 +1,11 @@
 import { Box, Button, Modal, Text, TextInput, useMantineTheme } from '@mantine/core';
 import React, { useState } from 'react';
 import { useServerResource } from '../../hooks/useServerResource';
-import { RedeemItemPayload } from '../../qr-types';
+import { PluginModifiedPayloadResponse, RedeemItemPayload } from '../../qr-types';
 
 type Props = {
   opened: boolean;
-  onClose: (success: boolean) => void;
+  onClose: (success: boolean, data?: PluginModifiedPayloadResponse) => void;
   itemUuid: string;
 }
 
@@ -16,13 +16,13 @@ export function RedemptionModal({ opened, onClose, itemUuid }: Props) {
     isSaving: isRedeeming,
     saveError: redeemError,
     create: redeem,
-  } = useServerResource<RedeemItemPayload, void>({
+  } = useServerResource<RedeemItemPayload, PluginModifiedPayloadResponse>({
     create: `game/inventory/redeem`
   })
 
   const onSubmitChallenge = () => {
-    redeem({ itemUuid, challenge: challengeInput }, wasSuccessful => {
-      if( wasSuccessful ) onClose(true);
+    redeem({ itemUuid, challenge: challengeInput }, (wasSuccessful, data) => {
+      if( wasSuccessful ) onClose(true, data);
     })
   };
 
