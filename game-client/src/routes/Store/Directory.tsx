@@ -2,9 +2,52 @@ import { Box, Grid, Loader, Text, TextInput, useMantineTheme } from '@mantine/co
 import fuzzysort from 'fuzzysort';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Diamond } from 'tabler-icons-react';
 import useDebouncedState from '../../hooks/useDebouncedState';
 import { useServerResource } from '../../hooks/useServerResource';
 import { ProjectItem } from '../../qr-types';
+
+type Props = {
+  item: ProjectItem;
+  onClick: () => void;
+}
+
+const DirectoryItem = ({ item, onClick }: Props) => {
+  const theme = useMantineTheme();
+  return (
+    <Box onClick={onClick} sx={{
+      borderRadius: theme.radius.sm,
+      backgroundColor: theme.colors.dark[8],
+      width: '160px',
+      height: '200px',
+      borderWidth: '1px',
+      borderStyle: 'solid',
+      borderColor: theme.colors.dark[4],
+      boxSizing: 'border-box',
+      padding: '0.5rem',
+      position: 'relative',
+      display: 'flex',
+      flexDirection: 'column',
+      cursor: 'pointer'
+    }}>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        flexGrow: 0
+      }}><Text>{item.name}</Text></Box>
+      <Box sx={{ flexGrow: 1 }}></Box>
+      <Box sx={{
+        display: 'flex',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        flexGrow: 0
+      }}>
+        <Text sx={{ fontSize: '1.25rem', marginRight: '0.25rem'}}>{item.cost}</Text>
+        <Diamond />
+      </Box>
+    </Box>
+  )
+}
 
 export function StoreDirectory() {
   const navigate = useNavigate();
@@ -51,11 +94,8 @@ export function StoreDirectory() {
         />
       </Grid.Col>
     </Grid>
-    <Box>
-    {filteredItems.map(item => (<Box key={item.uuid} onClick={() => navigate(`${item.uuid}`)}>
-      <Text>Name: {item.name}</Text>
-      <Text>Description: {item.description}</Text>
-    </Box>))}
+    <Box sx={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '1rem'}}>
+      {filteredItems.map(item => (<DirectoryItem key={item.uuid} item={item} onClick={() => navigate(`${item.uuid}`)} />))}
     </Box>
   </Box>);
 }

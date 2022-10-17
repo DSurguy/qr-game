@@ -44,8 +44,8 @@ export default function ProfileRoute() {
     if( loadPlayerBalanceError ) return <Text color={theme.colors['errorColor'][4]}>Error loading balance {loadPlayerError?.message}</Text>
     if( typeof playerBalance !== "number" ) return null;
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Text>{playerBalance}</Text><Text>Points</Text>
+      <Box sx={{ display: 'flex', justifyContent: 'center', fontSize: '2rem', backgroundColor: theme.colors[theme.primaryColor][5] }}>
+        <Text sx={{ marginRight: '0.5rem'}}>{playerBalance}</Text><Text>Points</Text>
       </Box>
     )
   }
