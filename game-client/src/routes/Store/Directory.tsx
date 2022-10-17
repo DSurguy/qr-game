@@ -38,7 +38,7 @@ export function StoreDirectory() {
   }, [items, search])
 
   if( isLoading ) return <Loader />
-  if( loadError ) return <Text color={theme.colors['errorColor'][7]}>Error loading store items {loadError?.message}</Text>
+  if( loadError ) return <Text color={theme.colors['errorColor'][4]}>Error loading store items {loadError?.message}</Text>
   if( !filteredItems ) return null;
 
   return (<Box>

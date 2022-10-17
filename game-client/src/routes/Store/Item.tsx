@@ -57,7 +57,7 @@ export function StoreItem() {
 
   const balanceContent = () => {
     if( isLoadingBalance ) return <Loader />
-    if( loadBalanceError ) return <Text color={theme.colors['errorColor'][7]}>Error loading item {loadBalanceError?.message}</Text>
+    if( loadBalanceError ) return <Text color={theme.colors['errorColor'][4]}>Error loading item {loadBalanceError?.message}</Text>
     if( balance === undefined || balance === null ) return null;
 
     return <Box sx={{ backgroundColor: theme.colors.dark[3], borderRadius: theme.radius.sm, padding: '0.5rem' }}>
@@ -67,7 +67,7 @@ export function StoreItem() {
 
   const itemContent = () => {
     if( isLoadingItem ) return <Loader />
-    if( loadItemError ) return <Text color={theme.colors['errorColor'][7]}>Error loading item {loadItemError?.message}</Text>
+    if( loadItemError ) return <Text color={theme.colors['errorColor'][4]}>Error loading item {loadItemError?.message}</Text>
     if( !item ) return null;
 
     return <Box>

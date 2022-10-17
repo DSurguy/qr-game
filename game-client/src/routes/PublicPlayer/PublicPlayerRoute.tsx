@@ -32,7 +32,7 @@ export default function PublicPlayerRoute() {
   }, [])
 
   if( isLoadingPlayer ) return <Loader />
-  if( loadPlayerError ) return <Text color={theme.colors['errorColor'][7]}>Error loading player {loadPlayerError?.message}</Text>
+  if( loadPlayerError ) return <Text color={theme.colors['errorColor'][4]}>Error loading player {loadPlayerError?.message}</Text>
   if( !player ) return null;
   return (
     <Box>

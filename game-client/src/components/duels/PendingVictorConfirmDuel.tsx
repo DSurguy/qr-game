@@ -72,7 +72,7 @@ export default function PendingVictorConfirmDuel ({ duel, onUpdate }: Props) {
       padding: '0.5rem'
     }}>
       <Grid>
-        { confirmVictorError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][7]}>Error confirming victor: {confirmVictorError.message}</Text></Grid.Col> }
+        { confirmVictorError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][6]}>Error confirming victor: {confirmVictorError.message}</Text></Grid.Col> }
         <Grid.Col xs={9}>
           <Box sx={{ display: 'flex' }}>
             {duel.initiator.name} VS {duel.recipient.name}

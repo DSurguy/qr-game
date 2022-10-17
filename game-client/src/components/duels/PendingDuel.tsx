@@ -68,7 +68,7 @@ export default function PendingDuel ({ duel, onUpdate }: Props) {
       padding: '0.5rem'
     }}>
       <Grid>
-        { respondToDuelError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][7]}>Error responding to duel: {respondToDuelError.message}</Text></Grid.Col> }
+        { respondToDuelError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][6]}>Error responding to duel: {respondToDuelError.message}</Text></Grid.Col> }
         <Grid.Col xs={9}>
           <Box sx={{ display: 'flex' }}>
             {duel.initiator.name} VS {duel.recipient.name}

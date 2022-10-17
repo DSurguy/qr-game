@@ -99,7 +99,7 @@ export default function DuelsRoute() {
   )
   
   if( isLoadingDuels ) return <Loader />
-  if( loadDuelsError ) return <Text color={theme.colors['errorColor'][7]}>Error loading player {loadDuelsError?.message}</Text>
+  if( loadDuelsError ) return <Text color={theme.colors['errorColor'][4]}>Error loading player {loadDuelsError?.message}</Text>
   if( !duels || !activeDuels ) return null;
   return (
     <Box>

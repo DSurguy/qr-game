@@ -129,8 +129,8 @@ export default function QrCapture ({ onQrPayload, captureWidth, captureHeight, c
   }, [])
 
   if( isLoading ) return <Loader />
-  else if( error ) return <Text color={theme.colors['errorColor'][7]}>{error.name} {error.message}</Text>
-  else if( !stream ) return <Text color={theme.colors['errorColor'][7]}>Stream not loaded</Text>
+  else if( error ) return <Text color={theme.colors['errorColor'][4]}>{error.name} {error.message}</Text>
+  else if( !stream ) return <Text color={theme.colors['errorColor'][4]}>Stream not loaded</Text>
   return (
     <Box sx={{ position: 'relative', display: 'block', width: `${captureWidth}px`, height: `${captureHeight}px`, padding: 0, margin: 'auto' }}>
       <video

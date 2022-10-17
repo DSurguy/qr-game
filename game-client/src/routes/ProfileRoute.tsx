@@ -30,7 +30,7 @@ export default function ProfileRoute() {
 
   const playerChunk = () => {
     if( isLoadingPlayer ) return <Loader />
-    if( loadPlayerError ) return <Text color={theme.colors['errorColor'][7]}>Error loading player {loadPlayerError?.message}</Text>
+    if( loadPlayerError ) return <Text color={theme.colors['errorColor'][4]}>Error loading player {loadPlayerError?.message}</Text>
     if( !player ) return null;
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -41,7 +41,7 @@ export default function ProfileRoute() {
 
   const balanceChunk = () => {
     if( isLoadingPlayerBalance ) return <Loader />
-    if( loadPlayerBalanceError ) return <Text color={theme.colors['errorColor'][7]}>Error loading balance {loadPlayerError?.message}</Text>
+    if( loadPlayerBalanceError ) return <Text color={theme.colors['errorColor'][4]}>Error loading balance {loadPlayerError?.message}</Text>
     if( typeof playerBalance !== "number" ) return null;
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>

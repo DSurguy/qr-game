@@ -119,7 +119,7 @@ export default function RecipientToDuelModal({
 
   const modalContent = () => {
     return <Box>
-      { addRecipientError && <Text color={theme.colors['errorColor'][7]}>{addRecipientError.message}</Text>}
+      { addRecipientError && <Text color={theme.colors['errorColor'][4]}>{addRecipientError.message}</Text>}
       {duelsContent()}
       <Button
         sx={{ marginTop: '1rem'}}
@@ -131,9 +131,9 @@ export default function RecipientToDuelModal({
 
   const content = () => {
     if( isLoading ) return <Loader />
-    if( loadError ) return <Text color={theme.colors['errorColor'][7]}>{loadError?.message}</Text>
+    if( loadError ) return <Text color={theme.colors['errorColor'][4]}>{loadError?.message}</Text>
     if( !duels ) return null;
-    else if( !duels.length ) return <Text color={theme.colors['errorColor'][7]}>You have no duels set up, go scan an activity first!</Text>
+    else if( !duels.length ) return <Text color={theme.colors['errorColor'][4]}>You have no duels set up, go scan an activity first!</Text>
     return modalContent()
   }
 

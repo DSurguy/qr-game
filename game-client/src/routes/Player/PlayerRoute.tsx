@@ -35,7 +35,7 @@ export default function PlayerRoute () {
 
   const playerSection = () => {
     if( isLoadingPlayer ) return <Loader />
-    if( loadPlayerError ) return <Text color={theme.colors['errorColor'][7]}>Error loading player {loadPlayerError?.message}</Text>
+    if( loadPlayerError ) return <Text color={theme.colors['errorColor'][4]}>Error loading player {loadPlayerError?.message}</Text>
     if( !player ) return null;
     return (
       <Box>
@@ -46,7 +46,7 @@ export default function PlayerRoute () {
 
   const duelSection = () => {
     if( isLoadingDuels ) return <Loader />
-    if( loadDuelsError ) return <Text color={theme.colors['errorColor'][7]}>Error loading duels: {loadDuelsError?.message}</Text>
+    if( loadDuelsError ) return <Text color={theme.colors['errorColor'][4]}>Error loading duels: {loadDuelsError?.message}</Text>
     if( !duels ) return null;
     const setUpDuelButton = (<Button onClick={() => setDuelModalOpen(true)}>Start Duel</Button>);
     const alreadyDuelingButton = <Button disabled>Duel In Progress</Button>

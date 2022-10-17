@@ -28,7 +28,7 @@ export function RedemptionModal({ opened, onClose, itemUuid }: Props) {
 
   return <Modal opened={opened} onClose={() => onClose(false)} title="Challenge">
     <Box>
-      { redeemError && <Text color={theme.colors['errorColor'][7]}>{redeemError.message}</Text>}
+      { redeemError && <Text color={theme.colors['errorColor'][4]}>{redeemError.message}</Text>}
       <TextInput value={challengeInput} onChange={e => setChallengeInput(e.target.value)} label="Challenge Input" />
     </Box>
     <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
