@@ -1,14 +1,16 @@
 import { Badge, Box, Button, Loader, Text, useMantineTheme } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Check, Diamond } from 'tabler-icons-react';
+import { PlayerBalanceContext } from '../../context/playerBalance';
 import { useServerResource } from '../../hooks/useServerResource';
 import { PurchaseItemPayload, StoreItem } from '../../qr-types';
 
 export function StoreItem() {
   const { itemUuid } = useParams();
   const theme = useMantineTheme();
+  const { updateBalance } = useContext(PlayerBalanceContext);
 
   const {
     data: item,
@@ -17,15 +19,6 @@ export function StoreItem() {
     load: loadItem,
   } = useServerResource<null, StoreItem>({
     load: `game/store/items/${itemUuid}`
-  })
-
-  const {
-    data: balance,
-    isLoading: isLoadingBalance,
-    loadError: loadBalanceError,
-    load: loadBalance,
-  } = useServerResource<null, number>({
-    load: `game/me/balance`
   })
 
   const {
@@ -38,13 +31,12 @@ export function StoreItem() {
 
   useEffect(() => {
     loadItem();
-    loadBalance();
   }, [])
 
   const onPurchase = () => {
     purchase({ itemUuid }, wasSuccessful => {
       if( wasSuccessful ) {
-        loadBalance();
+        updateBalance();
         showNotification({
           message: 'Item Purchased!',
           icon: <Check />,
@@ -53,23 +45,6 @@ export function StoreItem() {
         })
       }
     })
-  }
-
-  const balanceContent = () => {
-    if( isLoadingBalance ) return <Loader />
-    if( loadBalanceError ) return <Text color={theme.colors['errorColor'][4]}>Error loading item {loadBalanceError?.message}</Text>
-    if( balance === undefined || balance === null ) return null;
-
-    return <Box sx={{
-      display: 'flex',
-      alignItems: 'center',
-      backgroundColor: theme.colors.dark[4],
-      padding: '0.5rem 1rem',
-      margin: '-1rem',
-      marginBottom: '1rem'
-    }}>
-      <Diamond /><Text sx={{ fontSize: '1.25rem', marginLeft: '0.25rem' }}>{balance}</Text>
-    </Box>
   }
 
   const itemContent = () => {
@@ -113,7 +88,6 @@ export function StoreItem() {
   }
 
   return (<Box>
-    {balanceContent()}
     {itemContent()}
   </Box>)
 }
