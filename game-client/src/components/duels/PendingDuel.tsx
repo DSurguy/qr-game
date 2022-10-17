@@ -5,6 +5,9 @@ import { useState } from 'react';
 import { useServerResource } from '../../hooks/useServerResource';
 import { ChangeType, GameDuel, UpdateDuelRecipientConfirmPayload } from '../../qr-types';
 import AcceptRejectModal from '../AcceptRejectModal';
+import { ActivityBlock } from './blocks/ActivityBlock';
+import { StateBlock } from './blocks/StateBlock';
+import { VersusBlock } from './blocks/VersusBlock';
 
 type Props = {
   duel: GameDuel;
@@ -68,14 +71,10 @@ export default function PendingDuel ({ duel, onUpdate }: Props) {
       padding: '0.5rem'
     }}>
       <Grid>
+        <StateBlock duel={duel} />
+        <VersusBlock duel={duel} />
+        <ActivityBlock duel={duel} />
         { respondToDuelError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][6]}>Error responding to duel: {respondToDuelError.message}</Text></Grid.Col> }
-        <Grid.Col xs={9}>
-          <Box sx={{ display: 'flex' }}>
-            {duel.initiator.name} VS {duel.recipient.name}
-          </Box>
-          <Box>{duel.activity.name}</Box>
-          <Box>{duel.state}</Box>
-        </Grid.Col>
         <Grid.Col xs={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Button
             onClick={() => setRespondModalOpen(true)}

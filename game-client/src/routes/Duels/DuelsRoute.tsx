@@ -9,10 +9,14 @@ import PendingDuel from '../../components/duels/PendingDuel';
 import AcceptedDuel from '../../components/duels/AcceptedDuel';
 import CancelPendingDuel from '../../components/duels/CancelPendingDuel';
 import PendingVictorConfirmDuel from '../../components/duels/PendingVictorConfirmDuel';
+import CreatedDuel from '../../components/duels/CreatedDuel';
+import { CancelledDuel } from '../../components/duels/CancelledDuel';
+import { CompleteDuel } from '../../components/duels/CompleteDuel';
 
 export default function DuelsRoute() {
   const theme = useMantineTheme();
   const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
+  const [duelsInSetup, setDuelsInSetup] = useState<GameDuel[]>([]);
   const [activeDuels, setActiveDuels] = useState<GameDuel[]>([]);
   const [completedDuels, setCompletedDuels] = useState<GameDuel[]>([]);
   const {
@@ -50,6 +54,9 @@ export default function DuelsRoute() {
         threshold: -10000
       }).map(result => result.obj);
     }
+    setDuelsInSetup(duelsToFilter.filter(duel => [
+      DuelState.Created
+    ].includes(duel.state)))
     setActiveDuels(duelsToFilter.filter(duel => [
       DuelState.Accepted,
       DuelState.Pending,
@@ -58,13 +65,24 @@ export default function DuelsRoute() {
       DuelState.PendingRecipientConfirm
     ].includes(duel.state)))
     setCompletedDuels(duelsToFilter.filter(duel => [
-      DuelState.Complete
+      DuelState.Complete,
+      DuelState.Cancelled
     ].includes(duel.state)))
   }, [duels, search])
 
+  const duelsInSetupContent = () => {
+    return <Box>
+      {duelsInSetup.map(duel => {
+        switch(duel.state){
+          case DuelState.Created: return <CreatedDuel key={duel.uuid} duel={duel} />
+          default: return null;
+        }
+      })}
+    </Box>
+  }
+
   const activeDuelsContent = () => {
-    return <>
-      <Text component='h2'>Active Duels</Text>
+    return <Box>
       {activeDuels.map(duel => {
         switch(duel.state){
           case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
@@ -76,26 +94,23 @@ export default function DuelsRoute() {
           default: return null;
         }
       })}
-    </>
+    </Box>
   }
 
   const completedDuelsContent = () => {
-    return <>
-      <Text component='h2'>Completed Duels</Text>
-      {completedDuels.map(duel => (
-        <Box key={duel.uuid} sx={{ border: '1px solid gray', margin: '0.5rem 0', padding: '0.5rem' }}>
-          <Box key={duel.uuid} sx={{ display: 'flex' }}>
-            {duel.initiator.name} VS {duel.recipient.name}
-          </Box>
-          <Box>{duel.activity.name}</Box>
-          <Box>{duel.state}</Box>
-        </Box>
-      ))}
-    </>
+    return <Box>
+      {completedDuels.map(duel => {
+        switch(duel.state) {
+          case DuelState.Cancelled: return <CancelledDuel key={duel.uuid} duel={duel} />
+          case DuelState.Complete: return <CompleteDuel key={duel.uuid} duel={duel} />
+          default: return null;
+        }
+      })}
+    </Box>
   }
   
   const noDuelsContent = () => (
-    <Text>You have no active duels! GO FIGHT SOMEONE.</Text>
+    <Text>You have no duels! GO FIGHT SOMEONE.</Text>
   )
   
   if( isLoadingDuels ) return <Loader />
@@ -114,9 +129,13 @@ export default function DuelsRoute() {
       </Grid>
       <Grid>
         <Grid.Col sm={6} xs={12}>
+          <Text component='h2'>Setting Up</Text>
+          {!!duelsInSetup.length && duelsInSetupContent()}
+          <Text component='h2'>Active</Text>
           {!!activeDuels.length && activeDuelsContent()}
+          <Text component='h2'>Complete</Text>
           {!!completedDuels.length && completedDuelsContent()}
-          {!activeDuels.length && !completedDuels.length && noDuelsContent()}
+          {!activeDuels.length && !completedDuels.length && !duelsInSetup.length && noDuelsContent()}
         </Grid.Col>
       </Grid>
     </Box>

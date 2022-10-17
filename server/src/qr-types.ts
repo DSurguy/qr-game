@@ -106,7 +106,7 @@ export type GameEvent = {
 export const enum DuelState {
   Created = "CREATED",
   Pending = "PENDING_RESPONSE",
-  PendingActivity = "PENDING_ACTIVITY", //used for queen duels
+  PendingActivity = "PENDING_ACTIVITY", //TODO: Remove this, no longer needed
   Accepted = "ACCEPTED",
   Rejected = "REJECTED",
   PendingCancel = "PENDING_CANCEL",

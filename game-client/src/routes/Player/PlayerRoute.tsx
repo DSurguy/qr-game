@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Loader, Text, useMantineTheme } from '@mantine/core';
 import { GameDuel, GamePlayer } from '../../qr-types';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useServerResource } from '../../hooks/useServerResource';
 import RecipientToDuelModal from '../../components/RecipientToDuelModal';
+import { CaretRight, Swords } from 'tabler-icons-react';
 
 export default function PlayerRoute () {
   const { playerUuid } = useParams();
+  const navigate = useNavigate();
   const [duelModalOpen, setDuelModalOpen] = useState(false);
   const theme = useMantineTheme();
 
@@ -33,13 +35,18 @@ export default function PlayerRoute () {
     loadDuels();
   }, [])
 
-  const playerSection = () => {
+  const onModalClose = (shouldReload: boolean = false) => {
+    if( shouldReload ) loadDuels();
+    setDuelModalOpen(false);
+  }
+
+  const playerChunk = () => {
     if( isLoadingPlayer ) return <Loader />
     if( loadPlayerError ) return <Text color={theme.colors['errorColor'][4]}>Error loading player {loadPlayerError?.message}</Text>
     if( !player ) return null;
     return (
-      <Box>
-        You are viewing player <Text component="span" sx={{ color: "#fff", backgroundColor: "blue", borderRadius: '4px', padding: '0 4px' }}>{player.name}</Text>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Text sx={{ fontSize: '2.5rem'}}>{player.name}</Text>
       </Box>
     )
   }
@@ -48,19 +55,22 @@ export default function PlayerRoute () {
     if( isLoadingDuels ) return <Loader />
     if( loadDuelsError ) return <Text color={theme.colors['errorColor'][4]}>Error loading duels: {loadDuelsError?.message}</Text>
     if( !duels ) return null;
-    const setUpDuelButton = (<Button onClick={() => setDuelModalOpen(true)}>Start Duel</Button>);
-    const alreadyDuelingButton = <Button disabled>Duel In Progress</Button>
+    const setUpDuelButton = (<Button onClick={() => setDuelModalOpen(true)}><Swords /><Text sx={{ marginLeft: '0.5rem'}}>Duel</Text></Button>);
+    const alreadyDuelingSection = <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+      <Swords /> <Text sx={{ marginLeft: '0.5rem' }}>Duel In Progress</Text>
+      <Button variant="subtle" onClick={() => navigate('/game/duels')}>Go To Duels <CaretRight /></Button>
+    </Box>
     return <>
-      {duels.length ? alreadyDuelingButton : setUpDuelButton}
+      {duels.length ? alreadyDuelingSection : setUpDuelButton}
       {(duelModalOpen && player)
-        ? <RecipientToDuelModal recipient={player} opened={duelModalOpen} onClose={() => setDuelModalOpen(false)} />
+        ? <RecipientToDuelModal recipient={player} opened={duelModalOpen} onClose={onModalClose} />
         : null
       }
     </>
   }
 
   return <>
-    {playerSection()}
+    {playerChunk()}
     {duelSection()}
   </>
 }

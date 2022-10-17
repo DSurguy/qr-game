@@ -24,6 +24,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
       activity?: string;
       recipient?: string;
       missingActivity?: boolean;
+      missingRecipient?: boolean;
     },
     Reply: GameDuel[] | { message: string; };
   }>('/duels', (req, reply) => {
@@ -67,6 +68,9 @@ export function applyDuelRoutes(app: FastifyInstance) {
       }
       if( req.query.missingActivity ) {
         parts.push('AND pd.activityUuid IS NULL')
+      }
+      if( req.query.missingRecipient ) {
+        parts.push('AND pd.recipientUuid IS NULL')
       }
       const getDuels = app.db.prepare(parts.join(' '))
       const duels = getDuels.all({
@@ -135,36 +139,38 @@ export function applyDuelRoutes(app: FastifyInstance) {
       authorization: string | undefined;
     },
     Body: {
-      activityUuid: string;
+      recipientUuid?: string;
+      activityUuid?: string;
     },
     Reply: Duel | { message: string };
   }>('/duels', (req, reply) => {
     try {
-      if( !req.body.activityUuid ) {
-        reply.status(400).send({ message: "activityUuid is required."});
+      if( !req.body.activityUuid && !req.body.recipientUuid ) {
+        reply.status(400).send({ message: "activityUuid or recipientUuid is required."});
         return;
       }
 
-      //Reject if the current player has an active duel for this activity already
-      const activeQuery = 'AND state IN ('
-        + activeDuelStates.map(state => `'${state}'`).join(',')
-        + ')';
-      const getAnyActiveMatchingDuel = app.db.prepare(`
-        SELECT * FROM project_duels
-        WHERE
-          activityUuid=@activityUuid 
-          AND initiatorUuid=@initiatorUuid
-          ${activeQuery}
-      `)
-      const activeDuel = getAnyActiveMatchingDuel.get({
-        activityUuid: req.body.activityUuid,
-        initiatorUuid: req.session.playerUuid
-      });
-      if( activeDuel ) {
-        reply.status(400).send({
-          message: 'There is already a duel set up for this activity'
-        })
-        return;
+      //Reject if recipient is provided and the player is already dueling them
+      if( req.body.recipientUuid ) {
+        const selectMatchingDuel = app.db.prepare(`
+          SELECT * FROM project_duels
+          WHERE
+            recipientUuid=@recipientUuid 
+            AND initiatorUuid=@initiatorUuid
+            AND state IN (${
+              activeDuelStates.map(state => `'${state}'`).join(',')
+            })
+        `)
+        const activeDuel = selectMatchingDuel.get({
+          recipientUuid: req.body.recipientUuid,
+          initiatorUuid: req.session.playerUuid
+        });
+        if( activeDuel ) {
+          reply.status(400).send({
+            message: 'You are already dueling this player'
+          })
+          return;
+        }
       }
 
       const duelId = randomUUID();
@@ -185,7 +191,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
           @projectUuid,
           @uuid,
           @initiatorUuid,
-          null,
+          @recipientUuid,
           @activityUuid,
           @state,
           null,
@@ -198,8 +204,9 @@ export function applyDuelRoutes(app: FastifyInstance) {
         projectUuid: req.session.projectUuid,
         uuid: duelId,
         initiatorUuid: req.session.playerUuid,
-        activityUuid: req.body.activityUuid,
-        state: DuelState.Created,
+        recipientUuid: req.body.recipientUuid || null,
+        activityUuid: req.body.activityUuid || null,
+        state: req.body.recipientUuid && req.body.activityUuid ? DuelState.Pending : DuelState.Created,
         timestamp
       })
       const getDuel = app.db.prepare(`SELECT * FROM project_duels WHERE uuid=@uuid`)
@@ -250,23 +257,24 @@ export function applyDuelRoutes(app: FastifyInstance) {
             }
 
             //Determine if the session user already has a duel with this player
-            const activeQuery = 'state IN ('
-              + activeDuelStates.map(state => `'${state}'`).join(',')
-              + ')';
-            const getExistingDuel = app.db.prepare(`
+            const selectMatchingDuel = app.db.prepare(`
               SELECT * FROM project_duels
               WHERE
-                initiatorUuid=@initiatorUuid 
-                AND recipientUuid=@recipientUuid
-                AND ${activeQuery}
+                (recipientUuid=@recipientUuid 
+                  OR initiatorUuid=@recipientUuid)
+                AND (recipientUuid=@playerUuid 
+                  OR initiatorUuid=@playerUuid)
+                AND state IN (${
+                  activeDuelStates.map(state => `'${state}'`).join(',')
+                })
             `)
-            const existingDuel = getExistingDuel.get({
-              initiatorUuid: req.session.playerUuid,
-              recipientUuid
-            })
-            if( existingDuel ) {
+            const activeDuel = selectMatchingDuel.get({
+              recipientUuid: req.body.payload.recipientUuid,
+              playerUuid: req.session.playerUuid
+            });
+            if( activeDuel ) {
               reply.status(400).send({
-                message: 'There is already an active duel for this player'
+                message: 'You are already dueling this player'
               })
               return;
             }
@@ -278,12 +286,6 @@ export function applyDuelRoutes(app: FastifyInstance) {
                 state=@state
               WHERE uuid=@duelId AND deleted=0
             `)
-            const statementPayload: any = {
-              duelId,
-              recipientUuid,
-              state: DuelState.Pending,
-              timestamp
-            }
             updateDuel.run({
               duelId,
               recipientUuid,
@@ -293,7 +295,6 @@ export function applyDuelRoutes(app: FastifyInstance) {
             break;
           }
           case ChangeType.AddActivity: {
-            //TODO: Change duels to have "accepted" as a standalone prop
             const { activityUuid } = req.body.payload;
             if( !activityUuid ) {
               reply.status(400).send({ message: "activityUuid is required."});
@@ -310,7 +311,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
               projectUuid: req.session.projectUuid,
               duelUuid: duelId,
               activityUuid,
-              state: DuelState.Accepted,
+              state: DuelState.Pending,
               timestamp
             })
             break;

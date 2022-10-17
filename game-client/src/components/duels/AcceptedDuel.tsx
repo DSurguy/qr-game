@@ -1,11 +1,15 @@
-import { Box, Button, Grid, Text, useMantineTheme } from '@mantine/core';
+import { Badge, Box, Button, Grid, Text, useMantineTheme } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import React from 'react';
 import { useState } from 'react';
+import { Swords } from 'tabler-icons-react';
 import { useServerResource } from '../../hooks/useServerResource';
 import { ChangeType, GameDuel, PluginModifiedPayloadResponse, UpdateDuelCancelPayload, UpdateDuelVictorPayload } from '../../qr-types';
 import ConfirmModal from '../ConfirmModal';
 import ReportVictorModal from './ReportVictorModal';
+import { VersusBlock } from './blocks/VersusBlock';
+import { StateBlock } from './blocks/StateBlock';
+import { ActivityBlock } from './blocks/ActivityBlock';
 
 type Props = {
   duel: GameDuel;
@@ -80,14 +84,10 @@ export default function AcceptedDuel ({ duel, onUpdate }: Props) {
       padding: '0.5rem'
     }}>
       <Grid>
-        <Grid.Col xs={12}>{duel.state}</Grid.Col>
+        <StateBlock duel={duel} />
+        <VersusBlock duel={duel} />
+        <ActivityBlock duel={duel} />
         { reportVictorError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][6]}>Error reporting victor: {reportVictorError.message}</Text></Grid.Col> }
-        <Grid.Col xs={12}>
-          <Box sx={{ display: 'flex' }}>
-            {duel.initiator.name} VS {duel.recipient.name}
-          </Box>
-          <Box>{duel.activity.name}</Box>
-        </Grid.Col>
         <Grid.Col xs={12} sx={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center' }}>
           <Box>
             <Button
@@ -98,6 +98,7 @@ export default function AcceptedDuel ({ duel, onUpdate }: Props) {
           </Box>
           <Box>
             <Button
+              color="dark"
               onClick={() => setCancelModalOpen(true)}
               loading={isReportingVictor || isCancellingDuel}
               disabled={actionComplete}
