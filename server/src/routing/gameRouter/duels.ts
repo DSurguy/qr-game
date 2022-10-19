@@ -20,11 +20,11 @@ export function applyDuelRoutes(app: FastifyInstance) {
     },
     Querystring: {
       state?: DuelState;
-      active?: boolean;
+      active?: string;
       activity?: string;
       recipient?: string;
-      missingActivity?: boolean;
-      missingRecipient?: boolean;
+      missingActivity?: string;
+      missingRecipient?: string;
     },
     Reply: GameDuel[] | { message: string; };
   }>('/duels', (req, reply) => {
@@ -66,10 +66,10 @@ export function applyDuelRoutes(app: FastifyInstance) {
       if( req.query.recipient ) {
         parts.push('AND pd.recipientUuid=@recipient')
       }
-      if( req.query.missingActivity ) {
+      if( req.query.missingActivity !== undefined ) {
         parts.push('AND pd.activityUuid IS NULL')
       }
-      if( req.query.missingRecipient ) {
+      if( req.query.missingRecipient !== undefined ) {
         parts.push('AND pd.recipientUuid IS NULL')
       }
       const getDuels = app.db.prepare(parts.join(' '))
