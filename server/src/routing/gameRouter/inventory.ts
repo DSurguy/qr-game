@@ -29,6 +29,21 @@ export function applyInventoryRoutes(app: FastifyInstance) {
         playerUuid
       });
 
+      const selectTags = app.db.prepare(`
+        SELECT * from store_item_tags
+        WHERE projectUuid=@projectUuid AND itemUuid IN (${
+          results.map(result => `'${result.itemUuid}'`).join(',')
+        }) AND tag IN ('color', 'icon')
+      `)
+      const tags = selectTags.all({
+        projectUuid: req.session.projectUuid
+      })
+      const itemToTags = tags.reduce((aggregate, tag) => {
+        if( !aggregate[tag.itemUuid] ) aggregate[tag.itemUuid] = {};
+        aggregate[tag.itemUuid][tag.tag] = tag.value;
+        return aggregate
+      }, {})
+
       const items = results.map(result => {
         const item: any = {};
         const inventoryRecord: any = {};
@@ -43,7 +58,11 @@ export function applyInventoryRoutes(app: FastifyInstance) {
         })
         return {
           ...inventoryRecord,
-          item
+          item: {
+            ...item,
+            icon: itemToTags[inventoryRecord.itemUuid]?.icon,
+            color: itemToTags[inventoryRecord.itemUuid]?.color,
+          }
         }
       }) as InventoryItem[];
 
@@ -85,6 +104,19 @@ export function applyInventoryRoutes(app: FastifyInstance) {
         itemUuid
       });
 
+      const selectTags = app.db.prepare(`
+        SELECT * from store_item_tags
+        WHERE projectUuid=@projectUuid AND itemUuid=@itemUuid AND tag IN ('color', 'icon')
+      `)
+      const tags = selectTags.all({
+        projectUuid: req.session.projectUuid,
+        itemUuid
+      })
+      const tagMap = tags.reduce((aggregate, tag) => {
+        aggregate[tag.tag] = tag.value;
+        return aggregate
+      }, {})
+
       const item: any = {};
       const inventoryRecord: any = {};
       Object.entries(result).forEach(([key, value]) => {
@@ -96,7 +128,11 @@ export function applyInventoryRoutes(app: FastifyInstance) {
         }
         else inventoryRecord[key] = value;
       })
-      inventoryRecord.item = item;
+      inventoryRecord.item = {
+        ...item,
+        icon: tagMap.icon,
+        color: tagMap.color
+      };
 
       reply.status(200).send(inventoryRecord as InventoryItem);
     } catch(e) {

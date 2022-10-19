@@ -83,8 +83,8 @@ export function ItemRoute() {
           {({ dirty }) => (
             <Form>
               {saveError && <Text color="red">{saveError.message}</Text>}
-              <Field name="name" as={TextInput} label="Activity Name" />
-              <Field name="description" as={Textarea} label="Description" sx={{ marginTop: theme.spacing['xs'] }} />
+              <Field name="name" as={TextInput} label="Item Name" />
+              <Field name="description" as={Textarea} autosize label="Description" sx={{ marginTop: theme.spacing['xs'] }} />
               <Field
                 name="cost"
                 component={FormikNumberInput}

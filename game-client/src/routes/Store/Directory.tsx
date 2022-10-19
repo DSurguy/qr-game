@@ -3,12 +3,13 @@ import fuzzysort from 'fuzzysort';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Diamond } from 'tabler-icons-react';
+import { TablerIconFromString } from '../../components/icons/TablerIconFromString';
 import useDebouncedState from '../../hooks/useDebouncedState';
 import { useServerResource } from '../../hooks/useServerResource';
-import { ProjectItem } from '../../qr-types';
+import { StoreItem } from '../../qr-types';
 
 type Props = {
-  item: ProjectItem;
+  item: StoreItem;
   onClick: () => void;
 }
 
@@ -17,7 +18,7 @@ const DirectoryItem = ({ item, onClick }: Props) => {
   return (
     <Box onClick={onClick} sx={{
       borderRadius: theme.radius.sm,
-      backgroundColor: theme.colors.dark[8],
+      backgroundColor: item.color || theme.colors.dark[8],
       width: '160px',
       height: '200px',
       borderWidth: '1px',
@@ -34,16 +35,19 @@ const DirectoryItem = ({ item, onClick }: Props) => {
         display: 'flex',
         justifyContent: 'center',
         flexGrow: 0
-      }}><Text>{item.name}</Text></Box>
-      <Box sx={{ flexGrow: 1 }}></Box>
+      }}><Text sx={{ fontSize: '1.25rem'}}>{item.name}</Text></Box>
+      <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <TablerIconFromString icon={item.icon} size={80} />
+      </Box>
       <Box sx={{
         display: 'flex',
         justifyContent: 'flex-end',
-        alignItems: 'center',
         flexGrow: 0
       }}>
-        <Text sx={{ fontSize: '1.25rem', marginRight: '0.25rem'}}>{item.cost}</Text>
-        <Diamond />
+        <Box sx={{ display: 'flex', backgroundColor: 'rgba(0,0,0,0.3)', alignItems: 'center', borderRadius: theme.radius.sm, padding: '0 0.5rem' }}>
+          <Text sx={{ fontSize: '1.25rem', marginRight: '0.25rem'}}>{item.cost}</Text>
+          <Diamond />
+        </Box>
       </Box>
     </Box>
   )
@@ -57,7 +61,7 @@ export function StoreDirectory() {
     isLoading,
     loadError,
     load
-  } = useServerResource<null, ProjectItem[]>({
+  } = useServerResource<null, StoreItem[]>({
     load: `game/store/items`
   })
 
@@ -94,7 +98,7 @@ export function StoreDirectory() {
         />
       </Grid.Col>
     </Grid>
-    <Box sx={{ display: 'flex', justifyContent: 'space-evenly', marginTop: '1rem'}}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-start', marginTop: '1rem', gap: '1rem'}}>
       {filteredItems.map(item => (<DirectoryItem key={item.uuid} item={item} onClick={() => navigate(`${item.uuid}`)} />))}
     </Box>
   </Box>);

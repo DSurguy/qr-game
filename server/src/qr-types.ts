@@ -106,7 +106,7 @@ export type GameEvent = {
 export const enum DuelState {
   Created = "CREATED",
   Pending = "PENDING_RESPONSE",
-  PendingActivity = "PENDING_ACTIVITY", //TODO: Remove this, no longer needed
+  PendingActivity = "PENDING_ACTIVITY", //used for queen duels
   Accepted = "ACCEPTED",
   Rejected = "REJECTED",
   PendingCancel = "PENDING_CANCEL",
@@ -233,12 +233,16 @@ export interface ProjectItem extends CreateProjectItemPayload {
 }
 
 export interface StoreItem {
+  projectUuid: string;
+  uuid: string;
   name: string;
   description: string;
   cost: number;
   imageBase64: string | null;
   canPurchaseMultiple: boolean;
   hasRedemptionChallenge: boolean;
+  icon?: string;
+  color?: string;
 }
 
 export interface PurchaseItemPayload {
@@ -259,8 +263,10 @@ export interface InventoryItem {
   item: {
     name: string;
     description: string;
-    imageBase64: string;
+    imageBase64?: string;
     hasRedemptionChallenge: boolean;
+    icon?: string;
+    color?: string;
   }
 }
 

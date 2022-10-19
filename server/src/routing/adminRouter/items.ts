@@ -35,18 +35,20 @@ export function applyItemRoutes(app: FastifyInstance) {
   })
 
   app.get<{
-    Params: { projectUuid: string },
+    Params: { projectUuid: string, itemUuid: string },
     Reply: ProjectItem | { message: string } | undefined
   }>('/projects/:projectUuid/items/:itemUuid', (req, reply) => {
     try {
       const {
-        projectUuid
+        projectUuid,
+        itemUuid
       } = req.params;
       const select = app.db.prepare(`
-        SELECT * FROM project_store_items WHERE projectUuid=@projectUuid
+        SELECT * FROM project_store_items WHERE projectUuid=@projectUuid AND uuid=@itemUuid
       `)
       const item = select.get({
-        projectUuid
+        projectUuid,
+        itemUuid
       })
       if( !item ) reply.code(404).send()
       else reply.code(200).send({

@@ -18,6 +18,22 @@ export function applyStoreRoutes(app: FastifyInstance) {
       const items = getItems.all({
         projectUuid: req.session.projectUuid
       })
+
+      const selectTags = app.db.prepare(`
+        SELECT * from store_item_tags
+        WHERE projectUuid=@projectUuid AND itemUuid IN (${
+          items.map(item => `'${item.uuid}'`).join(',')
+        }) AND tag IN ('color', 'icon')
+      `)
+      const tags = selectTags.all({
+        projectUuid: req.session.projectUuid
+      })
+      const itemToTags = tags.reduce((aggregate, tag) => {
+        if( !aggregate[tag.itemUuid] ) aggregate[tag.itemUuid] = {};
+        aggregate[tag.itemUuid][tag.tag] = tag.value;
+        return aggregate
+      }, {})
+
       reply.status(200).send(items.map(item => ({
         projectUuid: item.projectUuid,
         uuid: item.uuid,
@@ -26,7 +42,9 @@ export function applyStoreRoutes(app: FastifyInstance) {
         cost: item.cost,
         imageBase64: item.imageBase64,
         canPurchaseMultiple: !!item.canPurchaseMultiple,
-        hasRedemptionChallenge: !!(item.redemptionChallenge?.length)
+        hasRedemptionChallenge: !!(item.redemptionChallenge?.length),
+        icon: itemToTags[item.uuid]?.icon,
+        color: itemToTags[item.uuid]?.color
       } as StoreItem)))
     } catch (e) {
       console.error(e.message);
@@ -53,8 +71,25 @@ export function applyStoreRoutes(app: FastifyInstance) {
         projectUuid: req.session.projectUuid,
         itemUuid
       })
-      if( !item ) reply.status(404).send()
-      else reply.status(200).send({
+      if( !item ){
+        reply.status(404).send();
+        return;
+      }
+
+      const selectTags = app.db.prepare(`
+        SELECT * from store_item_tags
+        WHERE projectUuid=@projectUuid AND itemUuid=@itemUuid AND tag IN ('color', 'icon')
+      `)
+      const tags = selectTags.all({
+        projectUuid: req.session.projectUuid,
+        itemUuid
+      })
+      const tagMap = tags.reduce((aggregate, tag) => {
+        aggregate[tag.tag] = tag.value;
+        return aggregate
+      }, {})
+
+      reply.status(200).send({
         projectUuid: item.projectUuid,
         uuid: item.uuid,
         name: item.name,
@@ -62,7 +97,9 @@ export function applyStoreRoutes(app: FastifyInstance) {
         cost: item.cost,
         imageBase64: item.imageBase64,
         canPurchaseMultiple: !!item.canPurchaseMultiple,
-        hasRedemptionChallenge: !!(item.redemptionChallenge?.length)
+        hasRedemptionChallenge: !!(item.redemptionChallenge?.length),
+        icon: tagMap.icon,
+        color: tagMap.color
       } as StoreItem)
     } catch (e) {
       console.error(e.message);
