@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Box, Grid, Loader, Text, TextInput, useMantineTheme } from '@mantine/core';
 import { useServerResource } from '../../hooks/useServerResource';
 import { DuelState, GameDuel } from '../../qr-types';
@@ -12,10 +12,12 @@ import PendingVictorConfirmDuel from '../../components/duels/PendingVictorConfir
 import CreatedDuel from '../../components/duels/CreatedDuel';
 import { CancelledDuel } from '../../components/duels/CancelledDuel';
 import { CompleteDuel } from '../../components/duels/CompleteDuel';
+import { PlayerContext } from '../../context/player';
 
 export default function DuelsRoute() {
   const theme = useMantineTheme();
   const [search, setSearch, isDebouncingSearch] = useDebouncedState("");
+  const { player } = useContext(PlayerContext);
   const [duelsInSetup, setDuelsInSetup] = useState<GameDuel[]>([]);
   const [activeDuels, setActiveDuels] = useState<GameDuel[]>([]);
   const [completedDuels, setCompletedDuels] = useState<GameDuel[]>([]);
@@ -85,12 +87,12 @@ export default function DuelsRoute() {
     return <Box>
       {activeDuels.map(duel => {
         switch(duel.state){
-          case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
-          case DuelState.Accepted: return <AcceptedDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
-          case DuelState.PendingCancel: return <CancelPendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
+          case DuelState.Pending: return <PendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} currentPlayer={player} />
+          case DuelState.Accepted: return <AcceptedDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} currentPlayer={player} />
+          case DuelState.PendingCancel: return <CancelPendingDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} currentPlayer={player} />
           case DuelState.PendingInitiatorConfirm:
           case DuelState.PendingRecipientConfirm:
-            return <PendingVictorConfirmDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} />
+            return <PendingVictorConfirmDuel key={duel.uuid} duel={duel} onUpdate={loadDuels} currentPlayer={player} />
           default: return null;
         }
       })}

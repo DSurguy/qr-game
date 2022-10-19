@@ -3,14 +3,14 @@ import { showNotification } from '@mantine/notifications';
 import React, { useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Check, Diamond } from 'tabler-icons-react';
-import { PlayerBalanceContext } from '../../context/playerBalance';
+import { PlayerContext } from '../../context/player';
 import { useServerResource } from '../../hooks/useServerResource';
 import { PurchaseItemPayload, StoreItem } from '../../qr-types';
 
 export function StoreItem() {
   const { itemUuid } = useParams();
   const theme = useMantineTheme();
-  const { updateBalance } = useContext(PlayerBalanceContext);
+  const { updateBalance } = useContext(PlayerContext);
 
   const {
     data: item,

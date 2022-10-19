@@ -9,7 +9,8 @@ import CaptureQrModal from '../CaptureQrModal/CaptureQrModal';
 import AuthNavbar from './AuthNavbar';
 import { useServerResource } from '../../hooks/useServerResource';
 import { Diamond } from 'tabler-icons-react';
-import { PlayerBalanceContext } from '../../context/playerBalance';
+import { PlayerContext } from '../../context/player';
+import { GamePlayer } from '../../qr-types';
 
 export default function AuthLayout() {  
   const navigate = useNavigate();
@@ -43,8 +44,18 @@ export default function AuthLayout() {
     load: `game/me/balance`
   })
 
+  const {
+    data: player,
+    isLoading: isLoadingPlayer,
+    loadError: loadPlayerError,
+    load: loadPlayer,
+  } = useServerResource<null, GamePlayer>({
+    load: `game/me`
+  })
+
   useEffect(() => {
     loadBalance();
+    loadPlayer();
   }, [location])
 
   const balanceContent = () => {
@@ -80,9 +91,10 @@ export default function AuthLayout() {
         onQrPayload={onQrPayload}
       />}
       {balanceContent()}
-      <PlayerBalanceContext.Provider value={{ balance, updateBalance: () => loadBalance()}}>
+      { loadPlayerError && <Text color="errorColor">{loadPlayerError.message}</Text>}
+      <PlayerContext.Provider value={{ balance, player, updateBalance: () => loadBalance()}}>
         <Outlet />
-      </PlayerBalanceContext.Provider>
+      </PlayerContext.Provider>
     </AppShell>
   )
 }

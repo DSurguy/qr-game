@@ -3,7 +3,7 @@ import { showNotification } from '@mantine/notifications';
 import React from 'react';
 import { useState } from 'react';
 import { useServerResource } from '../../hooks/useServerResource';
-import { ChangeType, GameDuel, UpdateDuelRecipientConfirmPayload } from '../../qr-types';
+import { ChangeType, GameDuel, GamePlayer, UpdateDuelRecipientConfirmPayload } from '../../qr-types';
 import AcceptRejectModal from '../AcceptRejectModal';
 import { ActivityBlock } from './blocks/ActivityBlock';
 import { StateBlock } from './blocks/StateBlock';
@@ -12,9 +12,10 @@ import { VersusBlock } from './blocks/VersusBlock';
 type Props = {
   duel: GameDuel;
   onUpdate: () => void;
+  currentPlayer: GamePlayer;
 }
 
-export default function PendingDuel ({ duel, onUpdate }: Props) {
+export default function PendingDuel ({ duel, onUpdate, currentPlayer }: Props) {
   const [respondModalOpen, setRespondModalOpen] = useState(false);
   const [respondComplete, setRespondComplete] = useState(false);
   const theme = useMantineTheme();
@@ -63,6 +64,8 @@ export default function PendingDuel ({ duel, onUpdate }: Props) {
   };
   const onCloseModal = () => setRespondModalOpen(false);
 
+  const isRecipient = currentPlayer.uuid === duel.recipientUuid;
+
   return (
     <Box sx={{
       backgroundColor: theme.colors.dark[4],
@@ -75,13 +78,13 @@ export default function PendingDuel ({ duel, onUpdate }: Props) {
         <VersusBlock duel={duel} />
         <ActivityBlock duel={duel} />
         { respondToDuelError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][6]}>Error responding to duel: {respondToDuelError.message}</Text></Grid.Col> }
-        <Grid.Col xs={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        { isRecipient && <Grid.Col xs={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Button
             onClick={() => setRespondModalOpen(true)}
             loading={isRespondingToDuel}
             disabled={respondComplete}
           >Respond</Button>
-        </Grid.Col>
+        </Grid.Col> }
       </Grid>
       <AcceptRejectModal
         opened={respondModalOpen}

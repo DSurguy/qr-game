@@ -4,7 +4,7 @@ import React from 'react';
 import { useState } from 'react';
 import { Swords } from 'tabler-icons-react';
 import { useServerResource } from '../../hooks/useServerResource';
-import { ChangeType, GameDuel, PluginModifiedPayloadResponse, UpdateDuelCancelPayload, UpdateDuelVictorPayload } from '../../qr-types';
+import { ChangeType, GameDuel, GamePlayer, PluginModifiedPayloadResponse, UpdateDuelCancelPayload, UpdateDuelVictorPayload } from '../../qr-types';
 import ConfirmModal from '../ConfirmModal';
 import ReportVictorModal from './ReportVictorModal';
 import { VersusBlock } from './blocks/VersusBlock';
@@ -14,9 +14,10 @@ import { ActivityBlock } from './blocks/ActivityBlock';
 type Props = {
   duel: GameDuel;
   onUpdate: () => void;
+  currentPlayer: GamePlayer;
 }
 
-export default function AcceptedDuel ({ duel, onUpdate }: Props) {
+export default function AcceptedDuel ({ duel, onUpdate, currentPlayer }: Props) {
   const [reportVictorModalOpen, setReportVictorModalOpen] = useState(false);
   const [cancelModalOpen, setCancelModalOpen] = useState(false);
   const [actionComplete, setActionComplete] = useState(false);
@@ -59,6 +60,8 @@ export default function AcceptedDuel ({ duel, onUpdate }: Props) {
   };
   const onCloseReportVictorModal = () => setReportVictorModalOpen(false);
 
+  const isInitator = currentPlayer.uuid === duel.initiatorUuid;
+
   const onCancel = () => {
     cancelDuel({
       changeType: ChangeType.Cancel,
@@ -96,14 +99,14 @@ export default function AcceptedDuel ({ duel, onUpdate }: Props) {
               disabled={actionComplete}
             >Report Victor</Button>
           </Box>
-          <Box>
+          { isInitator && <Box>
             <Button
               color="dark"
               onClick={() => setCancelModalOpen(true)}
               loading={isReportingVictor || isCancellingDuel}
               disabled={actionComplete}
             >Cancel Duel</Button>
-          </Box>
+          </Box> }
         </Grid.Col>
       </Grid>
       <ReportVictorModal

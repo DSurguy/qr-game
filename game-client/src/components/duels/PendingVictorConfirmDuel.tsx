@@ -3,7 +3,7 @@ import { showNotification } from '@mantine/notifications';
 import React, { useContext, useState } from 'react';
 import { HookResponseContext } from '../../context/hookResponse';
 import { useServerResource } from '../../hooks/useServerResource';
-import { ChangeType, GameDuel, PluginModifiedPayloadResponse, UpdateDuelRecipientConfirmPayload, UpdateDuelVictorConfirmPayload } from '../../qr-types';
+import { ChangeType, DuelState, GameDuel, GamePlayer, PluginModifiedPayloadResponse, UpdateDuelRecipientConfirmPayload, UpdateDuelVictorConfirmPayload } from '../../qr-types';
 import AcceptRejectModal from '../AcceptRejectModal';
 import { ActivityBlock } from './blocks/ActivityBlock';
 import { StateBlock } from './blocks/StateBlock';
@@ -12,9 +12,10 @@ import { VersusBlock } from './blocks/VersusBlock';
 type Props = {
   duel: GameDuel;
   onUpdate: () => void;
+  currentPlayer: GamePlayer;
 }
 
-export default function PendingVictorConfirmDuel ({ duel, onUpdate }: Props) {
+export default function PendingVictorConfirmDuel ({ duel, onUpdate, currentPlayer }: Props) {
   const [respondModalOpen, setRespondModalOpen] = useState(false);
   const [respondComplete, setRespondComplete] = useState(false);
   const { addResponses } = useContext(HookResponseContext)
@@ -67,6 +68,9 @@ export default function PendingVictorConfirmDuel ({ duel, onUpdate }: Props) {
   };
   const onCloseModal = () => setRespondModalOpen(false);
 
+  const isRecipient = currentPlayer.uuid === duel.recipientUuid;
+  const shouldShowRespondButton = (isRecipient && duel.state === DuelState.PendingRecipientConfirm) || !isRecipient && duel.state === DuelState.PendingInitiatorConfirm;
+
   return (
     <Box sx={{
       backgroundColor: theme.colors.dark[4],
@@ -79,13 +83,13 @@ export default function PendingVictorConfirmDuel ({ duel, onUpdate }: Props) {
         <VersusBlock duel={duel} />
         <ActivityBlock duel={duel} />
         { confirmVictorError && <Grid.Col xs={12}><Text color={theme.colors['errorColor'][6]}>Error confirming victor: {confirmVictorError.message}</Text></Grid.Col> }
-        <Grid.Col xs={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        { shouldShowRespondButton && <Grid.Col xs={3} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Button
             onClick={() => setRespondModalOpen(true)}
             loading={isConfirmingDuel}
             disabled={respondComplete}
           >Respond</Button>
-        </Grid.Col>
+        </Grid.Col> }
       </Grid>
       <AcceptRejectModal
         opened={respondModalOpen}
