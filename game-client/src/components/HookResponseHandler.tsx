@@ -10,7 +10,13 @@ type Props = {
 }
 
 export function HookResponseHandler ({ children }: Props) {
-  const [responses, setResponses] = useState<HookResponseWithId[]>([]);
+  // Test message:
+  // const [responses, setResponses] = useState<HookResponseWithId[]>([{
+  //   id: uuidv4(),
+  //   message: `# This is a test\nThis should be a paragraph\n- List\n- List?`,
+  //   icon: "crown-off"
+  // }]);
+  const [responses, setResponses] = useState<HookResponseWithId[]>([])
 
   const addResponses = (newResponses: PluginHookResponse[]) => {
     setResponses(
