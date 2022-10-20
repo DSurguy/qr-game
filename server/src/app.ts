@@ -6,12 +6,13 @@ import { resolve } from 'node:path';
 import { adminRouter } from './routing/adminRouter/adminRouter';
 import { Database } from 'better-sqlite3';
 import SessionManager from "./sessionManager";
-import { gamePortalRouter } from "./routing/gamePortalRouter";
+import { portalRouter } from "./routing/portalRouter/portalRouter";
 import { gameRouter } from "./routing/gameRouter/gameRouter";
 import { publicRouter } from './routing/publicRouter';
 import { createPluginManager } from './plugins/pluginManager';
 import { createRedemptionPointsPlugin } from './plugins/redemptionPoints';
 import { createQueenPlugin } from './plugins/queenDuel';
+import { createClaimActivityPlugin } from './plugins/claimActivity';
 
 export function start(db: Database) {
   const httpsOptions = process.env.HTTPS ? {
@@ -21,9 +22,11 @@ export function start(db: Database) {
 
   const redemptionPointsPlugin = createRedemptionPointsPlugin();
   const queenPlugin = createQueenPlugin();
+  const claimActivityPlugin = createClaimActivityPlugin();
   const pluginManager = createPluginManager();
   pluginManager.applyPlugin(redemptionPointsPlugin);
   pluginManager.applyPlugin(queenPlugin);
+  pluginManager.applyPlugin(claimActivityPlugin);
 
   const app = fastify({
     logger: true,
@@ -62,7 +65,7 @@ export function start(db: Database) {
     prefix: 'api/admin'
   })
 
-  app.register(gamePortalRouter, {
+  app.register(portalRouter, {
     prefix: 'api/game/portal'
   })
 

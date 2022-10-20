@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { resolvePath, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { showNotification, updateNotification } from '@mantine/notifications';
 import { ADMIN_API_BASE, STORAGE_KEY_SESSION_ID } from '../constants';
 import { useLocalStoredState } from './useLocalStoredState';
 import { AlertTriangle, Check } from 'tabler-icons-react';
+import { HookResponseContext } from '../context/hookResponse';
+import { PluginModifiedPayloadResponse } from '../qr-types';
 
 enum EntityType {
   player = 'player',
@@ -11,11 +13,17 @@ enum EntityType {
   item = 'item'
 }
 
+interface PortalResponse extends PluginModifiedPayloadResponse{
+  target: string;
+  setAuth?: string;
+}
+
 export function usePortalHandler() {
   const [sessionId, setSessionId] = useLocalStoredState<string>(STORAGE_KEY_SESSION_ID)
   const navigate = useNavigate();
   const [isHandling, setIsHandling] = useState(false);
   const [error, setError] = useState("");
+  const { addResponses: addHookResponses } = useContext(HookResponseContext);
 
   /**
    * 
@@ -54,7 +62,7 @@ export function usePortalHandler() {
               method: 'POST',
               headers: getHeaders(),
             })
-            const { target, setAuth } = await response.json();
+            const { target, setAuth } = await response.json() as PortalResponse;
             if( setAuth ) setSessionId(setAuth);
             navigate(target, {
               replace: true
@@ -66,8 +74,11 @@ export function usePortalHandler() {
               method: 'POST',
               headers: getHeaders(),
             })
-            const { target, setAuth } = await response.json();
+            const { target, setAuth, hooks } = await response.json() as PortalResponse;
             if( setAuth ) setSessionId(setAuth);
+            if( hooks?.portalActivity?.length ) {
+              addHookResponses(hooks.portalActivity);
+            }
             navigate(target, {
               replace: true
             });
@@ -78,7 +89,7 @@ export function usePortalHandler() {
               method: 'POST',
               headers: getHeaders(),
             })
-            const { target, setAuth } = await response.json();
+            const { target, setAuth } = await response.json() as PortalResponse;
             if( setAuth ) setSessionId(setAuth);
             navigate(target, {
               replace: true

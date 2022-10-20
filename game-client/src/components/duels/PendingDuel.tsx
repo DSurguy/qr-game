@@ -70,7 +70,7 @@ export default function PendingDuel ({ duel, onUpdate, currentPlayer }: Props) {
     <Box sx={{
       backgroundColor: theme.colors.dark[4],
       borderRadius: theme.radius.sm,
-      margin: '0.25rem 0',
+      margin: '0.25rem 0 0.5rem 0',
       padding: '0.5rem'
     }}>
       <Grid>

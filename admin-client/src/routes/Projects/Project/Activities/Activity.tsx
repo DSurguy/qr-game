@@ -9,6 +9,7 @@ import FormikNumberInput from '../../../../components/inputs/FormikNumberInput';
 import { useServerResource } from '../../../../hooks/useServerResource';
 import { replacePort } from '../../../../conversions/domain';
 import copyToClipboardWithNotify from '../../../../utilities/copyToClipboardWithNotify';
+import { Tags } from '../../../../components/Tags';
 
 export default function Activity() {
   const { projectUuid, activityUuid } = useParams();
@@ -142,6 +143,9 @@ export default function Activity() {
     <Box>
       { qrCodeError && qrCodeError.message }
       { qrCode && <img src={qrCode} /> }
+    </Box>
+    <Box>
+      <Tags resourceType="activities" resourceUuid={activityUuid} />
     </Box>
   </Box>
 }

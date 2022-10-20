@@ -37,6 +37,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
           pa.value as 'activity.value',
           pa.isRepeatable as 'activity.isRepeatable',
           pa.repeatValue as 'activity.repeatValue',
+          aTags.value as 'activity.color',
           pInit.uuid as 'initiator.uuid',
           pInit.wordId as 'initiator.wordId',
           pInit.name as 'initiator.name',
@@ -49,6 +50,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
           LEFT JOIN project_activities pa ON pd.activityUuid = pa.uuid
           LEFT JOIN project_players pInit ON pd.initiatorUuid = pInit.uuid
           LEFT JOIN project_players rRecip ON pd.recipientUuid = rRecip.uuid
+          LEFT JOIN activity_tags aTags ON pd.projectUuid = aTags.projectUuid AND pd.activityUuid = aTags.activityUuid AND aTags.tag = 'color'
         WHERE
         pd.projectUuid=@projectUuid
           AND (pd.initiatorUuid=@playerUuid OR pd.recipientUuid=@playerUuid)

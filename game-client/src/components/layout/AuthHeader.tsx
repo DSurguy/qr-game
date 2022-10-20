@@ -17,6 +17,7 @@ const getTitle = () => {
   if( matchPath({ path: '/game/me', end: false}, location.pathname) ) return 'Profile';
   if( matchPath({ path: '/game/player', end: false}, location.pathname) ) return 'Player';
   if( matchPath({ path: '/game/duels', end: false}, location.pathname) ) return 'Duels';
+  if( matchPath({ path: '/game/activity', end: false}, location.pathname) ) return 'Activity';
 }
 
 export default function AuthHeader({ openCaptureQrModal, openNavbar, closeNavbar, navbarOpen }: Props) {

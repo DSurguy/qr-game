@@ -208,6 +208,19 @@ export function bootstrap(path: string = "") {
       `)
 
       stmt.run();
+
+      stmt = db.prepare(`
+        CREATE TABLE IF NOT EXISTS activity_tags (
+          projectUuid TEXT,
+          activityUuid TEXT,
+          tag TEXT,
+          value TEXT,
+          FOREIGN KEY ( projectUuid, activityUuid ) REFERENCES project_activities ( projectUuid, uuid ),
+          PRIMARY KEY ( projectUuid, activityUuid, tag )
+        )
+      `)
+
+      stmt.run();
     })
     bootstrapTransaction();
 

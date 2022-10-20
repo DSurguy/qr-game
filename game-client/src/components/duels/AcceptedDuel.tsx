@@ -83,7 +83,7 @@ export default function AcceptedDuel ({ duel, onUpdate, currentPlayer }: Props) 
     <Box sx={{
       backgroundColor: theme.colors.dark[4],
       borderRadius: theme.radius.sm,
-      margin: '0.25rem 0',
+      
       padding: '0.5rem'
     }}>
       <Grid>

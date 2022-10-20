@@ -19,6 +19,7 @@ specifiers:
   babel-loader: ^8.2.5
   core-js: ^3.23.3
   css-loader: ^6.7.1
+  date-fns: ^2.29.3
   dotenv: ^16.0.3
   formik: ^2.2.9
   fuzzysort: ^2.0.1
@@ -47,6 +48,7 @@ dependencies:
   '@mantine/form': 5.5.4_react@18.2.0
   '@mantine/hooks': 5.5.4_react@18.2.0
   '@mantine/notifications': 5.5.4_peoatue7sckyfiogasz7flkvpm
+  date-fns: 2.29.3
   dotenv: 16.0.3
   formik: 2.2.9_react@18.2.0
   fuzzysort: 2.0.1
@@ -2558,6 +2560,11 @@ packages:
 
   /csstype/3.1.1:
     resolution: {integrity: sha512-DJR/VvkAvSZW9bTouZue2sSxDwdTN92uHjqeKVm+0dAqdfNykRzQ95tay8aXMBAAPpUiq4Qcug2L7neoRh2Egw==}
+
+  /date-fns/2.29.3:
+    resolution: {integrity: sha512-dDCnyH2WnnKusqvZZ6+jA1O51Ibt8ZMRNkDZdyAyK4YfbDwa/cEmuztzG5pk6hqlp9aSBPYcjOlktquahGwGeA==}
+    engines: {node: '>=0.11'}
+    dev: false
 
   /debug/2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}

@@ -1,24 +1,9 @@
 import { Box, Button, Modal, Text, useMantineTheme } from '@mantine/core';
 import React from 'react';
-import { Award, Crown, CrownOff, IconProps, Swords } from 'tabler-icons-react';
 import { PluginHookResponse } from '../qr-types';
 import ReactMarkdown from 'react-markdown';
 import { StarburstIcon } from './icons/Starburst';
-
-interface IconToComponentProps extends IconProps {
-  iconName: string;
-}
-
-const IconToComponent = ({ iconName, ...other }: IconToComponentProps) => {
-  const iconMap: Record<string, JSX.Element | undefined> = {
-    'crown': <Crown {...other} />,
-    'crown-off': <CrownOff {...other} />,
-    'swords': <Swords {...other} />,
-    'award': <Award {...other} />
-  };
-
-  return iconMap[iconName] || null;
-}
+import { TablerIconFromString } from './icons/TablerIconFromString';
 
 type Props = {
   opened: boolean;
@@ -34,7 +19,7 @@ export function HookResponseModal({ opened, onClose, response }: Props) {
       <StarburstIcon
         style={{ display: 'absolute', zIndex: 1, width: '200px', height: '200px', fill: theme.colors[theme.primaryColor][5] }}
       />
-      <IconToComponent iconName={response.icon} size={100} style={{ position: 'absolute', zIndex: 2, top: '50px', left: '50px'}} />
+      <TablerIconFromString icon={response.icon} size={100} style={{ position: 'absolute', zIndex: 2, top: '50px', left: '50px'}}/>
     </Box> }
     <Box>
       <Text sx={{ fontSize: '1.25rem'}}><ReactMarkdown children={response.message} /></Text>

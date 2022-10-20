@@ -52,6 +52,13 @@ export interface SavedActivity extends ActivityBase, SavedItemBase {
   wordId: string;
 }
 
+export interface GameActivity extends SavedActivity {
+  icon?: string;
+  color?: string;
+  claimedAt?: number;
+  claimedFor?: number;
+}
+
 export interface PlayerBase {
   uuid: string;
   wordId: string;
@@ -91,6 +98,7 @@ export type ActivityCompletedEventPayload = {
   playerUuid: string;
   activityUuid: string;
   isRepeat: boolean;
+  amount: number;
 }
 
 export type GameEvent = {
@@ -194,8 +202,13 @@ UpdateDuelCancelConfirmPayload |
 UpdateDuelVictorPayload |
 UpdateDuelVictorConfirmPayload;
 
+export interface GameDuelActivity extends ActivityBase {
+  uuid?: string;
+  color?: string;
+}
+
 export interface GameDuel extends Duel {
-  activity: ActivityBase;
+  activity: GameDuelActivity;
   initiator: null | PlayerBase;
   recipient: null | PlayerBase;
   tags: Tag[];
@@ -282,7 +295,7 @@ export type PluginPreHookResponse = {
 
 export type PluginHookResponse = {
   message: string;
-  icon?: string; //TODO: Standardize icons that can be displayed to avoid fighting react
+  icon?: string;
 }
 
 export interface PluginModifiedPayloadResponse {
@@ -291,6 +304,7 @@ export interface PluginModifiedPayloadResponse {
     preItemRedemption?: PluginPreHookResponse[];
     duelComplete?: PluginHookResponse[];
     duelCancelled?: PluginHookResponse[];
+    portalActivity?: PluginHookResponse[];
   }
 }
 

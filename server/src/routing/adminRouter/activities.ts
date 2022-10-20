@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import { FastifyInstance } from "fastify";
-import { SavedActivity, UnsavedActivity } from "../../qr-types";
+import { SavedActivity, Tag, UnsavedActivity } from "../../qr-types";
 import { claimNewWordId } from "./claimNewWordId";
 
 export function applyActivityRoutes(app: FastifyInstance) {
@@ -160,6 +160,139 @@ export function applyActivityRoutes(app: FastifyInstance) {
     } catch (e) {
       console.error(e.message);
       reply.code(500).send();
+    }
+  })
+
+  app.get<{
+    Params: { projectUuid: string, activityUuid: string },
+    Reply: Tag[] | { message: string } | undefined
+  }>('/projects/:projectUuid/activities/:activityUuid/tags', ( req, reply ) => {
+    const { projectUuid, activityUuid } = req.params;
+
+    try {
+      const select = app.db.prepare(`
+        SELECT * FROM activity_tags
+        WHERE projectUuid=@projectUuid AND activityUuid=@activityUuid
+      `)
+      const tags = select.all({
+        projectUuid,
+        activityUuid
+      })
+
+      reply.status(200).send(tags.map(record => ({
+        tag: record.tag,
+        value: record.value
+      })));
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
+    }
+  })
+
+  app.post<{
+    Params: {
+      projectUuid: string;
+      activityUuid: string;
+    },
+    Body: Tag,
+    Reply: { message: string } | undefined
+  }>('/projects/:projectUuid/activities/:activityUuid/tags', ( req, reply ) => {
+    const { projectUuid, activityUuid } = req.params;
+    const { tag, value } = req.body;
+
+    try {
+      const update = app.db.prepare(`
+        INSERT INTO activity_tags (
+          projectUuid,
+          activityUuid,
+          tag,
+          value
+        ) VALUES (
+          @projectUuid,
+          @activityUuid,
+          @tag,
+          @value
+        )
+      `)
+
+      update.run({
+        projectUuid,
+        activityUuid,
+        tag,
+        value
+      })
+
+      reply.status(200).send();
+
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
+    }
+  })
+
+  app.put<{
+    Params: {
+      projectUuid: string;
+      activityUuid: string;
+      tag: string;
+    },
+    Body: { value: string },
+    Reply: { message: string } | undefined
+  }>('/projects/:projectUuid/activities/:activityUuid/tags/:tag', ( req, reply ) => {
+    const { projectUuid, activityUuid, tag } = req.params;
+    const { value } = req.body;
+
+    try {
+      const update = app.db.prepare(`
+        UPDATE activity_tags SET
+          value=@value
+        WHERE
+          projectUuid=@projectUuid AND
+          activityUuid=@activityUuid AND
+          tag=@tag
+      `)
+
+      update.run({
+        projectUuid,
+        activityUuid,
+        tag,
+        value
+      })
+
+      reply.status(200).send();
+
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
+    }
+  })
+
+  app.delete<{
+    Params: { projectUuid: string, activityUuid: string, tag: string },
+    Reply: { message: string } | undefined
+  }>('/projects/:projectUuid/activities/:activityUuid/tags/:tag', ( req, reply ) => {
+    const { projectUuid, activityUuid, tag } = req.params;
+
+    try {
+      const update = app.db.prepare(`
+        DELETE FROM activity_tags
+        WHERE
+          projectUuid=@projectUuid AND
+          activityUuid=@activityUuid AND
+          tag=@tag
+      `)
+
+      update.run({
+        projectUuid,
+        activityUuid,
+        tag
+      })
+
+      reply.status(200).send();
+
+    } catch (e) {
+      console.error(e.message, e);
+      reply.code(500).send({ message: e.message })
     }
   })
 }

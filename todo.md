@@ -32,23 +32,26 @@
 [x] Block duplicate duels with the same person
   - Need to use the concept of an "active" duel, being anything Accepted through terminal
 [ ] Extract duel item boilerplate
-[ ] Page Titles
-[ ] Pretty Store
-[ ] Pretty Inventory
+[x] Page Titles
+[x] Pretty Store
+[x] Pretty Inventory
 [ ] Pretty Profile
-[ ] Pretty Activity
-[ ] Pretty Duels
+[x] Pretty Activity
+  - icon (which means tags)
+  - color
+  - descriptionb
+[x] Pretty Duels
 [x] Redemption Challenge
 [x] Store Item Tags
 [x] Item Redemption Points Side Effect
 [ ] Notifications About Side Effects
   - How do we communicate that a side effect was run?
     - Plugins should modify response
-[ ] Fae Queen Item Tag Side Effect
+[x] Fae Queen Item Tag Side Effect
 [ ] Password protect admin app
+[ ] Activity Claim Cleanup
+  - [x] Plugin hook on portal route if session to claim
+  - [ ] Claim Cooldown for repeat
+  - [ ] "You have already claimed this"
 
 # BUGS
-[ ] All activities show "Set Up Duel"
-[ ] Remove actions that don't match the current player as initiator/recipient
-  - This probably requires the current player uuid to be stored somewhere, it's not right now
-  - Could also hit /me before loading the duels page
