@@ -1,9 +1,9 @@
-import { GamePlayer, ProjectSettings, SavedPlayer, PlayerClaimedEventPayload, GameEventType } from "../qr-types";
 import { randomUUID } from "crypto";
-import { FastifyPluginCallback } from "fastify";
-import { playerToGame } from "../conversions/toGame";
+import { FastifyInstance } from "fastify";
+import { playerToGame } from "../../conversions/toGame";
+import { GameEventType, GamePlayer, PlayerClaimedEventPayload, PluginModifiedPayloadResponse, ProjectSettings, SavedPlayer } from "../../qr-types";
 
-export const publicRouter: FastifyPluginCallback = (app, options, done) => {
+export function applyPlayerRoutes(app: FastifyInstance) {
   app.get<{
     Querystring: {
       projectUuid: string;
@@ -37,6 +37,8 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
     }
   })
 
+  interface ClaimPlayerResponse extends GamePlayer, PluginModifiedPayloadResponse {}
+
   app.post<{
     Params: {
       playerUuid: string;
@@ -47,7 +49,7 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
       realName: string;
       //avatar: string;
     }
-    Reply: GamePlayer | { message: string } | undefined;
+    Reply: ClaimPlayerResponse | { message: string } | undefined;
   }>('/player/:playerUuid/claim', (req, reply) => {
     try {
       const { playerUuid } = req.params;
@@ -157,13 +159,21 @@ export const publicRouter: FastifyPluginCallback = (app, options, done) => {
         playerUuid
       })
 
-      reply.status(200).send(playerToGame(updatedPlayer))
+      const hookResponses = app.plugins.runClaimPlayerHook({
+        db: app.db,
+        player: updatedPlayer
+      })
+
+      reply.status(200).send({
+        ...playerToGame(updatedPlayer),
+        hooks: {
+          claimPlayer: hookResponses
+        }
+      })
 
     } catch (e) {
       console.error(e.message);
       reply.status(500).send();
     }
   })
-
-  done();
 }

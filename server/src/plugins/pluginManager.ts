@@ -1,5 +1,5 @@
 import { PluginHookResponse, PluginPreHookResponse } from "../qr-types";
-import { DuelCancelledHookHandler, DuelCancelledHookPayload, DuelCompleteHookHandler, DuelCompleteHookPayload, ItemPreRedemptionHookHandler, ItemPreRedemptionHookPayload, ItemRedemptionHookHandler, ItemRedemptionHookPayload, PluginPayload, PortalActivityHookHandler, PortalActivityHookPayload, QrGamePlugin } from "./pluginTypes"
+import { ClaimPlayerHookHandler, ClaimPlayerHookPayload, DuelCancelledHookHandler, DuelCancelledHookPayload, DuelCompleteHookHandler, DuelCompleteHookPayload, ItemPreRedemptionHookHandler, ItemPreRedemptionHookPayload, ItemRedemptionHookHandler, ItemRedemptionHookPayload, PluginPayload, PortalActivityHookHandler, PortalActivityHookPayload, QrGamePlugin } from "./pluginTypes"
 
 export interface PluginManager {
   applyPlugin: (plugin: QrGamePlugin) => void;
@@ -8,6 +8,7 @@ export interface PluginManager {
   runDuelCompleteHook: (payload: DuelCompleteHookPayload) => PluginHookResponse[];
   runDuelCancelledHook: (payload: DuelCancelledHookPayload) => PluginHookResponse[];
   runPortalActivityHook: (payload: PortalActivityHookPayload) => PluginHookResponse[];
+  runClaimPlayerHook: (payload: ClaimPlayerHookPayload) => PluginHookResponse[];
 }
 
 export function createPluginManager(): PluginManager {
@@ -16,7 +17,8 @@ export function createPluginManager(): PluginManager {
     preItemRedemption: [] as ItemPreRedemptionHookHandler[],
     duelComplete: [] as DuelCompleteHookHandler[],
     duelCancelled: [] as DuelCancelledHookHandler[],
-    portalActivity: [] as PortalActivityHookHandler[]
+    portalActivity: [] as PortalActivityHookHandler[],
+    claimPlayer: [] as ClaimPlayerHookHandler[]
   }
 
   const addItemRedemptionHook: PluginPayload['addItemRedemptionHook'] = (handler) => {
@@ -109,6 +111,24 @@ export function createPluginManager(): PluginManager {
     return responses;
   }
 
+  const addClaimPlayerHook: PluginPayload['addClaimPlayerHook'] = (handler) => {
+    if( !handlers.claimPlayer.includes(handler) )
+      handlers.claimPlayer.push(handler)
+  }
+
+  const removeClaimPlayerHook: PluginPayload['removeClaimPlayerHook'] = (handlerToRemove) => {
+    handlers.claimPlayer = handlers.claimPlayer.filter(handler => handler !== handlerToRemove );
+  }
+
+  const runClaimPlayerHook = (payload: ClaimPlayerHookPayload): PluginHookResponse[] => {
+    const responses: PluginHookResponse[] = [];
+    for( let handler of handlers.claimPlayer ){
+      const response = handler(payload);
+      if( response ) responses.push(response);
+    }
+    return responses;
+  }
+
   const applyPlugin = (plugin: QrGamePlugin) => plugin({
     addItemRedemptionHook,
     removeItemRedemptionHook,
@@ -119,7 +139,9 @@ export function createPluginManager(): PluginManager {
     addDuelCancelledHook,
     removeDuelCancelledHook,
     addPortalActivityHook,
-    removePortalActivityHook
+    removePortalActivityHook,
+    addClaimPlayerHook,
+    removeClaimPlayerHook
   })
 
   return {
@@ -128,6 +150,7 @@ export function createPluginManager(): PluginManager {
     runItemPreRedemptionHook,
     runDuelCompleteHook,
     runDuelCancelledHook,
-    runPortalActivityHook
+    runPortalActivityHook,
+    runClaimPlayerHook
   }
 }

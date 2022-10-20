@@ -309,6 +309,7 @@ export interface PluginModifiedPayloadResponse {
     duelComplete?: PluginHookResponse[];
     duelCancelled?: PluginHookResponse[];
     portalActivity?: PluginHookResponse[];
+    claimPlayer?: PluginHookResponse[];
   }
 }
 

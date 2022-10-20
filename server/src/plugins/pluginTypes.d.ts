@@ -1,9 +1,13 @@
 import { Database } from "better-sqlite3";
-import { Duel, PluginHookResponse, PluginPreHookResponse, ProjectItem, SavedActivity, Tag } from "../qr-types"
+import { Duel, PluginHookResponse, PluginPreHookResponse, ProjectItem, SavedActivity, SavedPlayer, Tag } from "../qr-types"
 import { GameSession } from "../types";
 
 export interface StandardHookPayload {
   session: GameSession;
+  db: Database;
+}
+
+export interface UnauthenticatedHookPayload {
   db: Database;
 }
 
@@ -31,11 +35,16 @@ export interface PortalActivityHookPayload extends StandardHookPayload {
   activity: SavedActivity;
 }
 
+export interface ClaimPlayerHookPayload extends UnauthenticatedHookPayload {
+  player: SavedPlayer
+}
+
 export type ItemRedemptionHookHandler = (payload: ItemRedemptionHookPayload) => PluginHookResponse | void;
 export type ItemPreRedemptionHookHandler = (payload: ItemPreRedemptionHookPayload) => PluginPreHookResponse | void;
 export type DuelCompleteHookHandler = (payload: DuelCompleteHookPayload) => PluginHookResponse | void;
 export type DuelCancelledHookHandler = (payload: DuelCancelledHookPayload) => PluginHookResponse | void;
 export type PortalActivityHookHandler = (payload: PortalActivityHookPayload) => PluginHookResponse | void;
+export type ClaimPlayerHookHandler = (payload: ClaimPlayerHookPayload) => PluginHookResponse | void;
 
 type PluginPayload = {
   addItemRedemptionHook: (handler: ItemRedemptionHookHandler) => void;
@@ -48,6 +57,8 @@ type PluginPayload = {
   removeDuelCancelledHook: (handler: DuelCancelledHookHandler) => void;
   addPortalActivityHook: (handler: PortalActivityHookHandler) => void;
   removePortalActivityHook: (handler: PortalActivityHookHandler) => void;
+  addClaimPlayerHook: (handler: ClaimPlayerHookHandler) => void;
+  removeClaimPlayerHook: (handler: ClaimPlayerHookHandler) => void;
 }
 
 export type QrGamePlugin = (payload: PluginPayload) => void;

@@ -8,11 +8,12 @@ import { Database } from 'better-sqlite3';
 import SessionManager from "./sessionManager";
 import { portalRouter } from "./routing/portalRouter/portalRouter";
 import { gameRouter } from "./routing/gameRouter/gameRouter";
-import { publicRouter } from './routing/publicRouter';
+import { publicRouter } from './routing/publicRouter/publicRouter';
 import { createPluginManager } from './plugins/pluginManager';
 import { createRedemptionPointsPlugin } from './plugins/redemptionPoints';
 import { createQueenPlugin } from './plugins/queenDuel';
 import { createClaimActivityPlugin } from './plugins/claimActivity';
+import { createClaimPlayerPlugin } from './plugins/claimPlayer';
 
 export function start(db: Database) {
   const httpsOptions = process.env.HTTPS ? {
@@ -23,10 +24,12 @@ export function start(db: Database) {
   const redemptionPointsPlugin = createRedemptionPointsPlugin();
   const queenPlugin = createQueenPlugin();
   const claimActivityPlugin = createClaimActivityPlugin();
+  const claimPlayerPlugin = createClaimPlayerPlugin();
   const pluginManager = createPluginManager();
   pluginManager.applyPlugin(redemptionPointsPlugin);
   pluginManager.applyPlugin(queenPlugin);
   pluginManager.applyPlugin(claimActivityPlugin);
+  pluginManager.applyPlugin(claimPlayerPlugin);
 
   const app = fastify({
     logger: true,
