@@ -72,6 +72,11 @@ export function InventoryItem() {
 
     const quantityAvailable = item.quantity - item.quantityRedeemed;
 
+    let descriptionContent: string;
+    if( item.item.redeemedDescription ) descriptionContent = item.item.redeemedDescription;
+    else if( item.item.inventoryDescription ) descriptionContent = item.item.inventoryDescription;
+    else descriptionContent = item.item.description
+
     return <Box sx={{
       borderRadius: theme.radius.sm,
       borderWidth: '1px',
@@ -108,7 +113,7 @@ export function InventoryItem() {
         </Button>
       </Box>
       <Box sx={{ margin: '1rem 0' }}>
-        <Text><ReactMarkdown children={item.item.description} /></Text>
+        <Text><ReactMarkdown children={descriptionContent} /></Text>
       </Box>
     </Box>
   }

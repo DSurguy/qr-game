@@ -141,6 +141,8 @@ export function bootstrap(path: string = "") {
           uuid TEXT,
           name TEXT,
           description TEXT,
+          inventoryDescription TEXT,
+          redeemedDescription TEXT,
           cost INTEGER,
           imageBase64 TEXT,
           availableForPurchase INTEGER,

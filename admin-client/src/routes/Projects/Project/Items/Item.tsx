@@ -84,7 +84,27 @@ export function ItemRoute() {
             <Form>
               {saveError && <Text color="red">{saveError.message}</Text>}
               <Field name="name" as={TextInput} label="Item Name" />
-              <Field name="description" as={Textarea} autosize label="Description" sx={{ marginTop: theme.spacing['xs'] }} />
+              <Field
+                name="description"
+                as={Textarea}
+                label="Description"
+                sx={{ marginTop: theme.spacing['xs'] }}
+                autosize
+              />
+              <Field
+                name="inventoryDescription"
+                as={Textarea}
+                label="Description In Inventory"
+                sx={{ marginTop: theme.spacing['xs'] }}
+                autosize
+              />
+              <Field
+                name="redeemedDescription"
+                as={Textarea}
+                label="Description When Redeemed"
+                sx={{ marginTop: theme.spacing['xs'] }}
+                autosize
+              />
               <Field
                 name="cost"
                 component={FormikNumberInput}

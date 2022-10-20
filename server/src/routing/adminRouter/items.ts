@@ -75,7 +75,9 @@ export function applyItemRoutes(app: FastifyInstance) {
       imageBase64,
       availableForPurchase,
       canPurchaseMultiple,
-      redemptionChallenge
+      redemptionChallenge,
+      inventoryDescription,
+      redeemedDescription
     } = req.body;
     const uuid = randomUUID();
     const { projectUuid } = req.params;
@@ -86,6 +88,8 @@ export function applyItemRoutes(app: FastifyInstance) {
         uuid,
         name,
         description,
+        inventoryDescription,
+        redeemedDescription,
         cost,
         imageBase64,
         availableForPurchase,
@@ -99,6 +103,8 @@ export function applyItemRoutes(app: FastifyInstance) {
         @uuid,
         @name,
         @description,
+        @inventoryDescription,
+        @redeemedDescription,
         @cost,
         @imageBase64,
         @availableForPurchase,
@@ -114,6 +120,8 @@ export function applyItemRoutes(app: FastifyInstance) {
         uuid,
         name,
         description,
+        inventoryDescription,
+        redeemedDescription,
         cost,
         imageBase64,
         availableForPurchase: availableForPurchase ? 1 : 0,
@@ -126,6 +134,8 @@ export function applyItemRoutes(app: FastifyInstance) {
         uuid,
         name,
         description,
+        inventoryDescription,
+        redeemedDescription,
         cost,
         imageBase64,
         availableForPurchase,
@@ -149,6 +159,8 @@ export function applyItemRoutes(app: FastifyInstance) {
     const {
       name,
       description,
+      inventoryDescription,
+      redeemedDescription,
       cost,
       imageBase64,
       availableForPurchase,
@@ -161,6 +173,8 @@ export function applyItemRoutes(app: FastifyInstance) {
       UPDATE project_store_items SET
         name=@name,
         description=@description,
+        inventoryDescription=@inventoryDescription,
+        redeemedDescription=@redeemedDescription,
         cost=@cost,
         imageBase64=@imageBase64,
         availableForPurchase=@availableForPurchase,
@@ -175,6 +189,8 @@ export function applyItemRoutes(app: FastifyInstance) {
         itemUuid,
         name,
         description,
+        inventoryDescription,
+        redeemedDescription,
         cost,
         imageBase64,
         availableForPurchase: availableForPurchase ? 1 : 0,

@@ -91,6 +91,8 @@ export function applyInventoryRoutes(app: FastifyInstance) {
           ppi.*,
           psi.name as 'item.name',
           psi.description as 'item.description',
+          psi.inventoryDescription as 'item.inventoryDescription',
+          psi.redeemedDescription as 'item.redeemedDescription',
           psi.imageBase64 as 'item.imageBase64',
           psi.redemptionChallenge as 'item.redemptionChallenge'
         FROM project_player_inventory ppi
@@ -118,7 +120,7 @@ export function applyInventoryRoutes(app: FastifyInstance) {
       }, {})
 
       const item: any = {};
-      const inventoryRecord: any = {};
+      let inventoryRecord: any = {};
       Object.entries(result).forEach(([key, value]) => {
         if( key.startsWith('item.') ){
           const itemKey = key.replace('item.', '');
@@ -128,11 +130,13 @@ export function applyInventoryRoutes(app: FastifyInstance) {
         }
         else inventoryRecord[key] = value;
       })
+      inventoryRecord = inventoryRecord as InventoryItem;
       inventoryRecord.item = {
         ...item,
+        redeemedDescription: inventoryRecord.quantityRedeemed >= 0 ? item.redeemedDescription : undefined,
         icon: tagMap.icon,
         color: tagMap.color
-      };
+      } as InventoryItem['item'];
 
       reply.status(200).send(inventoryRecord as InventoryItem);
     } catch(e) {

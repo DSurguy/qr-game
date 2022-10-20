@@ -44,7 +44,7 @@
 [x] Redemption Challenge
 [x] Store Item Tags
 [x] Item Redemption Points Side Effect
-[ ] Notifications About Side Effects
+[x] Notifications About Side Effects
   - How do we communicate that a side effect was run?
     - Plugins should modify response
 [x] Fae Queen Item Tag Side Effect

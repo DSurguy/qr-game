@@ -230,6 +230,8 @@ export interface ProjectKey extends CreateProjectKeyPayload {
 export interface CreateProjectItemPayload {
   name: string,
   description: string,
+  inventoryDescription: string,
+  redeemedDescription: string,
   cost: number,
   imageBase64: string | null,
   availableForPurchase: boolean,
@@ -276,6 +278,8 @@ export interface InventoryItem {
   item: {
     name: string;
     description: string;
+    inventoryDescription: string,
+    redeemedDescription?: string, //Will only be populated if quantityRedeemed > 0
     imageBase64?: string;
     hasRedemptionChallenge: boolean;
     icon?: string;
