@@ -1,24 +1,23 @@
-import React from 'react';
-import { AppShell, Header, useMantineTheme } from '@mantine/core';
-import { ApiHealth } from './ApiHealth';
-import { SidebarNav } from './SidebarNav';
+import React, { useState } from 'react';
+import { AppShell, useMantineTheme } from '@mantine/core';
 import { Outlet } from 'react-router-dom';
+import AppHeader from './AppHeader';
+import AppNavbar from './AppNavbar';
 
 export function RoutedPageLayout() {
   const theme = useMantineTheme()
+  const [navbarOpen, setNavbarOpen] = useState(false);
   return (
     <AppShell
       header={
-        <Header height={60} sx={{
-          display: 'flex',
-          alignItems: 'center',
-          padding: theme.spacing['xs']
-        }}>
-          <ApiHealth />
-        </Header>
+        <AppHeader
+          openNavbar={() => setNavbarOpen(true)}
+          closeNavbar={() => setNavbarOpen(false)}
+          navbarOpen={navbarOpen}
+        />
       }
-      navbar={<SidebarNav />}
     >
+      { <AppNavbar opened={navbarOpen} onClose={ () => setNavbarOpen(false) } /> }
       <Outlet />
     </AppShell>
   )
