@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Loader, Tabs, Text, Textarea, TextInput, useMantineTheme, } from '@mantine/core';
-import { SavedProject } from '@qrTypes';
+import { QrGenerationPayload, SavedProject } from '@qrTypes';
 import { Link, matchPath, Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useServerResource } from '../../../hooks/useServerResource';
 import { Field, Form, Formik, FormikHelpers } from 'formik';
-import { ChevronLeft } from 'tabler-icons-react';
+import { ChevronLeft, Download } from 'tabler-icons-react';
+import { useDownloadFile } from '../../../hooks/downloadFile';
 
 enum ProjectTab {
   activities = "activities",
@@ -17,7 +18,7 @@ export function ProjectRoute() {
   const { projectUuid } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-
+  const theme = useMantineTheme();
   const [activeTab, setActiveTab] = useState<string | null>(null)
 
   const {
@@ -32,7 +33,12 @@ export function ProjectRoute() {
     load: `projects/${projectUuid}`,
     update: `projects/${projectUuid}`
   })
-  const theme = useMantineTheme();
+
+  const {
+    isLoading: isGettingPdf,
+    loadError: getPdfError,
+    download: getPdf
+  } = useDownloadFile<QrGenerationPayload>(`projects/${projectUuid}/qrFile`, "POST")
 
   useEffect(() => {
     load();
@@ -69,18 +75,42 @@ export function ProjectRoute() {
       case ProjectTab.items: navigate("items"); break;
     }
   };
+
+  const onGetQrPdfClick = async () => {
+    getPdf({
+      includePlayers: true,
+      includeActivities: true,
+      includeItems: true
+    }, (success) => {
+      if( success ) {
+        console.log("YAY");
+      }
+      console.log("NAY");
+    })
+  }
   
   if( isLoading ) return <Loader />
   if( loadError ) return <Text color="red">{loadError ? loadError.message : "Error loading project"}</Text>
   if( !project ) return null;
+
+  { getPdfError && <Text color="red">{getPdfError.message}</Text> }
   return <Box style={{maxWidth: `700px`}}>
-    <Button
-      compact
-      variant="subtle"
-      component={Link}
-      to=".."
-      leftIcon={<ChevronLeft size={16} />}
-    >Back</Button>
+    <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
+      <Button
+        compact
+        variant="subtle"
+        component={Link}
+        to=".."
+        leftIcon={<ChevronLeft size={16} />}
+      >Back</Button>
+      <Button
+        compact
+        variant="subtle"
+        loading={isGettingPdf}
+        onClick={onGetQrPdfClick}
+        type="button"
+      ><Download /><Text sx={{ marginRight: '0.5rem' }}>Get QR Pdf</Text></Button>
+    </Box>
     <Formik initialValues={project} onSubmit={handleSubmit} enableReinitialize>
       {({ dirty }) => (
         <Form>

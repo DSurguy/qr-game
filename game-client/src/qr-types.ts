@@ -5,6 +5,7 @@ interface SavedItemBase {
 }
 
 interface ProjectSettingsBase {
+  gameClientHost: string;
   duels: {
     allow: boolean;
     allowRematch: boolean;
@@ -313,4 +314,18 @@ export interface PluginModifiedPayloadResponse {
   }
 }
 
-//v1.0.9
+export interface QrGenerationIncludeOptions {
+  copies: number;
+  uuid: string;
+}
+
+export interface QrGenerationPayload {
+  includePlayers: boolean;
+  includeActivities: boolean;
+  includeItems: boolean;
+  players?: QrGenerationIncludeOptions[];
+  activities?: QrGenerationIncludeOptions[];
+  items?: QrGenerationIncludeOptions[];
+}
+
+//v1.0.10

@@ -1,7 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { FastifyInstance } from "fastify";
 import { claimNewWordId } from "./claimNewWordId";
-import { SavedProject, UnsavedProject } from "../../qr-types";
+import { QrGenerationPayload, SavedProject, UnsavedProject } from "../../qr-types";
+import { generateQrCodes } from "./generateQrCodes";
 
 export function applyProjectRoutes(app: FastifyInstance) {
   app.post<{
@@ -153,6 +154,22 @@ export function applyProjectRoutes(app: FastifyInstance) {
     } catch (e) {
       console.error(e);
       reply.code(500).send()
+    }
+  })
+
+  app.post<{
+    Body: QrGenerationPayload;
+    Params: { projectUuid: string; };
+    Reply: Buffer | { message: string; };
+  }>('/projects/:projectUuid/qrFile', async (req, reply) => {
+    try {
+      const qrBuffer = await generateQrCodes(req.params.projectUuid, app.db, req.body);
+      reply.header('Content-Disposition', `attachment; filename="qrcodes.pdf"`)
+      reply.header('Access-Control-Expose-Headers', 'Content-Disposition')
+      reply.code(201).send(Buffer.from(qrBuffer))
+    } catch (e) {
+      console.error(e);
+      return reply.code(500).send({ message: e.message })
     }
   })
 }

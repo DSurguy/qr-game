@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Field, FieldAttributes, Form, Formik, FormikHelpers } from 'formik';
-import { Box, Button, Checkbox, Loader, Text } from '@mantine/core';
+import { Box, Button, Checkbox, Loader, Text, TextInput } from '@mantine/core';
 import { useParams } from 'react-router-dom';
 import { ProjectSettings } from '@qrTypes';
 import { AutoSave } from '../../../components/forms/AutoSave';
@@ -38,6 +38,7 @@ export function Settings() {
   if( !settings ) return null;
 
   const normalizedSettings = {
+    gameClientHost: '',
     duels: {
       allow: true,
       allowRematch: false
@@ -55,6 +56,7 @@ export function Settings() {
       {({ dirty }) => (
         <Form>
           {saveError && <Text color="red">{saveError.message}</Text>}
+          <Field name="gameClientHost" as={TextInput} label="Game Client Host" />
           <Text component="h3" sx={{ fontSize: '1.5rem', margin: 0, marginTop: '1rem' }}>Duels</Text>
           <Field
             name="duels.allow"

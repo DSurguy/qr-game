@@ -35,7 +35,7 @@
 [x] Page Titles
 [x] Pretty Store
 [x] Pretty Inventory
-[ ] Pretty Profile
+[x] Pretty Profile
 [x] Pretty Activity
   - icon (which means tags)
   - color
@@ -52,6 +52,8 @@
 [ ] Activity Claim Cleanup
   - [x] Plugin hook on portal route if session to claim
   - [ ] Claim Cooldown for repeat
-  - [ ] "You have already claimed this"
+  - [x] "You have already claimed this"
+[ ] Duel Wager
+[ ] Profile Picture
 
 # BUGS

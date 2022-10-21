@@ -11,6 +11,7 @@ const initialValues: UnsavedProject = {
   description: "",
   numPlayers: 50,
   settings: {
+    gameClientHost: '',
     duels: {
       allow: true,
       allowRematch: false
@@ -52,6 +53,7 @@ export function CreateProjectRoute() {
           }}
         />
         <Text component="h3">Settings</Text>
+        <Field name="gameClientHost" as={TextInput} label="Game Client Host" />
         <Field
           name="settings.duels.allow"
         >
