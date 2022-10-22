@@ -15,7 +15,7 @@ export function InventoryItem() {
   const { itemUuid } = useParams();
   const navigate = useNavigate();
   const [redemptionModalOpen, setRedemptionModalOpen] = useState(false);
-  const { addResponses } = useContext(HookResponseContext);
+  const { addResponses, addPreResponses } = useContext(HookResponseContext);
 
   const {
     data: item,
@@ -44,13 +44,14 @@ export function InventoryItem() {
     }
     else {
       redeem({ itemUuid }, (wasSuccessful, data) => {
-        if( wasSuccessful ) onRedeemSuccess(data);
+        if( data?.hooks?.preItemRedemption ) addPreResponses(data.hooks.preItemRedemption);
+        if( data?.hooks?.itemRedemption ) addResponses(data.hooks.itemRedemption);
+        if( wasSuccessful ) onRedeemSuccess();
       })
     }
   }
 
-  const onRedeemSuccess = (data?: PluginModifiedPayloadResponse) => {
-    if( data?.hooks?.itemRedemption ) addResponses(data.hooks.itemRedemption);
+  const onRedeemSuccess = () => {
     loadItem();
     showNotification({
       message: 'Item Redeemed!',
@@ -61,7 +62,9 @@ export function InventoryItem() {
   }
 
   const onRedemptionModalClose = (wasSuccessful: boolean, data?: PluginModifiedPayloadResponse) => {
-    if( wasSuccessful ) onRedeemSuccess(data);
+    if( data?.hooks?.preItemRedemption ) addPreResponses(data.hooks.preItemRedemption);
+    if( data?.hooks?.itemRedemption ) addResponses(data.hooks.itemRedemption);
+    if( wasSuccessful ) onRedeemSuccess();
     setRedemptionModalOpen(false)
   }
 

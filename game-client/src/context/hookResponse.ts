@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { PluginHookResponse } from "../qr-types";
+import { PluginHookResponse, PluginPreHookResponse } from "../qr-types";
 
 export interface HookResponseWithId extends PluginHookResponse {
   id: string;
@@ -8,12 +8,14 @@ export interface HookResponseWithId extends PluginHookResponse {
 export type HookResponseContextValue = {
   responses: HookResponseWithId[],
   addResponses: (responses: PluginHookResponse[]) => void;
+  addPreResponses: (responses: PluginPreHookResponse[]) => void;
   removeResponse: (responseId: string) => void;
 }
 
 const defaultValue = {
   responses: [] as HookResponseWithId[],
   addResponses: () => {},
+  addPreResponses: () => {},
   removeResponse: () => {}
 }
 

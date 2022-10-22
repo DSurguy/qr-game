@@ -27,7 +27,6 @@
 [x] Combine activity and duelActivity. Just add a stupid property for isDuel
 [ ] Clean up session stuff. SessionID is golden and gives player + project + session.
   - Add an expiration
-[ ] Prompt to claim activity, similar to player
 [ ] Add complex markdown-based activity descriptions
 [x] Block duplicate duels with the same person
   - Need to use the concept of an "active" duel, being anything Accepted through terminal
@@ -56,4 +55,9 @@
 [ ] Duel Wager
 [ ] Profile Picture
 
-# BUGS
+# Last-Minute-Fixes
+[ ] Prevent gueen duel recipient from rejecting
+[ ] Prompt to claim activity, similar to player
+[ ] Prevent multiple active same-queen duels
+[ ] Report name of current queen when item redeemed
+[ ] Report name of current queen duel initiator when blocked

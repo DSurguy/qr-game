@@ -84,8 +84,15 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
-          const message = (await result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
+          const data = await result.json();
+          const isPreHookFailure = result.status === 400 && Object.keys(data?.hooks || {}).length;
+          if( isPreHookFailure ) {
+            setSaveError(new Error("Hook failed to validate"));
+            if( callback ) callback(false, data);
+          } else {
+            const message = (await result.json() as any)['message'] || 'Internal Server Error'
+            throw new Error(message)
+          }
         }
         let data: SavedType;
         if( result.headers.get('Content-Type')?.includes('application/json') ) {
@@ -123,8 +130,17 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
-          const message = (await result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
+          const data = await result.json();
+          const isPreHookFailure = result.status === 400 && Object.keys(data?.hooks || {}).length;
+          if( isPreHookFailure ) {
+            setSaveError(null);
+            if( callback ) callback(false, data);
+            setIsSaving(false);
+            return;
+          } else {
+            const message = (await result.json() as any)['message'] || 'Internal Server Error'
+            throw new Error(message)
+          }
         }
         let data: SavedType;
         if( result.headers.get('Content-Type')?.includes('application/json') ) {

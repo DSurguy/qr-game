@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { HookResponseContext } from "../context/hookResponse";
-import { PluginHookResponse } from "../qr-types";
+import { PluginHookResponse, PluginPreHookResponse } from "../qr-types";
 import { HookResponseWithId } from '../context/hookResponse'
 import { v4 as uuidv4 } from "uuid";
 import { HookResponseModal } from "./HookResponseModal";
@@ -27,6 +27,16 @@ export function HookResponseHandler ({ children }: Props) {
     )
   }
 
+  const addPreResponses = (newResponses: PluginPreHookResponse[]) => {
+    setResponses(
+      responses.concat(newResponses.map(response => ({
+        message: response.failureReason,
+        icon: 'alert-triangle',
+        id: uuidv4()
+      })))
+    )
+  }
+
   const removeResponse = (responseId: string) => {
     setResponses(responses.filter(response => response.id !== responseId))
   }
@@ -36,6 +46,7 @@ export function HookResponseHandler ({ children }: Props) {
   return <HookResponseContext.Provider value={{
     responses,
     addResponses,
+    addPreResponses,
     removeResponse
   }}>
     {children}

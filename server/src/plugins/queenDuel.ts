@@ -131,7 +131,7 @@ const handleRedemption: ItemRedemptionHookHandler = (payload) => {
   }
 }
 
-const isCurrentPlayerDuelingForQueen = (db: Database, projectUuid: string, playerUuid: string) => {
+const getCurrentDuelingType = ({ db, session: { projectUuid, playerUuid }}: ItemPreRedemptionHookPayload) => {
   const selectDuelTags = db.prepare(`
     SELECT dt.*
     FROM duel_tags dt
@@ -148,10 +148,10 @@ const isCurrentPlayerDuelingForQueen = (db: Database, projectUuid: string, playe
     playerUuid,
     queenTag: QUEEN_TAG
   });
-  return !!tag;
+  return tag?.value;
 }
 
-const isCurrentPlayerQueen = (db: Database, projectUuid: string, playerUuid: string) => {
+const getCurrentPlayerQueenType = ({ db, session: { projectUuid, playerUuid }}: ItemPreRedemptionHookPayload): string | undefined => {
   const selectPlayerTags = db.prepare(`
     SELECT * FROM player_tags
     WHERE
@@ -164,24 +164,58 @@ const isCurrentPlayerQueen = (db: Database, projectUuid: string, playerUuid: str
     playerUuid,
     queenTag: QUEEN_TAG
   });
-  return !!tag;
+  return tag?.value;
+}
+
+const getCurrentDuelingPlayer = ({ db, session: { projectUuid }, tags }: ItemPreRedemptionHookPayload): string | undefined => {
+  const itemQueenType = tags.find(tag => tag.tag === 'queen').value;
+  const selectPlayerName = db.prepare(`
+    SELECT pp.name as name FROM duel_tags dt
+    LEFT JOIN project_duels pd
+    LEFT JOIN project_players pp
+    ON
+      dt.duelUuid = pd.uuid AND pd.projectUuid=@projectUuid AND
+      pd.initiatorUuid = pp.uuid AND pp.projectUuid=@projectUuid
+    WHERE
+      dt.projectUuid=@projectUuid AND
+      dt.tag = @queenTag AND
+      dt.value = @queenType
+  `)
+  return selectPlayerName.get({
+    projectUuid,
+    queenTag: QUEEN_TAG,
+    queenType: itemQueenType
+  })?.name
 }
 
 const handlePreRedemption: ItemPreRedemptionHookHandler = (payload: ItemPreRedemptionHookPayload) => {
+  const itemQueenType = payload.tags.find(tag => tag.tag === 'queen').value;
+  
+  const currentQueenType = getCurrentPlayerQueenType(payload)
   if(
-    isCurrentPlayerQueen(payload.db, payload.session.projectUuid, payload.session.playerUuid)
+    currentQueenType
   ) {
     return {
       failure: true,
-      failureReason: "Current player is already a fae queen"
+      failureReason: `You are already the ${toTitleCase(currentQueenType)} queen`
     }
   }
+
+  const currentQueenDuelType = getCurrentDuelingType(payload)
   if(
-    isCurrentPlayerDuelingForQueen(payload.db, payload.session.projectUuid, payload.session.playerUuid)
+    currentQueenDuelType
   ) {
     return {
       failure: true,
-      failureReason: "Current player is already dueling for the right to be queen"
+      failureReason: `You are already dueling for the right to be ${toTitleCase(currentQueenDuelType)} queen`
+    }
+  }
+
+  const currentDuelingPlayer = getCurrentDuelingPlayer(payload);
+  if( currentDuelingPlayer ) {
+    return {
+      failure: true,
+      failureReason: `${currentDuelingPlayer} is already dueling for the right to be ${toTitleCase(itemQueenType)} queen.\n\nOnce their duel is complete, you can redeem this item and duel the current queen.`
     }
   }
 }
