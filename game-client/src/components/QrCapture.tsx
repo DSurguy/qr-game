@@ -17,9 +17,14 @@ const useMedia = ({ width, height }: UseMediaProps) => {
     setIsLoading(true);
     (async () => {
       try {
+        //kick off permissions
+        const promptStream = await navigator.mediaDevices.getUserMedia({video: true});
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const backDeviceId = devices.find(device => device.kind === 'videoinput' && device.label.toLowerCase().includes('back'))?.deviceId;
+        if( !backDeviceId ) throw new Error("Unable to find back camera device")
         const capturedStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: { exact: 'envionment' }
+            deviceId: backDeviceId
           }
         });
         capturedStream.getVideoTracks()[0].enabled = true;
