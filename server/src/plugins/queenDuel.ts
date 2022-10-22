@@ -42,7 +42,7 @@ const setupQueenDuel = (db: Database, projectUuid: string, initiatorUuid: string
     duelUuid,
     initiatorUuid,
     recipientUuid,
-    state: DuelState.PendingActivity,
+    state: DuelState.Created,
     timestamp
   })
 
@@ -190,7 +190,7 @@ const getCurrentDuelingPlayer = ({ db, session: { projectUuid }, tags }: ItemPre
 
 const handlePreRedemption: ItemPreRedemptionHookHandler = (payload: ItemPreRedemptionHookPayload) => {
   const itemQueenType = payload.tags.find(tag => tag.tag === 'queen').value;
-  
+
   const currentQueenType = getCurrentPlayerQueenType(payload)
   if(
     currentQueenType
