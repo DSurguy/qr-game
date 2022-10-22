@@ -25,7 +25,7 @@ const useMedia = ({ width, height }: UseMediaProps) => {
         if( tracks ) tracks.forEach(track => track.stop());
 
         const backDeviceId = devices.find(device => device.kind === 'videoinput' && device.label.toLowerCase().includes('back'))?.deviceId;
-        if( !backDeviceId ) throw new Error("Unable to find back camera device")
+        //if( !backDeviceId ) throw new Error("Unable to find back camera device")
         const capturedStream = await navigator.mediaDevices.getUserMedia({
           video: {
             deviceId: backDeviceId
