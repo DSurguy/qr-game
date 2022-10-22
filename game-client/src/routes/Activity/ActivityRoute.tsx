@@ -1,20 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { format } from 'date-fns';
 import { Box, Button, Loader, Text, useMantineTheme } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
-import { GameActivity, GameDuel } from '../../qr-types';
+import { GameActivity, GameDuel, PluginModifiedPayloadResponse } from '../../qr-types';
 import { useServerResource } from '../../hooks/useServerResource';
 import { TablerIconFromString } from '../../components/icons/TablerIconFromString';
 import { AddActivityToDuelModal } from './AddActivityToDuelModal';
 import { Plus, Swords } from 'tabler-icons-react';
+import { HookResponseContext } from '../../context/hookResponse';
+import { PlayerContext } from '../../context/player';
 
 export default function ActivityRoute () {
   const theme = useMantineTheme();
   const { activityUuid } = useParams();
   const [searchParams] = useSearchParams();
   const isDuel = searchParams.get('duel') !== undefined;
+  const { addResponses } = useContext(HookResponseContext);
+  const { updateBalance } = useContext(PlayerContext);
 
   const [addToDuelModalOpen, setAddToDuelModalOpen] = useState(false);
 
@@ -25,6 +29,14 @@ export default function ActivityRoute () {
     load: loadActivity
   } = useServerResource<null, GameActivity>({
     load: `game/activities/${activityUuid}`,
+  })
+
+  const {
+    isSaving: isClaimingActivity,
+    loadError: claimActivityError,
+    create: claimActivity
+  } = useServerResource<null, PluginModifiedPayloadResponse>({
+    create: `game/activities/${activityUuid}/claim`,
   })
 
   const {
@@ -51,6 +63,10 @@ export default function ActivityRoute () {
     loadDuels();
   }, [])
 
+  if( isLoadingActivity ) return <Loader />
+  if( loadActivityError ) return <Text color={theme.colors['errorColor'][4]}>Error loading activity: {loadActivityError?.message}</Text>
+  if( !activity ) return null;
+
   const onSetUpDuelClick = () => {
     createDuel({
       activityUuid: activityUuid
@@ -61,6 +77,16 @@ export default function ActivityRoute () {
         message: 'Go find someone to challenge!',
         autoClose: 5000
       })
+    })
+  }
+
+  const onClaimActivityClick = () => {
+    claimActivity(undefined, (success, data) => {
+      if( data?.hooks?.claimActivity?.length ) addResponses(data?.hooks?.claimActivity);
+      if( success ) {
+        loadActivity();
+        updateBalance();
+      }
     })
   }
 
@@ -82,10 +108,6 @@ export default function ActivityRoute () {
   }
 
   const activitySection = () => {
-    if( isLoadingActivity ) return <Loader />
-    if( loadActivityError ) return <Text color={theme.colors['errorColor'][4]}>Error loading activity: {loadActivityError?.message}</Text>
-    if( !activity ) return null;
-
     let colorHeaderStyles = activity.color ? {
       borderBottom: `2px solid ${activity.color}`
     } : {};
@@ -97,7 +119,12 @@ export default function ActivityRoute () {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBottom: '1rem' }}>
         <TablerIconFromString icon={activity.icon || 'confetti' } size={80} />
       </Box>
-      { activity.claimedAt && <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.dark[5], margin: '-1rem' }}>
+    </Box>)
+  }
+
+  const claimSection = () => {
+    return <Box>
+      { activity.claimedAt && <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: theme.colors.dark[5], margin: '1rem -1rem' }}>
         <Box sx={{ display: 'flex' }}>
           <Text sx={{ marginRight: '0.25rem', color: theme.colors.dark[2] }}>{activity.isRepeatable ? 'Last claimed on' : 'Claimed on' }</Text>
           <Text sx={{ marginRight: '0.25rem', color: theme.colors.dark[2], fontStyle: 'italic' }}>{format(new Date(activity.claimedAt), 'MMM do @ hh:mm aa')}</Text>
@@ -105,7 +132,11 @@ export default function ActivityRoute () {
           <Text>{activity.claimedFor} point{activity.claimedFor === 1 ? '' : 's'}</Text>
         </Box>
       </Box>}
-    </Box>)
+      { loadActivityError && <Text color={theme.colors['errorColor'][4]}>Error claiming activity: {loadActivityError?.message}</Text>}
+      { (!activity.claimedAt || activity.isRepeatable) && <Box>
+        <Button loading={isClaimingActivity} fullWidth onClick={onClaimActivityClick}>Claim Activity</Button>
+      </Box>}
+    </Box>
   }
 
   const duelSection = (activity: GameActivity) => {
@@ -143,6 +174,7 @@ export default function ActivityRoute () {
 
   return <>
     {activitySection()}
+    {claimSection()}
     {activity?.isDuel && duelSection(activity)}
     {activity?.description && descriptionSection()}
   </>

@@ -17,7 +17,7 @@ export function createPluginManager(): PluginManager {
     preItemRedemption: [] as ItemPreRedemptionHookHandler[],
     duelComplete: [] as DuelCompleteHookHandler[],
     duelCancelled: [] as DuelCancelledHookHandler[],
-    portalActivity: [] as PortalActivityHookHandler[],
+    claimActivity: [] as PortalActivityHookHandler[],
     claimPlayer: [] as ClaimPlayerHookHandler[]
   }
 
@@ -94,17 +94,17 @@ export function createPluginManager(): PluginManager {
   }
 
   const addPortalActivityHook: PluginPayload['addPortalActivityHook'] = (handler) => {
-    if( !handlers.portalActivity.includes(handler) )
-      handlers.portalActivity.push(handler)
+    if( !handlers.claimActivity.includes(handler) )
+      handlers.claimActivity.push(handler)
   }
 
   const removePortalActivityHook: PluginPayload['removePortalActivityHook'] = (handlerToRemove) => {
-    handlers.portalActivity = handlers.portalActivity.filter(handler => handler !== handlerToRemove );
+    handlers.claimActivity = handlers.claimActivity.filter(handler => handler !== handlerToRemove );
   }
 
   const runPortalActivityHook = (payload: PortalActivityHookPayload): PluginHookResponse[] => {
     const responses: PluginHookResponse[] = [];
-    for( let handler of handlers.portalActivity ){
+    for( let handler of handlers.claimActivity ){
       const response = handler(payload);
       if( response ) responses.push(response);
     }

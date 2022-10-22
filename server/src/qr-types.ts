@@ -115,7 +115,6 @@ export type GameEvent = {
 export const enum DuelState {
   Created = "CREATED",
   Pending = "PENDING_RESPONSE",
-  PendingActivity = "PENDING_ACTIVITY", //used for queen duels
   Accepted = "ACCEPTED",
   Rejected = "REJECTED",
   PendingCancel = "PENDING_CANCEL",
@@ -309,7 +308,7 @@ export interface PluginModifiedPayloadResponse {
     preItemRedemption?: PluginPreHookResponse[];
     duelComplete?: PluginHookResponse[];
     duelCancelled?: PluginHookResponse[];
-    portalActivity?: PluginHookResponse[];
+    claimActivity?: PluginHookResponse[];
     claimPlayer?: PluginHookResponse[];
   }
 }

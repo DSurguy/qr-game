@@ -25,6 +25,11 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
     'Api-Key': PROCESS_ENV_API_KEY
   })
 
+  const getEmptyBodyHeaders = () => ({
+    'Authorization': sessionId,
+    'Api-Key': PROCESS_ENV_API_KEY
+  })
+
   /**
    * Load resource from the server
    * @param callback A function that can perform cleanup actions, such as telling Formik loading is complete. It will receive one argument, indicating if the API action was successful or not
@@ -84,8 +89,15 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
-          const message = (await result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
+          const data = await result.json();
+          const isPreHookFailure = result.status === 400 && Object.keys(data?.hooks || {}).length;
+          if( isPreHookFailure ) {
+            setSaveError(new Error("Hook failed to validate"));
+            if( callback ) callback(false, data);
+          } else {
+            const message = data.message || 'Internal Server Error'
+            throw new Error(message)
+          }
         }
         let data: SavedType;
         if( result.headers.get('Content-Type')?.includes('application/json') ) {
@@ -119,12 +131,21 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.create}`, {
           method: 'POST',
-          headers: getHeaders(),
+          headers: values ? getHeaders() : getEmptyBodyHeaders(),
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {
-          const message = (await result.json() as any)['message'] || 'Internal Server Error'
-          throw new Error(message)
+          const data = await result.json();
+          const isPreHookFailure = result.status === 400 && Object.keys(data?.hooks || {}).length;
+          if( isPreHookFailure ) {
+            setSaveError(null);
+            if( callback ) callback(false, data);
+            setIsSaving(false);
+            return;
+          } else {
+            const message = data.message || 'Internal Server Error'
+            throw new Error(message)
+          }
         }
         let data: SavedType;
         if( result.headers.get('Content-Type')?.includes('application/json') ) {

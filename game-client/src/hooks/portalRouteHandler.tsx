@@ -76,8 +76,8 @@ export function usePortalHandler() {
             })
             const { target, setAuth, hooks } = await response.json() as PortalResponse;
             if( setAuth ) setSessionId(setAuth);
-            if( hooks?.portalActivity?.length ) {
-              addHookResponses(hooks.portalActivity);
+            if( hooks?.claimActivity?.length ) {
+              addHookResponses(hooks.claimActivity);
             }
             navigate(target, {
               replace: true

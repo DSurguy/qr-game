@@ -23,7 +23,7 @@ export default function CreatedDuel ({ duel }: Props) {
       <Grid>
         <StateBlock duel={duel} />
         <VersusBlock duel={duel} />
-        { !!duel.activity && <ActivityBlock duel={duel} /> }
+        { !!duel.activityUuid && <ActivityBlock duel={duel} /> }
         {!duel.activityUuid && <Grid.Col xs={12} sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{
             display: 'flex',

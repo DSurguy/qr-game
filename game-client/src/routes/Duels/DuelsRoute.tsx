@@ -131,13 +131,13 @@ export default function DuelsRoute() {
       </Grid>
       <Grid>
         <Grid.Col sm={6} xs={12}>
+          {!activeDuels.length && !completedDuels.length && !duelsInSetup.length && noDuelsContent()}
           <Text component='h2'>Setting Up</Text>
           {!!duelsInSetup.length && duelsInSetupContent()}
           <Text component='h2'>Active</Text>
           {!!activeDuels.length && activeDuelsContent()}
           <Text component='h2'>Complete</Text>
           {!!completedDuels.length && completedDuelsContent()}
-          {!activeDuels.length && !completedDuels.length && !duelsInSetup.length && noDuelsContent()}
         </Grid.Col>
       </Grid>
     </Box>

@@ -17,15 +17,17 @@ const useMedia = ({ width, height }: UseMediaProps) => {
     setIsLoading(true);
     (async () => {
       try {
+        //https://stackoverflow.com/questions/64553141/html-usermedia-facingmode-environmentdoesnt-work-on-android-phone#answer-64558240
+        const promptStream = await navigator.mediaDevices.getUserMedia({video: true});
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        /* close the temp stream */
+        const tracks = promptStream.getTracks()
+        if( tracks ) tracks.forEach(track => track.stop());
+
+        const backDeviceId = devices.find(device => device.kind === 'videoinput' && device.label.toLowerCase().includes('back'))?.deviceId;
         const capturedStream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: "environment",
-            width,
-            height,
-            frameRate: {
-              ideal: 15,
-              max: 30
-            }
+            deviceId: backDeviceId
           }
         });
         capturedStream.getVideoTracks()[0].enabled = true;
@@ -122,10 +124,12 @@ export default function QrCapture ({ onQrPayload, captureWidth, captureHeight, c
   }, [stream])
 
   useEffect(() => {
-    if( stream ) {
-      stream.getVideoTracks()[0].enabled = false;
+    return () => {
+      if( stream ) {
+        stream.getVideoTracks()[0].enabled = false;
+      }
+      if( videoRef.current ) videoRef.current.srcObject = null;
     }
-    if( videoRef.current ) videoRef.current.srcObject = null;
   }, [])
 
   if( isLoading ) return <Loader />
