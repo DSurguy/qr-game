@@ -18,13 +18,7 @@ const useMedia = ({ width, height }: UseMediaProps) => {
     (async () => {
       try {
         const capturedStream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "environment",
-            frameRate: {
-              ideal: 15,
-              max: 30
-            }
-          }
+          video: true
         });
         capturedStream.getVideoTracks()[0].enabled = true;
         setStream(capturedStream);
