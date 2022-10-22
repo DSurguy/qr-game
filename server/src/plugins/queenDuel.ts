@@ -4,7 +4,7 @@ import { DuelState, SavedPlayer, Tag } from '../qr-types';
 import { toTitleCase } from '../utils/toTitleCase';
 import { QrGamePlugin, ItemRedemptionHookHandler, ItemRedemptionHookPayload, ItemPreRedemptionHookPayload, ItemPreRedemptionHookHandler, DuelCompleteHookHandler, DuelCancelledHookHandler } from './pluginTypes';
 
-const QUEEN_TAG = 'queen';
+export const QUEEN_TAG = 'queen';
 
 const getDuelTags = (db: Database, projectUuid: string, duelUuid: string): Tag[] => {
   return db.prepare(`

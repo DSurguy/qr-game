@@ -90,7 +90,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
             setSaveError(new Error("Hook failed to validate"));
             if( callback ) callback(false, data);
           } else {
-            const message = (await result.json() as any)['message'] || 'Internal Server Error'
+            const message = data.message || 'Internal Server Error'
             throw new Error(message)
           }
         }
@@ -138,7 +138,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
             setIsSaving(false);
             return;
           } else {
-            const message = (await result.json() as any)['message'] || 'Internal Server Error'
+            const message = data.message || 'Internal Server Error'
             throw new Error(message)
           }
         }

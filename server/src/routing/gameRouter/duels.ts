@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { FastifyInstance } from "fastify";
 import { ChangeType, Duel, DuelState, GameDuel, PluginModifiedPayloadResponse, UpdateDuelPayload } from "../../qr-types";
 import { confirmCancel, confirmVictor } from "./utils/completeDuel";
+import { QUEEN_TAG } from "../../plugins/queenDuel";
 
 export function applyDuelRoutes(app: FastifyInstance) {
 
@@ -281,6 +282,19 @@ export function applyDuelRoutes(app: FastifyInstance) {
               return;
             }
 
+            const selectDuelTags = app.db.prepare(`
+              SELECT * FROM duel_tags
+              WHERE
+                projectUuid=@projectUuid AND
+                duelUuid=@duelUuid AND
+                tag=@queenTag
+            `)
+            const isQueenDuel = !!selectDuelTags.get({
+              projectUuid: req.session.projectUuid,
+              duelUuid: duelId,
+              queenTag: QUEEN_TAG
+            })
+
             const updateDuel = app.db.prepare(`
               UPDATE project_duels SET
                 recipientUuid=@recipientUuid,
@@ -291,7 +305,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
             updateDuel.run({
               duelId,
               recipientUuid,
-              state: DuelState.Pending,
+              state: isQueenDuel ? DuelState.Accepted : DuelState.Pending,
               timestamp
             })
             break;
@@ -302,6 +316,20 @@ export function applyDuelRoutes(app: FastifyInstance) {
               reply.status(400).send({ message: "activityUuid is required."});
               return;
             }
+
+            const selectDuelTags = app.db.prepare(`
+              SELECT * FROM duel_tags
+              WHERE
+                projectUuid=@projectUuid AND
+                duelUuid=@duelUuid AND
+                tag=@queenTag
+            `)
+            const isQueenDuel = !!selectDuelTags.get({
+              projectUuid: req.session.projectUuid,
+              duelUuid: duelId,
+              queenTag: QUEEN_TAG
+            })
+
             const updateDuel = app.db.prepare(`
               UPDATE project_duels SET
                 activityUuid=@activityUuid,
@@ -313,7 +341,7 @@ export function applyDuelRoutes(app: FastifyInstance) {
               projectUuid: req.session.projectUuid,
               duelUuid: duelId,
               activityUuid,
-              state: DuelState.Pending,
+              state: isQueenDuel ? DuelState.Accepted : DuelState.Pending,
               timestamp
             })
             break;
