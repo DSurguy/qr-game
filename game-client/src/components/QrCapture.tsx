@@ -23,7 +23,7 @@ const useMedia = ({ width, height }: UseMediaProps) => {
         /* close the temp stream */
         const tracks = promptStream.getTracks()
         if( tracks ) tracks.forEach(track => track.stop());
-        
+
         const backDeviceId = devices.find(device => device.kind === 'videoinput' && device.label.toLowerCase().includes('back'))?.deviceId;
         if( !backDeviceId ) throw new Error("Unable to find back camera device")
         const capturedStream = await navigator.mediaDevices.getUserMedia({
@@ -125,10 +125,12 @@ export default function QrCapture ({ onQrPayload, captureWidth, captureHeight, c
   }, [stream])
 
   useEffect(() => {
-    if( stream ) {
-      stream.getVideoTracks()[0].enabled = false;
+    return () => {
+      if( stream ) {
+        stream.getVideoTracks()[0].enabled = false;
+      }
+      if( videoRef.current ) videoRef.current.srcObject = null;
     }
-    if( videoRef.current ) videoRef.current.srcObject = null;
   }, [])
 
   if( isLoading ) return <Loader />
