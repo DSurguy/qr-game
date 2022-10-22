@@ -17,9 +17,13 @@ const useMedia = ({ width, height }: UseMediaProps) => {
     setIsLoading(true);
     (async () => {
       try {
-        //kick off permissions
+        //https://stackoverflow.com/questions/64553141/html-usermedia-facingmode-environmentdoesnt-work-on-android-phone#answer-64558240
         const promptStream = await navigator.mediaDevices.getUserMedia({video: true});
         const devices = await navigator.mediaDevices.enumerateDevices();
+        /* close the temp stream */
+        const tracks = promptStream.getTracks()
+        if( tracks ) tracks.forEach(track => track.stop());
+        
         const backDeviceId = devices.find(device => device.kind === 'videoinput' && device.label.toLowerCase().includes('back'))?.deviceId;
         if( !backDeviceId ) throw new Error("Unable to find back camera device")
         const capturedStream = await navigator.mediaDevices.getUserMedia({
