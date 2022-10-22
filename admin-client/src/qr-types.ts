@@ -308,7 +308,7 @@ export interface PluginModifiedPayloadResponse {
     preItemRedemption?: PluginPreHookResponse[];
     duelComplete?: PluginHookResponse[];
     duelCancelled?: PluginHookResponse[];
-    portalActivity?: PluginHookResponse[];
+    claimActivity?: PluginHookResponse[];
     claimPlayer?: PluginHookResponse[];
   }
 }

@@ -22,6 +22,7 @@ const useMedia = ({ width, height }: UseMediaProps) => {
             facingMode: "environment",
             width,
             height,
+            // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
             frameRate: {
               ideal: 15,
               max: 30

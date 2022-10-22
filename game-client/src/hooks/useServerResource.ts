@@ -25,6 +25,11 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
     'Api-Key': PROCESS_ENV_API_KEY
   })
 
+  const getEmptyBodyHeaders = () => ({
+    'Authorization': sessionId,
+    'Api-Key': PROCESS_ENV_API_KEY
+  })
+
   /**
    * Load resource from the server
    * @param callback A function that can perform cleanup actions, such as telling Formik loading is complete. It will receive one argument, indicating if the API action was successful or not
@@ -126,7 +131,7 @@ export function useServerResource<UnsavedType, SavedType> (endpoints: ResourceEn
       try {
         const result = await fetch(`${ADMIN_API_BASE}/${endpoints.create}`, {
           method: 'POST',
-          headers: getHeaders(),
+          headers: values ? getHeaders() : getEmptyBodyHeaders(),
           body: JSON.stringify(values)
         })
         if( result.status > 299 || result.status < 200 ) {

@@ -56,8 +56,9 @@
 [ ] Profile Picture
 
 # Last-Minute-Fixes
-[ ] Prevent queen duel recipient from rejecting
+[x] Prevent queen duel recipient from rejecting
 [ ] Prompt to claim activity, similar to player
 [x] Prevent multiple active same-queen duels
 [x] Report name of current queen when item redeemed
 [x] Report name of current queen duel initiator when blocked
+[ ] In-App Camera
