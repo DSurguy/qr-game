@@ -42,6 +42,7 @@ const getData = (projectUuid: string, db: Database, payload: QrGenerationPayload
     let itemSelectPayload = `
       SELECT * FROM project_store_items
       WHERE deleted = 0 AND projectUuid=@projectUuid
+      ORDER BY name
     `
     let dbPayload = { projectUuid } as Record<string|number, string>;
     if( payload.items?.length ) {
@@ -57,6 +58,7 @@ const getData = (projectUuid: string, db: Database, payload: QrGenerationPayload
     let activitySelectPayload = `
       SELECT * FROM project_activities
       WHERE deleted = 0 AND projectUuid=@projectUuid
+      ORDER BY isDuel, name
     `
     let dbPayload = { projectUuid } as Record<string|number, string>;
     if( payload.activities?.length ) {
@@ -190,7 +192,7 @@ const renderActivityToDoc = async (doc: JSPDF, activity: SavedActivity, gameClie
 
   doc.setFontSize(60)
   doc.text(
-    'ACTIVITY',
+    activity.isDuel ? 'DUEL' : 'ACTIVITY',
     blockXPos + blockWidth/2,
     blockYPos + 30,
     {
