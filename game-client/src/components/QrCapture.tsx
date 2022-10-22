@@ -20,9 +20,6 @@ const useMedia = ({ width, height }: UseMediaProps) => {
         const capturedStream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: "environment",
-            width: { ideal: 500 },
-            height: { ideal: 500 },
-            // https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
             frameRate: {
               ideal: 15,
               max: 30
