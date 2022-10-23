@@ -189,7 +189,8 @@ const getCurrentDuelingPlayer = ({ db, session: { projectUuid }, tags }: ItemPre
 }
 
 const handlePreRedemption: ItemPreRedemptionHookHandler = (payload: ItemPreRedemptionHookPayload) => {
-  const itemQueenType = payload.tags.find(tag => tag.tag === 'queen').value;
+  const itemQueenType = payload.tags.find(tag => tag.tag === 'queen')?.value;
+  if( !itemQueenType ) return;
 
   const currentQueenType = getCurrentPlayerQueenType(payload)
   if(
